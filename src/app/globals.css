@@ -19,28 +19,74 @@
     color: var(--text-primary);
     font-family: var(--font-sans), Inter, "Plus Jakarta Sans", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Sleek modern custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
   }
 }
 
 @layer utilities {
   .glass-panel {
     background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(226, 232, 240, 0.85);
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(226, 232, 240, 0.8);
+    border: 1px solid rgba(241, 245, 249, 1);
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
   }
 
   .bento-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 1rem;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .bento-card:hover {
-    box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
     border-color: #cbd5e1;
+    transform: translateY(-1px);
+  }
+
+  .hero-glow {
+    background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.12) 0%, rgba(248, 250, 252, 0) 70%);
+  }
+
+  .radar-pulse {
+    position: relative;
+  }
+  .radar-pulse::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 9999px;
+    background: currentColor;
+    opacity: 0.35;
+    animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
   }
 }
 
@@ -48,6 +94,6 @@
 .leaflet-container {
   width: 100%;
   height: 100%;
-  border-radius: 0.75rem;
+  border-radius: 1rem;
   z-index: 10;
 }

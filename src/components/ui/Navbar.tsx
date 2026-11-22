@@ -82,26 +82,40 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 h-16 w-full border-b border-slate-200/80 bg-white/85 backdrop-blur-md">
+    <nav className="sticky top-0 z-50 h-16 w-full border-b border-slate-200/80 bg-white/90 backdrop-blur-xl shadow-subtle transition-all">
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Left: Brand Logo & Role Badge */}
         <div className="flex items-center gap-3">
           <Link
             href="/"
-            className="flex items-center gap-2 transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded-lg p-1"
+            className="group flex items-center gap-2.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded-xl p-1"
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white shadow-sm">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-500 text-white shadow-sm group-hover:scale-105 group-hover:shadow-glow transition-all duration-200">
               <Shield className="h-5 w-5" />
             </div>
             <div className="flex flex-col">
-              <span className="text-base font-bold tracking-tight text-slate-900 leading-none">
-                StreetWatch
-              </span>
-              <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">
-                Civic Action AI
+              <div className="flex items-center gap-1.5">
+                <span className="text-base font-extrabold tracking-tight text-slate-900 leading-none">
+                  StreetWatch
+                </span>
+                <span className="inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 text-[9px] font-bold text-blue-700 border border-blue-200/60 uppercase">
+                  AI
+                </span>
+              </div>
+              <span className="text-[10px] font-medium text-slate-500 tracking-wide mt-0.5">
+                Civic Action &amp; Auto-Triage
               </span>
             </div>
           </Link>
+
+          {/* Real-time Grid Status Pill */}
+          <div className="hidden xl:flex items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50/70 px-2.5 py-1 text-[11px] font-semibold text-emerald-800 shadow-sm">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
+            <span>Live City Grid</span>
+          </div>
 
           {user && (
             <div
@@ -118,13 +132,13 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-1">
           <Link
             href="/"
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
               pathname === "/"
-                ? "bg-slate-100 text-brand font-semibold"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                ? "bg-slate-900 text-white shadow-sm"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80"
             }`}
           >
-            <MapPin className="h-4 w-4" />
+            <MapPin className="h-3.5 w-3.5" />
             Public Map
           </Link>
 
@@ -132,25 +146,14 @@ export default function Navbar() {
             <>
               <Link
                 href="/dashboard"
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
                   pathname === "/dashboard"
-                    ? "bg-slate-100 text-brand font-semibold"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                    ? "bg-slate-900 text-white shadow-sm"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80"
                 }`}
               >
-                <LayoutDashboard className="h-4 w-4" />
-                Dashboard
-              </Link>
-              <Link
-                href="/report"
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
-                  pathname === "/report"
-                    ? "bg-slate-100 text-brand font-semibold"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                }`}
-              >
-                <PlusCircle className="h-4 w-4" />
-                Report Issue
+                <LayoutDashboard className="h-3.5 w-3.5" />
+                My Reports
               </Link>
             </>
           )}
@@ -158,65 +161,75 @@ export default function Navbar() {
           {user?.role === "AUTHORITY" && (
             <Link
               href="/authority"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
                 pathname.startsWith("/authority")
-                  ? "bg-slate-100 text-brand font-semibold"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                  ? "bg-slate-900 text-white shadow-sm"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80"
               }`}
             >
-              <LayoutDashboard className="h-4 w-4" />
-              Command Center
+              <LayoutDashboard className="h-3.5 w-3.5" />
+              Bento Command Center
             </Link>
           )}
 
           {user?.role === "FIELD_WORKER" && (
             <Link
               href="/worker"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
                 pathname.startsWith("/worker")
-                  ? "bg-slate-100 text-brand font-semibold"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                  ? "bg-slate-900 text-white shadow-sm"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80"
               }`}
             >
-              <HardHat className="h-4 w-4" />
-              My Tasks
+              <HardHat className="h-3.5 w-3.5" />
+              Worker Terminal
             </Link>
           )}
         </div>
 
-        {/* Right: Auth Actions & Profile */}
-        <div className="hidden md:flex items-center gap-3">
+        {/* Right: Primary Action & Auth Profile */}
+        <div className="hidden md:flex items-center gap-2.5">
+          {/* Universal Quick "Report Issue" Action Pill */}
+          <Link
+            href="/report"
+            className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm hover:shadow-glow transition-all duration-200 transform hover:-translate-y-0.5"
+          >
+            <PlusCircle className="h-3.5 w-3.5" />
+            Report Issue
+          </Link>
+
           {loading ? (
             <div className="h-8 w-24 animate-pulse rounded-lg bg-slate-200" />
           ) : user ? (
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 rounded-lg border border-slate-200/80 bg-slate-50 px-2.5 py-1 text-xs text-slate-700">
+            <div className="flex items-center gap-2 pl-1 border-l border-slate-200">
+              <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50/80 px-2.5 py-1 text-xs text-slate-700">
                 <User className="h-3.5 w-3.5 text-slate-500" />
-                <span className="font-semibold max-w-[120px] truncate">
+                <span className="font-semibold max-w-[110px] truncate">
                   {user.name}
                 </span>
               </div>
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 transition hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                title="Logout from session"
               >
                 <LogOut className="h-3.5 w-3.5" />
-                Logout
+                <span className="hidden lg:inline">Logout</span>
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 pl-1 border-l border-slate-200">
               <Link
                 href="/login"
-                className="rounded-lg px-3.5 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                className="rounded-lg px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
               >
                 Sign In
               </Link>
               <Link
                 href="/register"
-                className="rounded-lg bg-brand px-3.5 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-800 shadow-xs transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
               >
-                Get Started
+                Register
               </Link>
             </div>
           )}
@@ -226,13 +239,13 @@ export default function Navbar() {
         <div className="flex items-center md:hidden">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="rounded-lg p-2 text-slate-700 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+            className="rounded-xl p-2 text-slate-700 hover:bg-slate-100 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? (
-              <X className="h-6 w-6" />
+              <X className="h-5 w-5" />
             ) : (
-              <Menu className="h-6 w-6" />
+              <Menu className="h-5 w-5" />
             )}
           </button>
         </div>
@@ -240,12 +253,18 @@ export default function Navbar() {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="border-b border-slate-200 bg-white/95 px-4 pt-2 pb-4 backdrop-blur-md md:hidden space-y-2">
+        <div className="border-b border-slate-200/90 bg-white/95 px-4 pt-3 pb-5 backdrop-blur-xl md:hidden space-y-3 shadow-float animate-in slide-in-from-top-2 duration-200">
           {user && (
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <span className="text-xs font-semibold text-slate-800">
-                {user.name}
-              </span>
+            <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="h-7 w-7 rounded-full bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-900">{user.name}</div>
+                  <div className="text-[10px] text-slate-500">{user.email}</div>
+                </div>
+              </div>
               <span
                 className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
                   getRoleBadge(user.role).color
@@ -256,57 +275,58 @@ export default function Navbar() {
             </div>
           )}
 
-          <Link
-            href="/"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-          >
-            <MapPin className="h-4 w-4" />
-            Public Map
-          </Link>
+          <div className="grid grid-cols-1 gap-1">
+            <Link
+              href="/"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition"
+            >
+              <MapPin className="h-4 w-4 text-blue-600" />
+              Public City Map
+            </Link>
 
-          {user?.role === "CITIZEN" && (
-            <>
+            <Link
+              href="/report"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2.5 rounded-xl bg-blue-50/80 px-3 py-2 text-xs font-bold text-blue-700 border border-blue-200/60"
+            >
+              <PlusCircle className="h-4 w-4 text-blue-600" />
+              + Report New Civic Issue
+            </Link>
+
+            {user?.role === "CITIZEN" && (
               <Link
                 href="/dashboard"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition"
               >
-                <LayoutDashboard className="h-4 w-4" />
-                Dashboard
+                <LayoutDashboard className="h-4 w-4 text-slate-500" />
+                Citizen Dashboard
               </Link>
+            )}
+
+            {user?.role === "AUTHORITY" && (
               <Link
-                href="/report"
+                href="/authority"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition"
               >
-                <PlusCircle className="h-4 w-4" />
-                Report Issue
+                <LayoutDashboard className="h-4 w-4 text-amber-600" />
+                Authority Command Center
               </Link>
-            </>
-          )}
+            )}
 
-          {user?.role === "AUTHORITY" && (
-            <Link
-              href="/authority"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-            >
-              <LayoutDashboard className="h-4 w-4" />
-              Command Center
-            </Link>
-          )}
-
-          {user?.role === "FIELD_WORKER" && (
-            <Link
-              href="/worker"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-            >
-              <HardHat className="h-4 w-4" />
-              My Tasks
-            </Link>
-          )}
+            {user?.role === "FIELD_WORKER" && (
+              <Link
+                href="/worker"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition"
+              >
+                <HardHat className="h-4 w-4 text-emerald-600" />
+                Field Worker Terminal
+              </Link>
+            )}
+          </div>
 
           <div className="pt-2 border-t border-slate-100">
             {user ? (
@@ -315,24 +335,24 @@ export default function Navbar() {
                   setMobileMenuOpen(false);
                   handleLogout();
                 }}
-                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50/60 px-3 py-2 text-xs font-bold text-rose-700 hover:bg-rose-100 transition"
               >
                 <LogOut className="h-4 w-4" />
-                Logout
+                Sign Out
               </button>
             ) : (
-              <div className="flex flex-col gap-2 pt-1">
+              <div className="grid grid-cols-2 gap-2 pt-1">
                 <Link
                   href="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="rounded-lg text-center border border-slate-200 py-2 text-sm font-semibold text-slate-700"
+                  className="rounded-xl text-center border border-slate-200 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/register"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="rounded-lg bg-brand py-2 text-center text-sm font-semibold text-white"
+                  className="rounded-xl bg-brand py-2 text-center text-xs font-bold text-white shadow-sm"
                 >
                   Get Started
                 </Link>

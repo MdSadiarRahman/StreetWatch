@@ -175,18 +175,43 @@ export default function ReportIssuePage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Page Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-100 text-brand">
-            <PlusCircle className="h-4 w-4" />
-          </span>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-            Report a Civic Hazard or Road Defect
-          </h1>
+      <div className="mb-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-100 text-brand shadow-2xs">
+                <PlusCircle className="h-4 w-4" />
+              </span>
+              <h1 className="text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl">
+                Report a Civic Hazard or Road Defect
+              </h1>
+            </div>
+            <p className="mt-1 text-xs sm:text-sm text-slate-600">
+              Submit photo evidence and coordinates. StreetWatch AI auto-triages urgency and dispatches certified municipal teams.
+            </p>
+          </div>
+
+          <div className="inline-flex items-center gap-2 self-start rounded-full border border-blue-200/80 bg-blue-50/70 px-3 py-1 text-xs font-bold text-blue-800 shadow-2xs">
+            <Sparkles className="h-3.5 w-3.5 text-blue-600 animate-spin" style={{ animationDuration: '4s' }} />
+            <span>AI Powered Triage</span>
+          </div>
         </div>
-        <p className="mt-1 text-sm text-slate-600">
-          Submit photo evidence and coordinates. StreetWatch AI auto-triages urgency and alerts local authorities.
-        </p>
+
+        {/* Stepper Guide */}
+        <div className="grid grid-cols-3 gap-2 py-2 border-y border-slate-200/80 text-xs">
+          <div className="flex items-center gap-2 text-slate-900 font-bold">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-900 text-[10px] text-white">1</span>
+            <span className="hidden sm:inline">Issue Details</span>
+          </div>
+          <div className="flex items-center gap-2 text-slate-900 font-bold">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-900 text-[10px] text-white">2</span>
+            <span className="hidden sm:inline">Map &amp; Duplicate Check</span>
+          </div>
+          <div className="flex items-center gap-2 text-slate-500 font-semibold">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-200 text-[10px] text-slate-700">3</span>
+            <span className="hidden sm:inline">Auto-Triage &amp; Dispatch</span>
+          </div>
+        </div>
       </div>
 
       {error && (
@@ -327,7 +352,7 @@ export default function ReportIssuePage() {
                     }}
                     className={`rounded-lg border px-2 py-0.5 text-xs font-medium transition ${
                       imageUrl === sample.url
-                        ? "border-brand bg-blue-50 text-brand"
+                        ? "border-brand bg-blue-50 text-brand font-bold"
                         : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                     }`}
                   >
@@ -335,6 +360,23 @@ export default function ReportIssuePage() {
                   </button>
                 ))}
               </div>
+
+              {/* Live Evidence Preview */}
+              {imageUrl && (
+                <div className="mt-3 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-2.5">
+                  <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
+                    <img
+                      src={imageUrl}
+                      alt="Hazard preview"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div className="text-xs">
+                    <span className="font-bold text-slate-800 block">Photographic Evidence Loaded</span>
+                    <span className="text-[11px] text-slate-500">EXIF metadata &amp; visual hazard features will be analyzed by Gemini Vision.</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -405,9 +447,10 @@ export default function ReportIssuePage() {
             <button
               type="submit"
               disabled={submitting}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand py-3 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 py-3.5 px-4 text-sm font-bold text-white shadow-sm hover:shadow-glow transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand disabled:opacity-50 transform hover:-translate-y-0.5"
             >
-              {submitting ? "Analyzing & Submitting..." : "Submit Civic Report (Trigger AI Triage)"}
+              <Sparkles className="h-4 w-4" />
+              {submitting ? "Analyzing with Gemini AI & Submitting..." : "Submit Civic Report (Trigger AI Triage)"}
             </button>
           </div>
         </div>

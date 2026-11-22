@@ -173,17 +173,17 @@ export default function WorkerWorkspacePage() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
       {/* Top Header & Workforce Status Strip */}
-      <div className="bento-card bg-white border border-slate-200 p-6 shadow-subtle flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-700 border border-amber-200">
+      <div className="bento-card bg-gradient-to-br from-white via-white to-amber-50/30 border border-slate-200/90 p-6 shadow-subtle hover:shadow-float flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+        <div className="flex items-center gap-3.5">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-400 text-white shadow-sm">
             <HardHat className="h-6 w-6" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-slate-900">
+              <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
                 {worker?.name}
               </h1>
-              <span className="rounded-full bg-slate-100 border border-slate-200 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
+              <span className="rounded-full bg-amber-50 border border-amber-200 px-2.5 py-0.5 text-xs font-bold text-amber-800">
                 {worker?.department}
               </span>
             </div>
@@ -194,19 +194,19 @@ export default function WorkerWorkspacePage() {
         </div>
 
         {/* Capacity Meter */}
-        <div className="flex items-center gap-4 bg-slate-50 p-3 rounded-xl border border-slate-200/80">
+        <div className="flex items-center gap-4 bg-white/90 p-3 rounded-xl border border-slate-200/80 shadow-2xs">
           <div>
             <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
               Workload Slot Status
             </span>
-            <div className="font-mono text-base font-extrabold text-slate-900">
+            <div className="font-mono text-base font-black text-slate-900">
               {worker?.activeTaskCount} / {worker?.workerCapacity} Active Tasks
             </div>
           </div>
           <span
-            className={`rounded-full px-2.5 py-1 text-xs font-bold ${
+            className={`rounded-full px-3 py-1 text-xs font-bold ${
               (worker?.activeTaskCount || 0) >= (worker?.workerCapacity || 3)
-                ? "bg-red-100 text-red-800 border border-red-200"
+                ? "bg-rose-100 text-rose-800 border border-rose-200"
                 : "bg-emerald-100 text-emerald-800 border border-emerald-200"
             }`}
           >

@@ -47,6 +47,9 @@ const config: Config = {
       boxShadow: {
         subtle: "0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02)",
         bento: "0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.05)",
+        float: "0 12px 30px -8px rgba(15, 23, 42, 0.12), 0 4px 12px -4px rgba(15, 23, 42, 0.06)",
+        glow: "0 0 24px -4px rgba(37, 99, 235, 0.35)",
+        glowEmerald: "0 0 24px -4px rgba(16, 185, 129, 0.35)",
       },
     },
   },

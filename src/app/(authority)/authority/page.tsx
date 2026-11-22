@@ -338,45 +338,48 @@ export default function AuthorityCommandCenter() {
 
       {/* Row 1: 4 KPI Bento Tiles */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="bento-card p-5 bg-white border border-slate-200 shadow-subtle space-y-2">
-          <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        <div className="bento-card p-5 bg-gradient-to-br from-white via-white to-rose-50/40 border border-slate-200/90 shadow-subtle hover:shadow-float space-y-2">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
             <span>Critical Unassigned</span>
-            <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500" />
+            </span>
           </div>
-          <div className="font-mono text-3xl font-extrabold text-red-600">
+          <div className="font-mono text-3xl font-black text-rose-600">
             {analytics?.criticalUnassignedCount || 0}
           </div>
-          <span className="text-[11px] text-slate-500">
+          <span className="text-[11px] font-medium text-slate-500">
             Hazards requiring immediate crew assignment
           </span>
         </div>
 
-        <div className="bento-card p-5 bg-white border border-slate-200 shadow-subtle space-y-2">
-          <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        <div className="bento-card p-5 bg-gradient-to-br from-white via-white to-emerald-50/40 border border-slate-200/90 shadow-subtle hover:shadow-float space-y-2">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
             <span>Resolution Rate</span>
             <TrendingUp className="h-4 w-4 text-emerald-600" />
           </div>
-          <div className="font-mono text-3xl font-extrabold text-emerald-600">
+          <div className="font-mono text-3xl font-black text-emerald-600">
             {analytics?.resolutionRatePercent || 0}%
           </div>
-          <span className="text-[11px] text-slate-500">
+          <span className="text-[11px] font-medium text-slate-500">
             {analytics?.resolvedCount || 0} of {analytics?.totalReports || 0} total tickets resolved
           </span>
         </div>
 
-        <div className="bento-card p-5 bg-white border border-slate-200 shadow-subtle space-y-2">
-          <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        <div className="bento-card p-5 bg-gradient-to-br from-white via-white to-blue-50/40 border border-slate-200/90 shadow-subtle hover:shadow-float space-y-2">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
             <span>Workforce Load</span>
             <HardHat className="h-4 w-4 text-brand" />
           </div>
-          <div className="font-mono text-3xl font-extrabold text-slate-900">
+          <div className="font-mono text-3xl font-black text-slate-900">
             {analytics?.workforceCapacity.activeSlots} / {analytics?.workforceCapacity.totalSlots}
           </div>
-          <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+          <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
             <div
-              className={`h-full rounded-full ${
+              className={`h-full rounded-full transition-all duration-500 ${
                 (analytics?.workforceCapacity.utilizationPercent || 0) > 85
-                  ? "bg-red-500"
+                  ? "bg-rose-500"
                   : "bg-brand"
               }`}
               style={{ width: `${analytics?.workforceCapacity.utilizationPercent || 0}%` }}
@@ -384,16 +387,16 @@ export default function AuthorityCommandCenter() {
           </div>
         </div>
 
-        <div className="bento-card p-5 bg-white border border-slate-200 shadow-subtle space-y-2">
-          <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        <div className="bento-card p-5 bg-gradient-to-br from-white via-white to-amber-50/40 border border-slate-200/90 shadow-subtle hover:shadow-float space-y-2">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
             <span>City Avg AI Priority</span>
             <Sparkles className="h-4 w-4 text-amber-500" />
           </div>
-          <div className="font-mono text-3xl font-extrabold text-slate-900">
+          <div className="font-mono text-3xl font-black text-slate-900">
             {analytics?.avgPriorityScore || 0}
             <span className="text-sm font-normal text-slate-400">/100</span>
           </div>
-          <span className="text-[11px] text-slate-500">
+          <span className="text-[11px] font-medium text-slate-500">
             Dynamic score factoring severity &amp; community consensus
           </span>
         </div>

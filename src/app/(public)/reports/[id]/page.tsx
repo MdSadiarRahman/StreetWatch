@@ -325,49 +325,66 @@ export default function ReportDetailsPage({
 
             {/* Before vs After Photo Display */}
             {report.afterProofUrl ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <span className="text-xs font-bold text-slate-600 block">
-                    Before Repair (Citizen Photo)
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs font-bold">
+                  <span className="text-slate-700 flex items-center gap-1.5">
+                    <Sparkles className="h-4 w-4 text-emerald-600" />
+                    Photographic Proof Verification (Before vs After)
                   </span>
-                  <div className="relative h-60 w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
-                    <Image
-                      src={report.beforeProofUrl || report.imageUrl || "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80"}
-                      alt={report.title}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 100vw, 35vw"
-                    />
-                  </div>
+                  <span className="rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-bold">
+                    Repair Complete
+                  </span>
                 </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-bold text-slate-600 block">
+                      Before Repair (Citizen Evidence)
+                    </span>
+                    <div className="relative h-64 w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm group">
+                      <Image
+                        src={report.beforeProofUrl || report.imageUrl || "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80"}
+                        alt={report.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        sizes="(max-width: 640px) 100vw, 35vw"
+                      />
+                      <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-white">
+                        Initial Hazard
+                      </div>
+                    </div>
+                  </div>
 
-                <div className="space-y-1.5">
-                  <span className="text-xs font-bold text-emerald-700 block">
-                    After Repair (Worker Photo)
-                  </span>
-                  <div className="relative h-60 w-full overflow-hidden rounded-2xl border border-emerald-300 bg-emerald-50/40">
-                    <Image
-                      src={report.afterProofUrl || "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80"}
-                      alt="Repaired proof"
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 100vw, 35vw"
-                    />
+                  <div className="space-y-1.5">
+                    <span className="text-xs font-bold text-emerald-700 block">
+                      After Repair (Field Worker Evidence)
+                    </span>
+                    <div className="relative h-64 w-full overflow-hidden rounded-2xl border-2 border-emerald-300 bg-emerald-50/40 shadow-sm group">
+                      <Image
+                        src={report.afterProofUrl || "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80"}
+                        alt="Repaired proof"
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        sizes="(max-width: 640px) 100vw, 35vw"
+                      />
+                      <div className="absolute top-3 left-3 bg-emerald-600/90 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-white">
+                        Repaired &amp; Cleared
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="relative h-72 sm:h-96 w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+              <div className="relative h-72 sm:h-96 w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm group">
                 <Image
                   src={report.beforeProofUrl || report.imageUrl || "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80"}
                   alt={report.title}
                   fill
                   priority
-                  className="object-cover"
+                  className="object-cover group-hover:scale-102 transition-transform duration-300"
                   sizes="(max-width: 1024px) 100vw, 65vw"
                 />
-                <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-white">
-                  Before Repair Evidence
+                <div className="absolute top-3.5 left-3.5 bg-black/65 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-white shadow-sm">
+                  Citizen Photo Evidence
                 </div>
               </div>
             )}
@@ -633,23 +650,26 @@ export default function ReportDetailsPage({
                 const isFailed = stepLog?.status === "FAILED";
                 const isRetried = stepLog?.status === "RETRIED";
                 const isRolledBack = stepLog?.status === "ROLLED_BACK";
+                const isCurrent = !isCompleted && !isFailed && !isRolledBack && idx === (report.workflowStepLogs?.length || 0);
 
                 return (
                   <div key={step.name} className="relative text-xs">
                     <span
-                      className={`absolute -left-6 top-0.5 flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-bold ${
+                      className={`absolute -left-6 top-0.5 flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-bold transition-all ${
                         isCompleted
-                          ? "bg-emerald-500 text-white border-emerald-600"
+                          ? "bg-emerald-500 text-white border-emerald-600 shadow-2xs"
                           : isRetried
                           ? "bg-amber-500 text-white border-amber-600"
                           : isRolledBack
                           ? "bg-purple-500 text-white border-purple-600"
                           : isFailed
-                          ? "bg-red-500 text-white border-red-600"
+                          ? "bg-rose-500 text-white border-rose-600 animate-pulse"
+                          : isCurrent
+                          ? "bg-blue-600 text-white border-blue-700 ring-4 ring-blue-100 shadow-sm"
                           : "bg-white text-slate-400 border-slate-300"
                       }`}
                     >
-                      {isCompleted ? "✓" : isRolledBack ? "↺" : idx + 1}
+                      {isCompleted ? "✓" : isRolledBack ? "↺" : isFailed ? "✕" : idx + 1}
                     </span>
 
                     <div className="font-semibold text-slate-800">
