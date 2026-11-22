@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { db } from "@/lib/db";
 import { Report } from "@prisma/client";
+import { MOCK_REPORTS } from "@/lib/mock-data";
 
 export function calculateHaversineDistanceMeters(
   lat1: number,
@@ -35,24 +36,32 @@ export async function findNearbyDuplicate(
 ): Promise<DuplicateCheckResult> {
   // Query active (non-resolved, non-rejected) reports within roughly ~0.01 deg bounding box
   const delta = 0.01;
-  const candidateReports = await db.report.findMany({
-    where: {
-      status: {
-        notIn: ["RESOLVED", "CITIZEN_VERIFIED", "REJECTED"],
+  let candidateReports: any[] = [];
+
+  try {
+    candidateReports = await db.report.findMany({
+      where: {
+        status: {
+          notIn: ["RESOLVED", "CITIZEN_VERIFIED", "REJECTED"],
+        },
+        latitude: {
+          gte: latitude - delta,
+          lte: latitude + delta,
+        },
+        longitude: {
+          gte: longitude - delta,
+          lte: longitude + delta,
+        },
       },
-      latitude: {
-        gte: latitude - delta,
-        lte: latitude + delta,
+      include: {
+        category: true,
       },
-      longitude: {
-        gte: longitude - delta,
-        lte: longitude + delta,
-      },
-    },
-    include: {
-      category: true,
-    },
-  });
+    });
+  } catch {
+    candidateReports = MOCK_REPORTS.filter(
+      (r) => !["RESOLVED", "CITIZEN_VERIFIED", "REJECTED"].includes(r.status)
+    );
+  }
 
   let closestReport: Report | null = null;
   let minDistance = Infinity;
