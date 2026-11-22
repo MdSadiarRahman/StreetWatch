@@ -1,0 +1,9 @@
+// Prisma Schema Placeholder (Populated in Step 2B)
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
