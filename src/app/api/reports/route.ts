@@ -5,6 +5,8 @@ import { createReportSchema } from "@/lib/validations/report";
 import { findNearbyDuplicate, analyzeCivicReport } from "@/lib/ai/triage-engine";
 import { ReportStatus, WorkflowStepStatus, Prisma } from "@prisma/client";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     const user = await getCurrentUser();
