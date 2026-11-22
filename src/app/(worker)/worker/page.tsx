@@ -1,0 +1,485 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import {
+  HardHat,
+  CheckCircle,
+  Clock,
+  MapPin,
+  Play,
+  Upload,
+  CheckCircle2,
+  AlertCircle,
+  X,
+  Sparkles,
+} from "lucide-react";
+
+interface WorkerTask {
+  assignmentId: string;
+  assignedAt: string;
+  completedAt: string | null;
+  overrideReason: string | null;
+  report: {
+    id: string;
+    title: string;
+    description: string;
+    address: string;
+    wardZone: string;
+    status: string;
+    priorityScore: number;
+    imageUrl: string;
+    beforeProofUrl?: string | null;
+    afterProofUrl?: string | null;
+    category: {
+      name: string;
+    };
+  };
+}
+
+interface WorkerProfile {
+  id: string;
+  name: string;
+  department: string;
+  activeTaskCount: number;
+  workerCapacity: number;
+}
+
+const REPAIR_PROOF_SAMPLES = [
+  {
+    label: "Pothole Repaved & Asphalt Sealed",
+    url: "https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    label: "Live Wire Insulated & Sleeved",
+    url: "https://images.unsplash.com/photo-1544717302-de2939b7ef71?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    label: "Reinforced Iron Manhole Lid Replaced",
+    url: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80",
+  },
+];
+
+export default function WorkerWorkspacePage() {
+  const [worker, setWorker] = useState<WorkerProfile | null>(null);
+  const [tasks, setTasks] = useState<WorkerTask[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Modal state for submitting after proof
+  const [activeModalReport, setActiveModalReport] = useState<WorkerTask["report"] | null>(null);
+  const [afterProofUrl, setAfterProofUrl] = useState(REPAIR_PROOF_SAMPLES[0].url);
+  const [notes, setNotes] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [actionFeedback, setActionFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const fetchTasks = async () => {
+    try {
+      const res = await fetch("/api/worker/tasks");
+      if (res.ok) {
+        const json = await res.json();
+        setWorker(json.data?.worker || null);
+        setTasks(json.data?.tasks || []);
+      }
+    } catch (err) {
+      console.error("Failed to load worker tasks:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const handleStartWork = async (reportId: string) => {
+    setActionFeedback(null);
+    try {
+      const res = await fetch(`/api/worker/tasks/${reportId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "IN_PROGRESS" }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        setActionFeedback({
+          type: "success",
+          text: "Task marked In Progress! Municipal dashboard & public map updated.",
+        });
+        await fetchTasks();
+      } else {
+        setActionFeedback({
+          type: "error",
+          text: json.error?.message || "Failed to start work.",
+        });
+      }
+    } catch {
+      setActionFeedback({ type: "error", text: "Network error occurred." });
+    }
+  };
+
+  const handleResolveSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeModalReport) return;
+    setSubmitting(true);
+    setActionFeedback(null);
+
+    try {
+      const res = await fetch(`/api/worker/tasks/${activeModalReport.id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "RESOLVED",
+          afterProofUrl,
+          notes,
+        }),
+      });
+
+      const json = await res.json();
+
+      if (res.ok) {
+        setActionFeedback({
+          type: "success",
+          text: "Repair proof submitted! Issue is now awaiting Citizen Final Sign-Off.",
+        });
+        setActiveModalReport(null);
+        setNotes("");
+        await fetchTasks();
+      } else {
+        setActionFeedback({
+          type: "error",
+          text: json.error?.message || "Failed to submit resolution.",
+        });
+      }
+    } catch {
+      setActionFeedback({ type: "error", text: "Network error occurred." });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-16 text-center text-sm text-slate-500">
+        <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-brand border-t-transparent" />
+        <p className="mt-3">Loading Field Worker Task Roster...</p>
+      </div>
+    );
+  }
+
+  const activeTasks = tasks.filter((t) => t.completedAt === null);
+  const completedTasks = tasks.filter((t) => t.completedAt !== null);
+
+  return (
+    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+      {/* Top Header & Workforce Status Strip */}
+      <div className="bento-card bg-white border border-slate-200 p-6 shadow-subtle flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-700 border border-amber-200">
+            <HardHat className="h-6 w-6" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold text-slate-900">
+                {worker?.name}
+              </h1>
+              <span className="rounded-full bg-slate-100 border border-slate-200 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
+                {worker?.department}
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Mobile Field Operations Terminal &bull; On-Site Repair Dispatch
+            </p>
+          </div>
+        </div>
+
+        {/* Capacity Meter */}
+        <div className="flex items-center gap-4 bg-slate-50 p-3 rounded-xl border border-slate-200/80">
+          <div>
+            <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+              Workload Slot Status
+            </span>
+            <div className="font-mono text-base font-extrabold text-slate-900">
+              {worker?.activeTaskCount} / {worker?.workerCapacity} Active Tasks
+            </div>
+          </div>
+          <span
+            className={`rounded-full px-2.5 py-1 text-xs font-bold ${
+              (worker?.activeTaskCount || 0) >= (worker?.workerCapacity || 3)
+                ? "bg-red-100 text-red-800 border border-red-200"
+                : "bg-emerald-100 text-emerald-800 border border-emerald-200"
+            }`}
+          >
+            {(worker?.activeTaskCount || 0) >= (worker?.workerCapacity || 3)
+              ? "Max Capacity (3/3)"
+              : "Capacity Available"}
+          </span>
+        </div>
+      </div>
+
+      {actionFeedback && (
+        <div
+          className={`rounded-xl p-4 text-xs font-semibold border flex items-center justify-between ${
+            actionFeedback.type === "success"
+              ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+              : "bg-red-50 text-red-800 border-red-200"
+          }`}
+        >
+          <span>{actionFeedback.text}</span>
+          <button onClick={() => setActionFeedback(null)}>
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Active Tasks Feed */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+            <Clock className="h-4 w-4 text-brand" />
+            Active Assigned Work Orders ({activeTasks.length})
+          </h2>
+          <span className="text-xs text-slate-500">
+            Sorted by Urgency &amp; Arrival Time
+          </span>
+        </div>
+
+        {activeTasks.length === 0 ? (
+          <div className="bento-card p-12 text-center bg-white border border-slate-200">
+            <CheckCircle className="mx-auto h-8 w-8 text-emerald-500 mb-2" />
+            <h3 className="text-sm font-bold text-slate-900">No pending work orders!</h3>
+            <p className="text-xs text-slate-500 mt-1">
+              You are currently free. New assignments dispatched by the Authority will appear here.
+            </p>
+          </div>
+        ) : (
+          activeTasks.map(({ report, overrideReason }) => {
+            const isAssigned = report.status === "ASSIGNED";
+            const isInProgress = report.status === "IN_PROGRESS";
+
+            return (
+              <div
+                key={report.id}
+                className="bento-card bg-white border border-slate-200 p-6 shadow-subtle space-y-4"
+              >
+                {/* Header Info */}
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`font-mono text-xs font-bold px-2 py-0.5 rounded-full border ${
+                        report.priorityScore >= 85
+                          ? "bg-red-50 text-status-critical border-red-200"
+                          : "bg-blue-50 text-brand border-blue-200"
+                      }`}
+                    >
+                      Priority: {Math.round(report.priorityScore)}/100
+                    </span>
+                    <span className="text-xs font-bold text-slate-700">
+                      {report.category?.name}
+                    </span>
+                    {overrideReason && (
+                      <span className="rounded bg-amber-100 text-amber-900 px-2 py-0.5 text-[10px] font-bold border border-amber-200">
+                        ⚡ AI Fallback Dispatched
+                      </span>
+                    )}
+                  </div>
+
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 text-xs font-bold border ${
+                      isInProgress
+                        ? "bg-amber-50 text-amber-800 border-amber-200"
+                        : "bg-blue-50 text-blue-800 border-blue-200"
+                    }`}
+                  >
+                    {isInProgress ? "In Progress" : "Assigned — Pending Start"}
+                  </span>
+                </div>
+
+                {/* Body Details */}
+                <div className="flex flex-col sm:flex-row items-start gap-4">
+                  <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-slate-200">
+                    <Image
+                      src={report.beforeProofUrl || report.imageUrl}
+                      alt={report.title}
+                      fill
+                      className="object-cover"
+                      sizes="96px"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5 flex-1">
+                    <h3 className="text-base font-bold text-slate-900">
+                      {report.title}
+                    </h3>
+                    <p className="text-xs text-slate-600 line-clamp-2">
+                      {report.description}
+                    </p>
+                    <p className="text-xs text-slate-500 flex items-center gap-1 font-medium">
+                      <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                      {report.address} &bull; {report.wardZone}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Worker Action Buttons */}
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-3">
+                  <Link
+                    href={`/reports/${report.id}`}
+                    className="text-xs font-semibold text-slate-600 hover:text-slate-900"
+                  >
+                    View Citizen Ticket Details &rarr;
+                  </Link>
+
+                  <div className="flex items-center gap-2">
+                    {isAssigned && (
+                      <button
+                        onClick={() => handleStartWork(report.id)}
+                        className="flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-brand-hover transition"
+                      >
+                        <Play className="h-3.5 w-3.5 fill-current" />
+                        Start Field Work (In-Progress)
+                      </button>
+                    )}
+
+                    {isInProgress && (
+                      <button
+                        onClick={() => setActiveModalReport(report)}
+                        className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition"
+                      >
+                        <Upload className="h-3.5 w-3.5" />
+                        Complete &amp; Submit After-Proof Photo
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Completed Tasks History */}
+      {completedTasks.length > 0 && (
+        <div className="bento-card p-6 bg-white border border-slate-200 shadow-subtle space-y-3">
+          <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+            Recently Completed Field Repairs ({completedTasks.length})
+          </h2>
+
+          <div className="divide-y divide-slate-100">
+            {completedTasks.map(({ report, completedAt }) => (
+              <div
+                key={report.id}
+                className="py-3 flex items-center justify-between text-xs"
+              >
+                <div>
+                  <h4 className="font-bold text-slate-800">{report.title}</h4>
+                  <span className="text-[11px] text-slate-500">
+                    {report.address} &bull; Completed {completedAt ? new Date(completedAt).toLocaleDateString() : ""}
+                  </span>
+                </div>
+                <span className="rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 font-semibold text-[11px]">
+                  {report.status.replace("_", " ")}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Resolution Proof Upload Modal */}
+      {activeModalReport && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bento-card w-full max-w-lg bg-white p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                  Submit Repair Proof &amp; Resolve Issue
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Task: &ldquo;{activeModalReport.title}&rdquo;
+                </p>
+              </div>
+              <button
+                onClick={() => setActiveModalReport(null)}
+                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleResolveSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                  &ldquo;After&rdquo; Repair Photographic Proof URL *
+                </label>
+                <input
+                  type="url"
+                  required
+                  value={afterProofUrl}
+                  onChange={(e) => setAfterProofUrl(e.target.value)}
+                  placeholder="https://..."
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 px-3 text-xs text-slate-900 focus:bg-white focus:border-brand focus:outline-none"
+                />
+              </div>
+
+              {/* Quick Sample Selector for Demo Testing */}
+              <div className="space-y-1.5">
+                <span className="text-[11px] font-semibold text-slate-500">
+                  Quick Demo Repair Photos:
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {REPAIR_PROOF_SAMPLES.map((sample) => (
+                    <button
+                      key={sample.label}
+                      type="button"
+                      onClick={() => setAfterProofUrl(sample.url)}
+                      className={`rounded-lg border px-2 py-1 text-[11px] font-medium transition ${
+                        afterProofUrl === sample.url
+                          ? "border-emerald-600 bg-emerald-50 text-emerald-800"
+                          : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      {sample.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                  Worker Repair Notes
+                </label>
+                <textarea
+                  rows={2}
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Materials used, safety tests completed, site cleared..."
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 px-3 text-xs text-slate-900 focus:bg-white focus:border-brand focus:outline-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setActiveModalReport(null)}
+                  className="rounded-xl px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
+                >
+                  {submitting ? "Submitting Proof..." : "Confirm & Resolve Issue"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

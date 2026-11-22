@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const [reports, departments, workers, categories] = await Promise.all([
+    const [reports, departments, workers, categories, recentWorkflowLogs] = await Promise.all([
       db.report.findMany({
         include: {
           category: {
@@ -27,6 +27,15 @@ export async function GET() {
       }),
       db.category.findMany({
         select: { id: true, name: true, baseRiskWeight: true },
+      }),
+      db.workflowStepLog.findMany({
+        orderBy: { executedAt: "desc" },
+        take: 8,
+        include: {
+          report: {
+            select: { id: true, title: true, status: true },
+          },
+        },
       }),
     ]);
 
@@ -114,6 +123,7 @@ export async function GET() {
         },
         departmentStats,
         wardHotspots,
+        recentWorkflowLogs,
       },
     });
   } catch (error) {

@@ -15,7 +15,8 @@ import {
   Layers,
   ShieldCheck,
   User,
-  Activity,
+  RotateCcw,
+  Star,
 } from "lucide-react";
 
 interface WorkflowStep {
@@ -89,22 +90,26 @@ export default function ReportDetailsPage({
   const [report, setReport] = useState<ReportDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [voting, setVoting] = useState(false);
+  const [signingOff, setSigningOff] = useState(false);
+  const [disputeFeedback, setDisputeFeedback] = useState("");
+  const [showDisputeInput, setShowDisputeInput] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  useEffect(() => {
-    async function loadReport() {
-      try {
-        const res = await fetch(`/api/reports/${params.id}`);
-        if (res.ok) {
-          const json = await res.json();
-          setReport(json.data?.report || null);
-        }
-      } catch (err) {
-        console.error("Error loading report:", err);
-      } finally {
-        setLoading(false);
+  const loadReport = async () => {
+    try {
+      const res = await fetch(`/api/reports/${params.id}`);
+      if (res.ok) {
+        const json = await res.json();
+        setReport(json.data?.report || null);
       }
+    } catch (err) {
+      console.error("Error loading report:", err);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadReport();
   }, [params.id]);
 
@@ -131,7 +136,6 @@ export default function ReportDetailsPage({
         return;
       }
 
-      // Optimistic state update
       setReport((prev) => {
         if (!prev) return null;
         return {
@@ -159,11 +163,54 @@ export default function ReportDetailsPage({
     }
   };
 
+  const handleSignOff = async (approved: boolean) => {
+    if (!report) return;
+    setSigningOff(true);
+    setFeedback(null);
+
+    try {
+      const res = await fetch(`/api/reports/${report.id}/signoff`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          approved,
+          satisfactionRating: 5,
+          feedback: disputeFeedback || undefined,
+        }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        setFeedback({
+          type: "error",
+          text: json.error?.message || "Failed to submit sign-off.",
+        });
+        setSigningOff(false);
+        return;
+      }
+
+      setFeedback({
+        type: "success",
+        text: json.data?.message || "Sign-off recorded successfully!",
+      });
+      setShowDisputeInput(false);
+      await loadReport();
+    } catch {
+      setFeedback({
+        type: "error",
+        text: "Network error during sign-off.",
+      });
+    } finally {
+      setSigningOff(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-16 text-center text-sm text-slate-500">
         <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-        <p className="mt-3">Loading report details & AI decision state...</p>
+        <p className="mt-3">Loading report details &amp; AI decision state...</p>
       </div>
     );
   }
@@ -187,6 +234,8 @@ export default function ReportDetailsPage({
   }
 
   const breakdown = report.aiAnalysis?.priorityBreakdown;
+  const isResolved = report.status === "RESOLVED";
+  const isCitizenVerified = report.status === "CITIZEN_VERIFIED";
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
@@ -234,7 +283,15 @@ export default function ReportDetailsPage({
                 <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">
                   {report.category?.name}
                 </span>
-                <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-brand">
+                <span
+                  className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                    isCitizenVerified
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                      : isResolved
+                      ? "bg-amber-50 text-amber-700 border-amber-200"
+                      : "bg-blue-50 text-brand border-blue-200"
+                  }`}
+                >
                   {report.status.replace("_", " ")}
                 </span>
                 {report.isDuplicate && (
@@ -266,50 +323,139 @@ export default function ReportDetailsPage({
               </p>
             </div>
 
-            {/* Before Repair Photographic Proof */}
-            <div className="relative h-72 sm:h-96 w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
-              <Image
-                src={report.beforeProofUrl || report.imageUrl}
-                alt={report.title}
-                fill
-                priority
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 65vw"
-              />
-              <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-white">
-                Before Repair Evidence
-              </div>
-            </div>
+            {/* Before vs After Photo Display */}
+            {report.afterProofUrl ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <span className="text-xs font-bold text-slate-600 block">
+                    Before Repair (Citizen Photo)
+                  </span>
+                  <div className="relative h-60 w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+                    <Image
+                      src={report.beforeProofUrl || report.imageUrl}
+                      alt={report.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 100vw, 35vw"
+                    />
+                  </div>
+                </div>
 
-            {/* Detailed Description */}
+                <div className="space-y-1.5">
+                  <span className="text-xs font-bold text-emerald-700 block">
+                    After Repair (Worker Photo)
+                  </span>
+                  <div className="relative h-60 w-full overflow-hidden rounded-2xl border border-emerald-300 bg-emerald-50/40">
+                    <Image
+                      src={report.afterProofUrl}
+                      alt="Repaired proof"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 100vw, 35vw"
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="relative h-72 sm:h-96 w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+                <Image
+                  src={report.beforeProofUrl || report.imageUrl}
+                  alt={report.title}
+                  fill
+                  priority
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 65vw"
+                />
+                <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-white">
+                  Before Repair Evidence
+                </div>
+              </div>
+            )}
+
+            {/* Description */}
             <div>
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                Citizen Observation & Hazard Impact
+                Citizen Observation &amp; Hazard Impact
               </h3>
               <p className="text-sm leading-relaxed text-slate-700 bg-slate-50/60 p-4 rounded-xl border border-slate-100">
                 {report.description}
               </p>
             </div>
+          </div>
 
-            {/* After Repair Photo (If Resolved) */}
-            {report.afterProofUrl && (
-              <div className="border-t border-slate-100 pt-4 space-y-2">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                  Verified &ldquo;After&rdquo; Repair Proof Uploaded by Field Worker
-                </h3>
-                <div className="relative h-64 w-full overflow-hidden rounded-2xl border border-emerald-200 bg-emerald-50/30">
-                  <Image
-                    src={report.afterProofUrl}
-                    alt="After repair proof"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 1024px) 100vw, 65vw"
-                  />
+          {/* Citizen Final Sign-Off Banner (When report is in RESOLVED status) */}
+          {isResolved && report.isReporter && (
+            <div className="bento-card p-6 bg-emerald-50/70 border border-emerald-300 shadow-md space-y-4 animate-in fade-in">
+              <div className="flex items-center gap-2.5 text-emerald-900">
+                <ShieldCheck className="h-6 w-6 text-emerald-600 shrink-0" />
+                <div>
+                  <h3 className="text-base font-bold">
+                    Citizen Final Sign-Off Required (End-to-End Workflow Milestone)
+                  </h3>
+                  <p className="text-xs text-emerald-700">
+                    The municipal field worker has uploaded repair proof. Inspect the photos above and confirm resolution or reopen.
+                  </p>
                 </div>
               </div>
-            )}
-          </div>
+
+              {showDisputeInput ? (
+                <div className="space-y-3 pt-2">
+                  <textarea
+                    rows={2}
+                    value={disputeFeedback}
+                    onChange={(e) => setDisputeFeedback(e.target.value)}
+                    placeholder="Describe what is still hazardous or why you are disputing the repair..."
+                    className="w-full rounded-xl border border-red-200 bg-white p-3 text-xs text-slate-900 focus:outline-none focus:border-red-400"
+                  />
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      onClick={() => setShowDisputeInput(false)}
+                      className="px-3 py-1.5 text-xs text-slate-600 hover:underline"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={() => handleSignOff(false)}
+                      disabled={signingOff}
+                      className="flex items-center gap-1.5 rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-red-700 disabled:opacity-50"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                      {signingOff ? "Reopening..." : "Confirm Dispute & Reopen"}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    onClick={() => handleSignOff(true)}
+                    disabled={signingOff}
+                    className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 px-4 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition disabled:opacity-50"
+                  >
+                    <CheckCircle2 className="h-4 w-4" />
+                    {signingOff ? "Confirming..." : "Confirm Issue Resolved & Close Ticket (+0.1 Trust)"}
+                  </button>
+
+                  <button
+                    onClick={() => setShowDisputeInput(true)}
+                    disabled={signingOff}
+                    className="rounded-xl border border-red-300 bg-white px-4 py-3 text-xs font-bold text-red-700 hover:bg-red-50 transition"
+                  >
+                    Dispute &amp; Reopen
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Already Verified & Closed Notice */}
+          {isCitizenVerified && (
+            <div className="bento-card p-5 bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-900 flex items-center gap-2.5">
+              <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+              <span>
+                This civic issue has been officially repaired, verified by the citizen reporter, and closed in the municipal system.
+              </span>
+            </div>
+          )}
 
           {/* Community Verification Action Card (M06) */}
           <div className="bento-card p-6 bg-white border border-slate-200 shadow-subtle space-y-4">
@@ -317,7 +463,7 @@ export default function ReportDetailsPage({
               <div>
                 <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                   <ThumbsUp className="h-4 w-4 text-brand" />
-                  Community Consensus & Verification Loop
+                  Community Consensus &amp; Verification Loop
                 </h3>
                 <p className="text-xs text-slate-500">
                   Citizens nearby confirm physical existence to elevate municipal priority.
@@ -336,7 +482,6 @@ export default function ReportDetailsPage({
               </div>
             </div>
 
-            {/* Verification Voting Actions */}
             {report.isReporter ? (
               <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-200 text-xs text-slate-600 flex items-center gap-2">
                 <User className="h-4 w-4 text-slate-400 shrink-0" />
@@ -398,7 +543,6 @@ export default function ReportDetailsPage({
               </span>
             </div>
 
-            {/* Visual Breakdown Progress Bars */}
             <div className="space-y-3 pt-2 text-xs">
               <div>
                 <div className="flex justify-between font-semibold text-slate-700 mb-1">
@@ -453,7 +597,6 @@ export default function ReportDetailsPage({
               </div>
             </div>
 
-            {/* Plain-English AI Reasoning */}
             <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-100 text-xs text-slate-600 leading-relaxed">
               <strong className="text-slate-800 block mb-1">AI Reasoning:</strong>
               {report.aiAnalysis?.severityReasoning ||
@@ -474,7 +617,6 @@ export default function ReportDetailsPage({
               Automated Workflow Lifecycle (A07)
             </span>
 
-            {/* Stepper Timeline */}
             <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
               {[
                 { name: "STEP_1_INGEST", title: "Report Ingested & EXIF Validated" },
@@ -482,29 +624,32 @@ export default function ReportDetailsPage({
                 { name: "STEP_3_COMMUNITY_GATE", title: "Community Consensus Verified" },
                 { name: "STEP_4_PRIORITY_OPTIMIZE", title: "A02 Constraint Engine Evaluated" },
                 { name: "STEP_5_DISPATCH", title: "Field Worker Dispatched" },
-                { name: "STEP_6_FIELD_RESOLVE", title: "Field Repair Execution" },
-                { name: "STEP_7_CITIZEN_SIGNOFF", title: "Citizen Final Verification" },
+                { name: "STEP_6_FIELD_START", title: "Field Work In Progress" },
+                { name: "STEP_6_FIELD_RESOLVE", title: "Field Repair Proof Submitted" },
+                { name: "STEP_7_CITIZEN_SIGNOFF", title: "Citizen Final Verification & Closed" },
               ].map((step, idx) => {
                 const stepLog = report.workflowStepLogs?.find((l) => l.stepName === step.name);
                 const isCompleted = stepLog?.status === "SUCCESS";
                 const isFailed = stepLog?.status === "FAILED";
                 const isRetried = stepLog?.status === "RETRIED";
+                const isRolledBack = stepLog?.status === "ROLLED_BACK";
 
                 return (
                   <div key={step.name} className="relative text-xs">
-                    {/* Step Icon */}
                     <span
                       className={`absolute -left-6 top-0.5 flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-bold ${
                         isCompleted
                           ? "bg-emerald-500 text-white border-emerald-600"
                           : isRetried
                           ? "bg-amber-500 text-white border-amber-600"
+                          : isRolledBack
+                          ? "bg-purple-500 text-white border-purple-600"
                           : isFailed
                           ? "bg-red-500 text-white border-red-600"
                           : "bg-white text-slate-400 border-slate-300"
                       }`}
                     >
-                      {isCompleted ? "✓" : idx + 1}
+                      {isCompleted ? "✓" : isRolledBack ? "↺" : idx + 1}
                     </span>
 
                     <div className="font-semibold text-slate-800">
@@ -512,11 +657,16 @@ export default function ReportDetailsPage({
                     </div>
 
                     {stepLog ? (
-                      <div className="mt-0.5 flex items-center gap-2 text-[10px] text-slate-400">
+                      <div className="mt-0.5 flex items-center gap-2 text-[10px] text-slate-400 flex-wrap">
                         <span>{new Date(stepLog.executedAt).toLocaleTimeString()}</span>
                         {stepLog.attemptCount > 1 && (
                           <span className="rounded bg-amber-100 text-amber-800 px-1 font-semibold">
-                            Retry #{stepLog.attemptCount}
+                            Attempt #{stepLog.attemptCount}
+                          </span>
+                        )}
+                        {stepLog.recoveryAction && (
+                          <span className="rounded bg-blue-50 text-blue-800 border border-blue-200 px-1 font-mono text-[9px]">
+                            {stepLog.recoveryAction}
                           </span>
                         )}
                       </div>

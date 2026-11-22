@@ -11,10 +11,28 @@ import {
   Zap,
   ArrowRight,
   MapPin,
-  ChevronRight,
   X,
   TrendingUp,
+  Layers,
+  Bug,
+  RotateCcw,
+  ShieldAlert,
 } from "lucide-react";
+
+interface WorkflowLogEvent {
+  id: string;
+  stepName: string;
+  status: string;
+  attemptCount: number;
+  errorMessage?: string | null;
+  recoveryAction?: string | null;
+  executedAt: string;
+  report?: {
+    id: string;
+    title: string;
+    status: string;
+  };
+}
 
 interface AnalyticsData {
   totalReports: number;
@@ -49,6 +67,7 @@ interface AnalyticsData {
     criticalCount: number;
     riskLevel: "CRITICAL" | "HIGH" | "MEDIUM";
   }[];
+  recentWorkflowLogs?: WorkflowLogEvent[];
 }
 
 interface QueueReport {
@@ -86,6 +105,8 @@ export default function AuthorityCommandCenter() {
   const [queue, setQueue] = useState<QueueReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [assigningId, setAssigningId] = useState<string | null>(null);
+  const [simulatingId, setSimulatingId] = useState<string | null>(null);
+  const [recoveringId, setRecoveringId] = useState<string | null>(null);
   const [recalculating, setRecalculating] = useState(false);
 
   const [conflictModal, setConflictModal] = useState<ConflictModalData | null>(null);
@@ -164,7 +185,6 @@ export default function AuthorityCommandCenter() {
         text: json.data?.message || "Worker dispatched successfully via AI Optimizer!",
       });
 
-      // Refresh data
       await fetchData();
     } catch {
       setActionMessage({
@@ -173,6 +193,68 @@ export default function AuthorityCommandCenter() {
       });
     } finally {
       setAssigningId(null);
+    }
+  };
+
+  // A07: Simulate Intermediate Step Failure
+  const handleSimulateFailure = async (reportId: string) => {
+    setSimulatingId(reportId);
+    setActionMessage(null);
+    try {
+      const res = await fetch(`/api/workflow/${reportId}/simulate-failure`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          stepName: "STEP_5_DISPATCH",
+          reason: "Simulated worker drop/timeout: Field worker unacknowledged after 45 mins.",
+        }),
+      });
+
+      const json = await res.json();
+      if (res.ok) {
+        setActionMessage({
+          type: "success",
+          text: "Step failure simulated (A07 test). Report is now in FAILED_RECOVERY state with previous successes intact.",
+        });
+        await fetchData();
+      } else {
+        setActionMessage({
+          type: "error",
+          text: json.error?.message || "Failed to simulate failure.",
+        });
+      }
+    } catch {
+      setActionMessage({ type: "error", text: "Network error occurred." });
+    } finally {
+      setSimulatingId(null);
+    }
+  };
+
+  // A07: Trigger Automated Workflow Recovery
+  const handleRecoverWorkflow = async (reportId: string) => {
+    setRecoveringId(reportId);
+    setActionMessage(null);
+    try {
+      const res = await fetch(`/api/workflow/${reportId}/recover`, {
+        method: "POST",
+      });
+      const json = await res.json();
+      if (res.ok) {
+        setActionMessage({
+          type: "success",
+          text: json.data?.message || "Workflow recovered successfully via A07 Engine!",
+        });
+        await fetchData();
+      } else {
+        setActionMessage({
+          type: "error",
+          text: json.error?.message || "Recovery execution failed.",
+        });
+      }
+    } catch {
+      setActionMessage({ type: "error", text: "Network error occurred." });
+    } finally {
+      setRecoveringId(null);
     }
   };
 
@@ -206,18 +288,10 @@ export default function AuthorityCommandCenter() {
     return (
       <div className="mx-auto max-w-7xl px-4 py-16 text-center text-sm text-slate-500">
         <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-        <p className="mt-3">Loading Authority Command Center & A02 Roster...</p>
+        <p className="mt-3">Loading Authority Command Center &amp; A02/A07 Engines...</p>
       </div>
     );
   }
-
-  const unassignedQueue = queue.filter(
-    (r) =>
-      r.status === "REPORTED" ||
-      r.status === "AI_TRIAGED" ||
-      r.status === "COMMUNITY_VERIFIED" ||
-      r.status === "PRIORITY_SCORED"
-  );
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
@@ -233,7 +307,7 @@ export default function AuthorityCommandCenter() {
             </span>
           </div>
           <p className="mt-1 text-xs sm:text-sm text-slate-600">
-            Real-time urban hazard triage, workforce capacity monitoring, and explainable AI optimization (A02).
+            Real-time urban hazard triage, workforce capacity monitoring, and explainable AI optimization (A02 &amp; A07).
           </p>
         </div>
 
@@ -264,7 +338,6 @@ export default function AuthorityCommandCenter() {
 
       {/* Row 1: 4 KPI Bento Tiles */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* KPI 1 */}
         <div className="bento-card p-5 bg-white border border-slate-200 shadow-subtle space-y-2">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider">
             <span>Critical Unassigned</span>
@@ -278,7 +351,6 @@ export default function AuthorityCommandCenter() {
           </span>
         </div>
 
-        {/* KPI 2 */}
         <div className="bento-card p-5 bg-white border border-slate-200 shadow-subtle space-y-2">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider">
             <span>Resolution Rate</span>
@@ -292,7 +364,6 @@ export default function AuthorityCommandCenter() {
           </span>
         </div>
 
-        {/* KPI 3 */}
         <div className="bento-card p-5 bg-white border border-slate-200 shadow-subtle space-y-2">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider">
             <span>Workforce Load</span>
@@ -313,7 +384,6 @@ export default function AuthorityCommandCenter() {
           </div>
         </div>
 
-        {/* KPI 4 */}
         <div className="bento-card p-5 bg-white border border-slate-200 shadow-subtle space-y-2">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider">
             <span>City Avg AI Priority</span>
@@ -324,7 +394,7 @@ export default function AuthorityCommandCenter() {
             <span className="text-sm font-normal text-slate-400">/100</span>
           </div>
           <span className="text-[11px] text-slate-500">
-            Dynamic score factoring severity & community consensus
+            Dynamic score factoring severity &amp; community consensus
           </span>
         </div>
       </div>
@@ -338,26 +408,30 @@ export default function AuthorityCommandCenter() {
               <div>
                 <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
                   <Zap className="h-4 w-4 text-brand" />
-                  AI Priority & Constraint Dispatch Queue (Challenge A02)
+                  AI Priority Queue &amp; Resilience Controls (A02 &amp; A07)
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Issues sorted by dynamic priority. Click &ldquo;Auto-Assign (A02)&rdquo; to execute constraint-based worker matching.
+                  Sorted by priority. Use &ldquo;Auto-Assign (A02)&rdquo; or test A07 failure recovery directly.
                 </p>
               </div>
               <span className="rounded-full bg-blue-50 border border-blue-200 px-2.5 py-0.5 text-xs font-bold text-brand font-mono">
-                {unassignedQueue.length} Unassigned
+                {queue.length} Total
               </span>
             </div>
 
-            {/* Unassigned Reports Queue */}
+            {/* Reports Queue */}
             <div className="divide-y divide-slate-100">
-              {unassignedQueue.length === 0 ? (
-                <div className="p-8 text-center text-xs text-slate-500">
-                  <CheckCircle className="mx-auto h-6 w-6 text-emerald-500 mb-2" />
-                  All active civic reports have been dispatched!
-                </div>
-              ) : (
-                unassignedQueue.map((report) => (
+              {queue.map((report) => {
+                const isUnassigned =
+                  report.status === "REPORTED" ||
+                  report.status === "AI_TRIAGED" ||
+                  report.status === "COMMUNITY_VERIFIED" ||
+                  report.status === "PRIORITY_SCORED";
+                const isDispatched =
+                  report.status === "ASSIGNED" || report.status === "IN_PROGRESS";
+                const isFailedRecovery = report.status === "FAILED_RECOVERY";
+
+                return (
                   <div
                     key={report.id}
                     className="p-4 hover:bg-slate-50/70 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3"
@@ -376,8 +450,16 @@ export default function AuthorityCommandCenter() {
                         <span className="text-xs font-bold text-slate-700">
                           {report.category.name}
                         </span>
-                        <span className="text-[11px] text-slate-400">
-                          ({report.verificationCount} votes)
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                            isFailedRecovery
+                              ? "bg-red-100 text-red-800 border-red-300 font-extrabold"
+                              : isDispatched
+                              ? "bg-amber-50 text-amber-800 border-amber-200"
+                              : "bg-slate-100 text-slate-600 border-slate-200"
+                          }`}
+                        >
+                          {report.status.replace("_", " ")}
                         </span>
                       </div>
 
@@ -391,7 +473,7 @@ export default function AuthorityCommandCenter() {
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                    <div className="flex items-center gap-2 self-end sm:self-center shrink-0 flex-wrap">
                       <Link
                         href={`/reports/${report.id}`}
                         className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
@@ -399,18 +481,47 @@ export default function AuthorityCommandCenter() {
                         Inspect
                       </Link>
 
-                      <button
-                        onClick={() => handleAutoAssign(report.id, report.title, "STRICT")}
-                        disabled={assigningId === report.id}
-                        className="flex items-center gap-1.5 rounded-xl bg-brand px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-brand-hover transition disabled:opacity-50"
-                      >
-                        <Sparkles className="h-3.5 w-3.5" />
-                        {assigningId === report.id ? "Evaluating..." : "Auto-Assign (A02)"}
-                      </button>
+                      {/* A02 Auto-Assign */}
+                      {isUnassigned && (
+                        <button
+                          onClick={() => handleAutoAssign(report.id, report.title, "STRICT")}
+                          disabled={assigningId === report.id}
+                          className="flex items-center gap-1 rounded-xl bg-brand px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-brand-hover transition disabled:opacity-50"
+                        >
+                          <Sparkles className="h-3.5 w-3.5" />
+                          {assigningId === report.id ? "Evaluating..." : "Auto-Assign (A02)"}
+                        </button>
+                      )}
+
+                      {/* A07: Simulate Step Failure */}
+                      {isDispatched && (
+                        <button
+                          onClick={() => handleSimulateFailure(report.id)}
+                          disabled={simulatingId === report.id}
+                          className="flex items-center gap-1 rounded-xl border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-bold text-red-700 hover:bg-red-100 transition disabled:opacity-50"
+                          title="Simulate intermediate worker drop/failure (A07 Test)"
+                        >
+                          <Bug className="h-3.5 w-3.5 text-red-600" />
+                          {simulatingId === report.id ? "Failing..." : "Simulate Fail (A07)"}
+                        </button>
+                      )}
+
+                      {/* A07: Run Automated Recovery */}
+                      {isFailedRecovery && (
+                        <button
+                          onClick={() => handleRecoverWorkflow(report.id)}
+                          disabled={recoveringId === report.id}
+                          className="flex items-center gap-1 rounded-xl bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition disabled:opacity-50 animate-bounce"
+                          title="Trigger automated multi-step recovery & rollback (A07 Test)"
+                        >
+                          <RotateCcw className="h-3.5 w-3.5" />
+                          {recoveringId === report.id ? "Recovering..." : "Auto-Recover (A07)"}
+                        </button>
+                      )}
                     </div>
                   </div>
-                ))
-              )}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -428,7 +539,6 @@ export default function AuthorityCommandCenter() {
               </span>
             </div>
 
-            {/* Department Breakdown Cards */}
             <div className="space-y-4">
               {analytics?.departmentStats.map((dept) => (
                 <div key={dept.id} className="rounded-xl border border-slate-100 bg-slate-50/50 p-3.5 space-y-2">
@@ -445,7 +555,6 @@ export default function AuthorityCommandCenter() {
                     </span>
                   </div>
 
-                  {/* Individual Workers in Department */}
                   <div className="space-y-1.5 pt-1">
                     {dept.workers.map((w) => (
                       <div
@@ -466,17 +575,61 @@ export default function AuthorityCommandCenter() {
                 </div>
               ))}
             </div>
-
-            <div className="rounded-lg bg-blue-50/60 p-3 border border-blue-100 text-[11px] text-blue-900 leading-relaxed">
-              💡 <strong>Judge Note for A02 Testing:</strong> Notice Electrical &amp; Lighting is at 100% capacity (3/3 tasks). Clicking &ldquo;Auto-Assign&rdquo; on an electrical hazard triggers the structured <strong>Constraint Conflict Protocol</strong>!
-            </div>
           </div>
         </div>
       </div>
 
-      {/* Row 3: City Analytics Bento Row (6 cols + 6 cols) */}
+      {/* Row 3: City Analytics Bento Row & A07 Live Event Stream */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {/* Left: Ward Hotspot Distribution */}
+        {/* Left: A07 Automated Workflow Event Monitor */}
+        <div className="bento-card p-5 bg-white border border-slate-200 shadow-subtle space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <Layers className="h-4 w-4 text-brand" />
+              A07 Live Workflow State Machine Stream
+            </h3>
+            <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+              Live ACID Logs
+            </span>
+          </div>
+
+          <div className="divide-y divide-slate-100 max-h-[220px] overflow-y-auto space-y-1">
+            {analytics?.recentWorkflowLogs && analytics.recentWorkflowLogs.length > 0 ? (
+              analytics.recentWorkflowLogs.map((log) => (
+                <div key={log.id} className="py-2 flex items-center justify-between text-xs">
+                  <div>
+                    <span className="font-semibold text-slate-800">
+                      {log.stepName}
+                    </span>
+                    <span className="text-[10px] text-slate-400 block">
+                      {log.report?.title ? `Report: ${log.report.title.slice(0, 28)}...` : ""}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span
+                      className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                        log.status === "SUCCESS"
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : log.status === "FAILED"
+                          ? "bg-red-50 text-red-700 border border-red-200"
+                          : "bg-amber-50 text-amber-700 border border-amber-200"
+                      }`}
+                    >
+                      {log.status}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono block mt-0.5">
+                      {new Date(log.executedAt).toLocaleTimeString()}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="p-4 text-xs text-slate-400 text-center">No recent workflow events.</div>
+            )}
+          </div>
+        </div>
+
+        {/* Right: Ward Hotspots */}
         <div className="bento-card p-5 bg-white border border-slate-200 shadow-subtle space-y-4">
           <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
             <MapPin className="h-4 w-4 text-red-500" />
@@ -516,44 +669,12 @@ export default function AuthorityCommandCenter() {
             ))}
           </div>
         </div>
-
-        {/* Right: AI Explainability Framework (A02) */}
-        <div className="bento-card p-5 bg-white border border-slate-200 shadow-subtle space-y-3">
-          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-amber-500" />
-            Explainable AI Decision Engine Rubric (A02)
-          </h3>
-
-          <p className="text-xs text-slate-600 leading-relaxed">
-            StreetWatch enforces transparent, audit-ready decision modeling instead of black-box heuristics:
-          </p>
-
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="rounded-xl border border-slate-100 bg-slate-50 p-2.5">
-              <span className="font-bold text-slate-800 block">Severity (40%)</span>
-              <span className="text-[11px] text-slate-500">Immediate hazard risk score from Gemini AI.</span>
-            </div>
-            <div className="rounded-xl border border-slate-100 bg-slate-50 p-2.5">
-              <span className="font-bold text-slate-800 block">Risk Multiplier (25%)</span>
-              <span className="text-[11px] text-slate-500">Live wire/manhole base multiplier (up to 1.5x).</span>
-            </div>
-            <div className="rounded-xl border border-slate-100 bg-slate-50 p-2.5">
-              <span className="font-bold text-slate-800 block">Community Trust (20%)</span>
-              <span className="text-[11px] text-slate-500">+4 per resident confirmation, -6 per flag.</span>
-            </div>
-            <div className="rounded-xl border border-slate-100 bg-slate-50 p-2.5">
-              <span className="font-bold text-slate-800 block">SLA Aging (15%)</span>
-              <span className="text-[11px] text-slate-500">Dynamic escalation as deadline approaches.</span>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Interactive Conflict Resolution Modal (Challenge A02 Key Test Case) */}
       {conflictModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bento-card w-full max-w-xl bg-white p-6 shadow-2xl border border-red-200 space-y-4 animate-in fade-in zoom-in-95 duration-150">
-            {/* Modal Header */}
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-2.5 text-red-600">
                 <AlertTriangle className="h-6 w-6 shrink-0" />
@@ -574,7 +695,6 @@ export default function AuthorityCommandCenter() {
               </button>
             </div>
 
-            {/* Conflict Details */}
             <div className="rounded-xl bg-red-50/80 p-3.5 border border-red-200 text-xs text-red-900 space-y-1">
               <p className="font-bold">{conflictModal.conflictReason}</p>
               <p className="text-[11px] text-red-700">
@@ -582,7 +702,6 @@ export default function AuthorityCommandCenter() {
               </p>
             </div>
 
-            {/* Actionable Fallback Options generated by A02 Engine */}
             <div className="space-y-3 pt-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-600 block">
                 Choose an AI-Recommended Fallback Protocol:
