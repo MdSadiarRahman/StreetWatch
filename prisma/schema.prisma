@@ -1,9 +1,211 @@
-// Prisma Schema Placeholder (Populated in Step 2B)
+// StreetWatch Relational Database Schema
+// Database Engine: PostgreSQL via Prisma ORM
+
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
+enum Role {
+  CITIZEN
+  AUTHORITY
+  FIELD_WORKER
+}
+
+enum ReportStatus {
+  REPORTED
+  AI_TRIAGED
+  COMMUNITY_VERIFIED
+  PRIORITY_SCORED
+  ASSIGNED
+  IN_PROGRESS
+  RESOLVED
+  CITIZEN_VERIFIED
+  FAILED_RECOVERY
+  REJECTED
+}
+
+enum VoteType {
+  CONFIRM
+  FLAG_FALSE
+}
+
+enum WorkflowStepStatus {
+  SUCCESS
+  FAILED
+  RETRIED
+  ROLLED_BACK
+  ESCALATED
+}
+
+model User {
+  id              String        @id @default(cuid())
+  name            String
+  email           String        @unique
+  passwordHash    String
+  role            Role          @default(CITIZEN)
+  departmentId    String?
+  department      Department?   @relation(fields: [departmentId], references: [id])
+  workerCapacity  Int           @default(3)
+  activeTaskCount Int           @default(0)
+  trustScore      Float         @default(1.0)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  reports            Report[]       @relation("ReporterReports")
+  verifications      Verification[]
+  workerAssignments  Assignment[]   @relation("WorkerAssignments")
+  createdAssignments Assignment[]   @relation("AdminAssignments")
+  auditLogs          AuditLog[]
+
+  @@index([role])
+  @@index([departmentId])
+}
+
+model Department {
+  id         String     @id @default(cuid())
+  name       String     @unique
+  slaHours   Int        @default(48)
+  isActive   Boolean    @default(true)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  users      User[]
+  categories Category[]
+}
+
+model Category {
+  id             String      @id @default(cuid())
+  name           String
+  slug           String      @unique
+  departmentId   String
+  department     Department  @relation(fields: [departmentId], references: [id])
+  baseRiskWeight Float       @default(1.0)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  reports        Report[]
+
+  @@index([departmentId])
+}
+
+model Report {
+  id                String        @id @default(cuid())
+  title             String
+  description       String
+  imageUrl          String
+  latitude          Float
+  longitude         Float
+  address           String
+  wardZone          String
+  categoryId        String
+  category          Category      @relation(fields: [categoryId], references: [id])
+  reporterId        String
+  reporter          User          @relation("ReporterReports", fields: [reporterId], references: [id])
+  status            ReportStatus  @default(REPORTED)
+  severityScore     Float         @default(0)
+  priorityScore     Float         @default(0)
+  verificationCount Int           @default(0)
+  flagCount         Int           @default(0)
+  isDuplicate       Boolean       @default(false)
+  parentReportId    String?
+  parentReport      Report?       @relation("ReportDuplicates", fields: [parentReportId], references: [id])
+  duplicateReports  Report[]      @relation("ReportDuplicates")
+  beforeProofUrl    String?
+  afterProofUrl     String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  aiAnalysis        AIAnalysis?
+  verifications     Verification[]
+  assignments       Assignment[]
+  workflowStepLogs  WorkflowStepLog[]
+
+  @@index([status])
+  @@index([priorityScore])
+  @@index([wardZone])
+  @@index([latitude, longitude])
+  @@index([categoryId])
+  @@index([reporterId])
+}
+
+model AIAnalysis {
+  id                    String    @id @default(cuid())
+  reportId              String    @unique
+  report                Report    @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  detectedCategory      String
+  confidenceScore       Float
+  severityReasoning     String
+  priorityBreakdown     Json
+  recommendedDepartment String?
+  optimizationNote      String?
+  createdAt             DateTime  @default(now())
+
+  @@index([reportId])
+}
+
+model Verification {
+  id        String    @id @default(cuid())
+  reportId  String
+  report    Report    @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  voteType  VoteType  @default(CONFIRM)
+  comment   String?
+  createdAt DateTime  @default(now())
+
+  @@unique([reportId, userId])
+  @@index([reportId])
+  @@index([userId])
+}
+
+model Assignment {
+  id             String    @id @default(cuid())
+  reportId       String
+  report         Report    @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  workerId       String
+  worker         User      @relation("WorkerAssignments", fields: [workerId], references: [id])
+  assignedById   String
+  assignedBy     User      @relation("AdminAssignments", fields: [assignedById], references: [id])
+  isAutoAssigned Boolean   @default(true)
+  overrideReason String?
+  assignedAt     DateTime  @default(now())
+  completedAt    DateTime?
+
+  @@index([reportId])
+  @@index([workerId])
+}
+
+model WorkflowStepLog {
+  id             String             @id @default(cuid())
+  reportId       String
+  report         Report             @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  stepName       String
+  status         WorkflowStepStatus @default(SUCCESS)
+  attemptCount   Int                @default(1)
+  errorMessage   String?
+  recoveryAction String?
+  executedAt     DateTime           @default(now())
+
+  @@index([reportId])
+  @@index([stepName])
+  @@index([status])
+}
+
+model AuditLog {
+  id         String    @id @default(cuid())
+  actorId    String?
+  actor      User?     @relation(fields: [actorId], references: [id])
+  action     String
+  entityType String
+  entityId   String
+  metadata   Json?
+  createdAt  DateTime  @default(now())
+
+  @@index([actorId])
+  @@index([entityType, entityId])
 }
