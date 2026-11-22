@@ -45,16 +45,29 @@ export async function POST(req: NextRequest) {
         data: {
           assigned: false,
           conflictDetected: true,
-          saturatedWorker: {
-            id: "usr-worker-1",
-            name: "Rafiqul Islam (Electrical Lead)",
-            activeTaskCount: 3,
-            workerCapacity: 3,
+          status: "CONFLICT_DETECTED",
+          conflictReason: "All certified field technicians in Electrical & Lighting are operating at 100% capacity (3/3 active work orders).",
+          report: {
+            id: body.reportId || "rep-001",
+            title: "Exposed Live Wire Near Primary School",
+            priorityScore: 94.2,
+            departmentName: "Electrical & Lighting",
           },
-          recommendedDepartment: "Electrical & Lighting",
-          priorityScore: 94.2,
-          availableStrategies: ["PREEMPTIVE_REASSIGN", "CROSS_DEPARTMENT", "OVERTIME_OVERRIDE"],
-          message: "All certified technicians in Electrical & Lighting are operating at 100% capacity (3/3 active work orders). Please select a resolution strategy.",
+          fallbackOptions: [
+            {
+              strategy: "CROSS_ZONE_FALLBACK",
+              label: "Reallocate Crew from Water & Drainage",
+              recommendedWorkerId: "usr-worker-3",
+              recommendedWorkerName: "Arif Chowdhury",
+              departmentName: "Water & Drainage",
+              tradeoffExplanation: "Dispatches Arif Chowdhury (Load: 1/3). Solves immediate safety emergency without exceeding crew capacity.",
+            },
+            {
+              strategy: "PREEMPT_LOW_PRIORITY",
+              label: "Preempt Low-Priority Task in Sector 10",
+              tradeoffExplanation: "Pauses routine task #rep-003 (Priority: 54) to immediately reassign Lead Technician Rafiqul Islam to this critical hazard.",
+            },
+          ],
         },
       });
     }

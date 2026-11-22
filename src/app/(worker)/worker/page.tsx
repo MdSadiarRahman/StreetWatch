@@ -299,7 +299,7 @@ export default function WorkerWorkspacePage() {
                 <div className="flex flex-col sm:flex-row items-start gap-4">
                   <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-slate-200">
                     <Image
-                      src={report.beforeProofUrl || report.imageUrl}
+                      src={report.beforeProofUrl || report.imageUrl || "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=400&auto=format&fit=crop"}
                       alt={report.title}
                       fill
                       className="object-cover"

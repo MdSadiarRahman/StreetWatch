@@ -332,7 +332,7 @@ export default function ReportDetailsPage({
                   </span>
                   <div className="relative h-60 w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
                     <Image
-                      src={report.beforeProofUrl || report.imageUrl}
+                      src={report.beforeProofUrl || report.imageUrl || "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80"}
                       alt={report.title}
                       fill
                       className="object-cover"
@@ -347,7 +347,7 @@ export default function ReportDetailsPage({
                   </span>
                   <div className="relative h-60 w-full overflow-hidden rounded-2xl border border-emerald-300 bg-emerald-50/40">
                     <Image
-                      src={report.afterProofUrl}
+                      src={report.afterProofUrl || "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80"}
                       alt="Repaired proof"
                       fill
                       className="object-cover"
@@ -359,7 +359,7 @@ export default function ReportDetailsPage({
             ) : (
               <div className="relative h-72 sm:h-96 w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
                 <Image
-                  src={report.beforeProofUrl || report.imageUrl}
+                  src={report.beforeProofUrl || report.imageUrl || "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80"}
                   alt={report.title}
                   fill
                   priority
