@@ -14,6 +14,7 @@ import {
   X,
   User,
 } from "lucide-react";
+import BrandLogo from "@/components/ui/BrandLogo";
 import { Role } from "@/types";
 
 interface SessionUser {
@@ -86,30 +87,10 @@ export default function Navbar() {
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Left: Brand Logo & Role Badge */}
         <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="group flex items-center gap-2.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded-xl p-1"
-          >
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-500 text-white shadow-sm group-hover:scale-105 group-hover:shadow-glow transition-all duration-200">
-              <Shield className="h-5 w-5" />
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5">
-                <span className="text-base font-extrabold tracking-tight text-slate-900 leading-none">
-                  StreetWatch
-                </span>
-                <span className="inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 text-[9px] font-bold text-blue-700 border border-blue-200/60 uppercase">
-                  AI
-                </span>
-              </div>
-              <span className="text-[10px] font-medium text-slate-500 tracking-wide mt-0.5">
-                Civic Action &amp; Auto-Triage
-              </span>
-            </div>
-          </Link>
+          <BrandLogo size="md" href="/" />
 
           {/* Real-time Grid Status Pill */}
-          <div className="hidden xl:flex items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50/70 px-2.5 py-1 text-[11px] font-semibold text-emerald-800 shadow-sm">
+          <div className="hidden xl:flex items-center gap-2 rounded-full border border-emerald-200/80 bg-emerald-50/70 px-2.5 py-1 text-[11px] font-semibold text-emerald-800 shadow-2xs">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -192,10 +173,10 @@ export default function Navbar() {
           {/* Universal Quick "Report Issue" Action Pill */}
           <Link
             href="/report"
-            className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm hover:shadow-glow transition-all duration-200 transform hover:-translate-y-0.5"
+            className="btn-tactile btn-glossy flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 px-4 py-2 text-xs font-black text-white shadow-sm hover:shadow-glow border border-blue-500/50"
           >
-            <PlusCircle className="h-3.5 w-3.5" />
-            Report Issue
+            <PlusCircle className="h-4 w-4 text-blue-200" />
+            + Report Issue
           </Link>
 
           {loading ? (

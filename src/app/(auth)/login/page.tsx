@@ -4,6 +4,7 @@ import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Shield, Lock, Mail, ArrowRight, Sparkles, AlertCircle } from "lucide-react";
+import { BrandLogoEmblem } from "@/components/ui/BrandLogo";
 
 function LoginForm() {
   const router = useRouter();
@@ -66,19 +67,19 @@ function LoginForm() {
     <div className="w-full max-w-md space-y-6">
       {/* Header */}
       <div className="text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-brand text-white shadow-sm">
-          <Shield className="h-6 w-6" />
+        <div className="mx-auto flex justify-center mb-3">
+          <BrandLogoEmblem size={54} />
         </div>
-        <h2 className="mt-4 text-2xl font-bold tracking-tight text-slate-900">
+        <h2 className="text-2xl font-black tracking-tight text-slate-900">
           Sign in to StreetWatch
         </h2>
-        <p className="mt-1 text-sm text-slate-600">
-          Autonomous civic issue reporting & AI prioritization
+        <p className="mt-1 text-xs sm:text-sm font-medium text-slate-600">
+          Autonomous Civic Action &bull; Real-time AI Hazard Triage
         </p>
       </div>
 
       {/* Main Login Card */}
-      <div className="bento-card p-6 sm:p-8 bg-white shadow-subtle border border-border">
+      <div className="bento-card p-6 sm:p-8 bg-white shadow-float border border-slate-200/90">
         {error && (
           <div className="mb-5 flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-medium text-red-800">
             <AlertCircle className="h-4 w-4 shrink-0 text-red-600" />
@@ -88,7 +89,7 @@ function LoginForm() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
               Email Address
             </label>
             <div className="relative">
@@ -99,13 +100,13 @@ function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@example.com"
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 transition"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-3.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 transition"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
               Password
             </label>
             <div className="relative">
@@ -116,7 +117,7 @@ function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 transition"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-3.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 transition"
               />
             </div>
           </div>
@@ -124,54 +125,83 @@ function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-brand py-2.5 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand disabled:opacity-50"
+            className="btn-tactile btn-glossy mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 py-3 px-4 text-sm font-extrabold text-white shadow-sm hover:shadow-glow border border-blue-500/40 disabled:opacity-50"
           >
-            {loading ? "Authenticating..." : "Sign In"}
+            {loading ? "Authenticating..." : "Sign In to Grid"}
             {!loading && <ArrowRight className="h-4 w-4" />}
           </button>
         </form>
 
         {/* Quick Demo Login Section (For Judges & Hackathon Testers) */}
-        <div className="mt-6 pt-6 border-t border-slate-100">
-          <div className="flex items-center gap-1.5 mb-3 text-xs font-bold text-slate-700 uppercase tracking-wider">
-            <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-            <span>One-Click Demo Access (Hackathon Judges)</span>
+        <div className="mt-6 pt-6 border-t border-slate-100 space-y-2.5">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+            <span className="flex items-center gap-1.5 uppercase tracking-wider">
+              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+              1-Click Demo Passes (Hackathon Judges)
+            </span>
           </div>
 
-          <div className="grid grid-cols-1 gap-2">
+          <div className="grid grid-cols-1 gap-2.5">
+            {/* Citizen Pass */}
             <button
               type="button"
               onClick={() => handleDemoLogin("citizen@streetwatch.demo")}
               disabled={loading}
-              className="flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50/60 px-3.5 py-2 text-xs font-semibold text-blue-900 hover:bg-blue-100/80 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              className="btn-tactile flex items-center justify-between rounded-xl border border-blue-200/90 bg-gradient-to-r from-blue-50/80 to-indigo-50/50 p-3 hover:border-blue-300 hover:shadow-2xs text-left"
             >
-              <span>👤 Login as Citizen (Tanvir)</span>
-              <span className="text-[10px] bg-white border border-blue-200 rounded px-1.5 py-0.5 text-blue-700">
-                Auto-Fill & Login
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-600 text-white text-xs font-bold shadow-2xs">
+                  👤
+                </span>
+                <div>
+                  <div className="text-xs font-bold text-slate-900">Citizen Reporter Pass</div>
+                  <div className="text-[10px] text-slate-500 font-mono">Tanvir Ahmed &bull; Dhaka Ward 4</div>
+                </div>
+              </div>
+              <span className="rounded-lg bg-white border border-blue-200/80 px-2 py-1 text-[10px] font-bold text-blue-700 shadow-2xs">
+                Auto-Fill &rarr;
               </span>
             </button>
 
+            {/* Authority Admin Pass */}
             <button
               type="button"
               onClick={() => handleDemoLogin("admin@streetwatch.demo")}
               disabled={loading}
-              className="flex items-center justify-between rounded-xl border border-red-200 bg-red-50/60 px-3.5 py-2 text-xs font-semibold text-red-900 hover:bg-red-100/80 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+              className="btn-tactile flex items-center justify-between rounded-xl border border-rose-200/90 bg-gradient-to-r from-rose-50/80 to-red-50/50 p-3 hover:border-rose-300 hover:shadow-2xs text-left"
             >
-              <span>🏛️ Login as Authority Admin (Farhana)</span>
-              <span className="text-[10px] bg-white border border-red-200 rounded px-1.5 py-0.5 text-red-700">
-                Command Center
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-rose-600 text-white text-xs font-bold shadow-2xs">
+                  🏛️
+                </span>
+                <div>
+                  <div className="text-xs font-bold text-slate-900">Authority Command Key</div>
+                  <div className="text-[10px] text-slate-500 font-mono">Farhana Yeasmin &bull; Chief Engineer</div>
+                </div>
+              </div>
+              <span className="rounded-lg bg-white border border-rose-200/80 px-2 py-1 text-[10px] font-bold text-rose-700 shadow-2xs">
+                Command Center &rarr;
               </span>
             </button>
 
+            {/* Field Worker Pass */}
             <button
               type="button"
               onClick={() => handleDemoLogin("worker1@streetwatch.demo")}
               disabled={loading}
-              className="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50/60 px-3.5 py-2 text-xs font-semibold text-amber-900 hover:bg-amber-100/80 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+              className="btn-tactile flex items-center justify-between rounded-xl border border-amber-200/90 bg-gradient-to-r from-amber-50/80 to-orange-50/50 p-3 hover:border-amber-300 hover:shadow-2xs text-left"
             >
-              <span>👷 Login as Field Worker (Rafiqul)</span>
-              <span className="text-[10px] bg-white border border-amber-200 rounded px-1.5 py-0.5 text-amber-700">
-                Task Feed (3/3 Cap)
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500 text-white text-xs font-bold shadow-2xs">
+                  👷
+                </span>
+                <div>
+                  <div className="text-xs font-bold text-slate-900">Field Worker Token</div>
+                  <div className="text-[10px] text-slate-500 font-mono">Rafiqul Islam &bull; Electrical Lead</div>
+                </div>
+              </div>
+              <span className="rounded-lg bg-white border border-amber-200/80 px-2 py-1 text-[10px] font-bold text-amber-800 shadow-2xs">
+                Worker Terminal &rarr;
               </span>
             </button>
           </div>

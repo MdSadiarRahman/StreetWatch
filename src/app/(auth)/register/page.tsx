@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Shield, Lock, Mail, User, ArrowRight, AlertCircle } from "lucide-react";
+import { BrandLogoEmblem } from "@/components/ui/BrandLogo";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -64,13 +65,13 @@ export default function RegisterPage() {
       <div className="w-full max-w-md space-y-6">
         {/* Header */}
         <div className="text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-brand text-white shadow-sm">
-            <Shield className="h-6 w-6" />
+          <div className="mx-auto flex justify-center mb-3">
+            <BrandLogoEmblem size={54} />
           </div>
-          <h2 className="mt-4 text-2xl font-bold tracking-tight text-slate-900">
+          <h2 className="text-2xl font-black tracking-tight text-slate-900">
             Create Citizen Account
           </h2>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-xs sm:text-sm font-medium text-slate-600">
             Join your community to report and verify civic improvements
           </p>
         </div>
@@ -158,9 +159,9 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-brand py-2.5 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand disabled:opacity-50"
+              className="btn-tactile btn-glossy mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 py-3 px-4 text-sm font-extrabold text-white shadow-sm hover:shadow-glow border border-blue-500/40 disabled:opacity-50"
             >
-              {loading ? "Creating Account..." : "Create Account"}
+              {loading ? "Creating Citizen Profile..." : "Complete Registration"}
               {!loading && <ArrowRight className="h-4 w-4" />}
             </button>
           </form>

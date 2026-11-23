@@ -13,6 +13,7 @@ import {
   Building,
   Info,
 } from "lucide-react";
+import { DynamicCategoryIcon } from "@/components/ui/CategoryIcons";
 
 // Dynamically import Leaflet map component with SSR disabled
 const LocationPickerMap = dynamic(
@@ -247,43 +248,81 @@ export default function ReportIssuePage() {
               />
             </div>
 
-            {/* Category & Ward Grid */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                  Category *
+            {/* Interactive Category Selector Buttons */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  Hazard Category *
                 </label>
-                <select
-                  value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 px-3 text-sm text-slate-900 focus:bg-white focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 transition"
-                >
-                  <option value="AUTO">✨ Auto-Detect with AI Triage</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
+                <span className="text-[11px] text-slate-500">Tap to auto-select</span>
               </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCategoryId("AUTO")}
+                  className={`btn-tactile p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between ${
+                    categoryId === "AUTO"
+                      ? "border-brand bg-gradient-to-br from-blue-50 to-indigo-50/80 shadow-sm ring-2 ring-brand/20"
+                      : "border-slate-200/90 bg-white hover:border-slate-300 hover:bg-slate-50/70"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <Sparkles className="h-5 w-5 text-indigo-600" />
+                    {categoryId === "AUTO" && <span className="h-2 w-2 rounded-full bg-brand" />}
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-slate-900 block leading-tight">✨ Auto-Detect</span>
+                    <span className="text-[10px] text-slate-500">Gemini AI</span>
+                  </div>
+                </button>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                  Ward / District *
-                </label>
-                <select
-                  value={wardZone}
-                  onChange={(e) => setWardZone(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 px-3 text-sm text-slate-900 focus:bg-white focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 transition"
-                >
-                  <option value="Ward 4">Ward 4 (Mirpur Sector 10)</option>
-                  <option value="Ward 9">Ward 9 (Gulshan - Badda)</option>
-                  <option value="Ward 15">Ward 15 (Dhanmondi)</option>
-                  <option value="Ward 2">Ward 2 (Pallabi)</option>
-                  <option value="Ward 26">Ward 26 (Farmgate)</option>
-                  <option value="Ward 31">Ward 31 (Mohammadpur)</option>
-                </select>
+                {categories.map((cat) => {
+                  const isSelected = categoryId === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => {
+                        setCategoryId(cat.id);
+                        if (!title) setTitle(`${cat.name} Reported on Street`);
+                      }}
+                      className={`btn-tactile p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between ${
+                        isSelected
+                          ? "border-brand bg-gradient-to-br from-blue-50 to-indigo-50/80 shadow-sm ring-2 ring-brand/20"
+                          : "border-slate-200/90 bg-white hover:border-slate-300 hover:bg-slate-50/70"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1.5">
+                        <DynamicCategoryIcon nameOrSlug={cat.name} size={22} />
+                        {isSelected && <span className="h-2 w-2 rounded-full bg-brand" />}
+                      </div>
+                      <div>
+                        <span className="text-xs font-bold text-slate-900 block leading-tight truncate">{cat.name}</span>
+                        <span className="text-[10px] text-slate-500 font-mono">Risk {cat.baseRiskWeight || 25}</span>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
+            </div>
+
+            {/* Ward / Zone Selection */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                Ward / District Zone *
+              </label>
+              <select
+                value={wardZone}
+                onChange={(e) => setWardZone(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 px-3 text-sm text-slate-900 focus:bg-white focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 transition"
+              >
+                <option value="Ward 4">Ward 4 (Mirpur Sector 10)</option>
+                <option value="Ward 9">Ward 9 (Gulshan - Badda)</option>
+                <option value="Ward 15">Ward 15 (Dhanmondi)</option>
+                <option value="Ward 2">Ward 2 (Pallabi)</option>
+                <option value="Ward 26">Ward 26 (Farmgate)</option>
+                <option value="Ward 31">Ward 31 (Mohammadpur)</option>
+              </select>
             </div>
 
             {/* Address */}

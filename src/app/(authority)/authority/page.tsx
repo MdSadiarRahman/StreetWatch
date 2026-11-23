@@ -314,10 +314,10 @@ export default function AuthorityCommandCenter() {
         <button
           onClick={handleRecalculatePriorities}
           disabled={recalculating}
-          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand disabled:opacity-50"
+          className="btn-tactile btn-glossy inline-flex items-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 text-xs font-black shadow-sm border border-slate-700/80 transition disabled:opacity-50"
         >
-          <RefreshCw className={`h-3.5 w-3.5 ${recalculating ? "animate-spin" : ""}`} />
-          {recalculating ? "Recalculating..." : "Recalculate Dynamic Priorities (A02)"}
+          <RefreshCw className={`h-3.5 w-3.5 text-blue-300 ${recalculating ? "animate-spin" : ""}`} />
+          {recalculating ? "Recalculating AI Priorities..." : "Recalculate Dynamic Priorities (A02)"}
         </button>
       </div>
 
@@ -479,7 +479,7 @@ export default function AuthorityCommandCenter() {
                     <div className="flex items-center gap-2 self-end sm:self-center shrink-0 flex-wrap">
                       <Link
                         href={`/reports/${report.id}`}
-                        className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                        className="btn-tactile rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50"
                       >
                         Inspect
                       </Link>
@@ -489,10 +489,10 @@ export default function AuthorityCommandCenter() {
                         <button
                           onClick={() => handleAutoAssign(report.id, report.title, "STRICT")}
                           disabled={assigningId === report.id}
-                          className="flex items-center gap-1 rounded-xl bg-brand px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-brand-hover transition disabled:opacity-50"
+                          className="btn-tactile btn-glossy flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 px-3.5 py-1.5 text-xs font-black text-white shadow-sm hover:shadow-glow border border-blue-500/40 disabled:opacity-50"
                         >
                           <Sparkles className="h-3.5 w-3.5" />
-                          {assigningId === report.id ? "Evaluating..." : "Auto-Assign (A02)"}
+                          {assigningId === report.id ? "Optimizing..." : "Auto-Assign (A02)"}
                         </button>
                       )}
 
@@ -501,10 +501,10 @@ export default function AuthorityCommandCenter() {
                         <button
                           onClick={() => handleSimulateFailure(report.id)}
                           disabled={simulatingId === report.id}
-                          className="flex items-center gap-1 rounded-xl border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-bold text-red-700 hover:bg-red-100 transition disabled:opacity-50"
+                          className="btn-tactile flex items-center gap-1.5 rounded-xl border border-rose-300 bg-rose-50/80 px-3 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100 shadow-2xs disabled:opacity-50"
                           title="Simulate intermediate worker drop/failure (A07 Test)"
                         >
-                          <Bug className="h-3.5 w-3.5 text-red-600" />
+                          <Bug className="h-3.5 w-3.5 text-rose-600" />
                           {simulatingId === report.id ? "Failing..." : "Simulate Fail (A07)"}
                         </button>
                       )}
@@ -514,7 +514,7 @@ export default function AuthorityCommandCenter() {
                         <button
                           onClick={() => handleRecoverWorkflow(report.id)}
                           disabled={recoveringId === report.id}
-                          className="flex items-center gap-1 rounded-xl bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition disabled:opacity-50 animate-bounce"
+                          className="btn-tactile btn-glossy flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 px-3.5 py-1.5 text-xs font-black text-white shadow-sm hover:shadow-glowEmerald border border-emerald-500/40 disabled:opacity-50 animate-bounce"
                           title="Trigger automated multi-step recovery & rollback (A07 Test)"
                         >
                           <RotateCcw className="h-3.5 w-3.5" />

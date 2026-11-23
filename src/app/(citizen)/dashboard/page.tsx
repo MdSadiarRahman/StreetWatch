@@ -15,6 +15,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Image from "next/image";
+import { DynamicCategoryIcon } from "@/components/ui/CategoryIcons";
 
 export default async function CitizenDashboardPage() {
   const session = await getCurrentUser();
@@ -126,56 +127,56 @@ export default async function CitizenDashboardPage() {
 
         <Link
           href="/report"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          className="btn-tactile btn-glossy inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 px-5 py-2.5 text-xs font-black text-white shadow-sm hover:shadow-glow border border-blue-500/40"
         >
           <PlusCircle className="h-4 w-4" />
-          Report New Issue
+          <span>+ Report New Issue</span>
         </Link>
       </div>
 
       {/* 3 Bento KPI Tiles */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {/* KPI 1 */}
-        <div className="bento-card p-6 bg-white border border-slate-200 shadow-subtle flex items-center justify-between">
+        <div className="bento-card p-6 bg-gradient-to-br from-white via-white to-blue-50/40 border border-slate-200/90 shadow-subtle hover:shadow-float flex items-center justify-between transition-all">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Reports Submitted
             </span>
-            <div className="mt-1 font-mono text-3xl font-extrabold text-slate-900">
+            <div className="mt-1 font-mono text-3xl font-black text-slate-900">
               {totalReports}
             </div>
           </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-brand">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-brand shadow-2xs border border-blue-100">
             <FileText className="h-6 w-6" />
           </div>
         </div>
 
         {/* KPI 2 */}
-        <div className="bento-card p-6 bg-white border border-slate-200 shadow-subtle flex items-center justify-between">
+        <div className="bento-card p-6 bg-gradient-to-br from-white via-white to-amber-50/40 border border-slate-200/90 shadow-subtle hover:shadow-float flex items-center justify-between transition-all">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Community Votes Cast
             </span>
-            <div className="mt-1 font-mono text-3xl font-extrabold text-slate-900">
+            <div className="mt-1 font-mono text-3xl font-black text-slate-900">
               {verificationCount}
             </div>
           </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 shadow-2xs border border-amber-100">
             <ThumbsUp className="h-6 w-6" />
           </div>
         </div>
 
         {/* KPI 3 */}
-        <div className="bento-card p-6 bg-white border border-slate-200 shadow-subtle flex items-center justify-between">
+        <div className="bento-card p-6 bg-gradient-to-br from-white via-white to-emerald-50/40 border border-slate-200/90 shadow-subtle hover:shadow-float flex items-center justify-between transition-all">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Civic Repairs Confirmed
             </span>
-            <div className="mt-1 font-mono text-3xl font-extrabold text-emerald-600">
+            <div className="mt-1 font-mono text-3xl font-black text-emerald-600">
               {resolvedCount}
             </div>
           </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 shadow-2xs border border-emerald-100">
             <CheckCircle className="h-6 w-6" />
           </div>
         </div>
@@ -243,12 +244,13 @@ export default async function CitizenDashboardPage() {
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
                         <span
-                          className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${badge.cls}`}
+                          className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${badge.cls}`}
                         >
                           {badge.label}
                         </span>
-                        <span className="text-[11px] font-semibold text-slate-500">
-                          {report.category.name}
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 bg-slate-100 rounded-md px-1.5 py-0.5 border border-slate-200/60">
+                          <DynamicCategoryIcon nameOrSlug={report.category.name} size={14} />
+                          <span>{report.category.name}</span>
                         </span>
                         {report.isDuplicate && (
                           <span className="rounded bg-amber-100 text-amber-800 text-[10px] font-semibold px-1.5 py-0.5">
@@ -256,10 +258,10 @@ export default async function CitizenDashboardPage() {
                           </span>
                         )}
                       </div>
-                      <h3 className="mt-1 text-sm font-bold text-slate-900 line-clamp-1">
+                      <h3 className="mt-1.5 text-sm font-bold text-slate-900 line-clamp-1">
                         {report.title}
                       </h3>
-                      <div className="mt-1 flex items-center gap-3 text-xs text-slate-500 flex-wrap">
+                      <div className="mt-1 flex items-center gap-3 text-xs text-slate-500 flex-wrap font-medium">
                         <span className="flex items-center gap-1">
                           <MapPin className="h-3.5 w-3.5 text-slate-400" />
                           {report.address}
@@ -277,17 +279,18 @@ export default async function CitizenDashboardPage() {
                       <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
                         AI Priority
                       </span>
-                      <span className="font-mono text-base font-extrabold text-slate-900">
+                      <span className="font-mono text-base font-black text-slate-900">
                         {Math.round(report.priorityScore)}/100
                       </span>
                     </div>
 
                     <Link
                       href={`/reports/${report.id}`}
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition"
+                      className="btn-tactile inline-flex items-center gap-1 rounded-xl bg-slate-900 hover:bg-brand text-white px-3.5 py-2 text-xs font-bold shadow-2xs transition-colors"
                       aria-label="View report details"
                     >
-                      <ChevronRight className="h-4 w-4" />
+                      <span>Track Status</span>
+                      <ChevronRight className="h-3.5 w-3.5" />
                     </Link>
                   </div>
                 </div>

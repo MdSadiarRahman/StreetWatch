@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Sparkles,
 } from "lucide-react";
+import { DynamicCategoryIcon } from "@/components/ui/CategoryIcons";
 
 // Dynamic import for Leaflet map canvas with SSR disabled
 const CityMapCanvas = dynamic(
@@ -332,8 +333,9 @@ export default function PublicCityMapPage() {
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider bg-slate-100 rounded-md px-1.5 py-0.5">
-                      {report.category?.name}
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-700 bg-slate-100/90 rounded-lg px-2 py-1 border border-slate-200/60">
+                      <DynamicCategoryIcon nameOrSlug={report.category?.name || ""} size={16} />
+                      <span>{report.category?.name}</span>
                     </span>
                     <span
                       className={`font-mono text-xs font-black px-2.5 py-0.5 rounded-full border shadow-2xs ${
@@ -364,7 +366,7 @@ export default function PublicCityMapPage() {
                       <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${badge.cls}`}>
                         {badge.label}
                       </span>
-                      <span className="flex items-center gap-1 text-[11px] font-bold text-slate-600 bg-slate-100/70 rounded-md px-1.5 py-0.5">
+                      <span className="flex items-center gap-1 text-[11px] font-bold text-slate-700 bg-slate-100/80 rounded-md px-2 py-0.5 border border-slate-200/50">
                         <ThumbsUp className="h-3 w-3 text-brand" />
                         {report.verificationCount}
                       </span>
@@ -373,9 +375,10 @@ export default function PublicCityMapPage() {
                     <Link
                       href={`/reports/${report.id}`}
                       onClick={(e) => e.stopPropagation()}
-                      className="text-[11px] font-bold text-brand hover:text-brand-hover inline-flex items-center gap-1 group-hover:translate-x-0.5 transition-transform"
+                      className="btn-tactile inline-flex items-center gap-1 rounded-xl bg-slate-900 hover:bg-brand text-white px-3 py-1.5 text-[11px] font-bold shadow-2xs transition-colors"
                     >
-                      View Details &rarr;
+                      <span>Details</span>
+                      <ChevronRight className="h-3 w-3" />
                     </Link>
                   </div>
                 </div>
