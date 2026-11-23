@@ -12,6 +12,9 @@ import {
   Image as ImageIcon,
   Building,
   Info,
+  Radio,
+  FileCheck,
+  ShieldAlert,
 } from "lucide-react";
 import { DynamicCategoryIcon } from "@/components/ui/CategoryIcons";
 
@@ -21,8 +24,9 @@ const LocationPickerMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[280px] w-full animate-pulse rounded-xl bg-slate-100 flex items-center justify-center text-xs text-slate-400">
-        Loading interactive map canvas...
+      <div className="h-[280px] w-full bg-slate-100 flex flex-col items-center justify-center text-xs text-slate-500 font-medium rounded-lg border border-slate-200">
+        <div className="h-4 w-4 border-2 border-civic border-t-transparent rounded-full animate-spin mb-1.5" />
+        <span>Loading geospatial map coordinate picker...</span>
       </div>
     ),
   }
@@ -174,68 +178,77 @@ export default function ReportIssuePage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      {/* Page Header */}
-      <div className="mb-6 space-y-4">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+      {/* 70% Civic Swiss Page Header */}
+      <div className="border-b border-slate-200 pb-5 space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-100 text-brand shadow-2xs">
-                <PlusCircle className="h-4 w-4" />
+              <span className="flex h-6 w-6 items-center justify-center rounded bg-civic text-white text-xs font-bold font-mono">
+                +
               </span>
-              <h1 className="text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl">
-                Report a Civic Hazard or Road Defect
+              <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+                File a Civic Hazard or Infrastructure Defect
               </h1>
             </div>
             <p className="mt-1 text-xs sm:text-sm text-slate-600">
-              Submit photo evidence and coordinates. StreetWatch AI auto-triages urgency and dispatches certified municipal teams.
+              Submit verified photographic proof and coordinates for algorithmic AI triage and municipal dispatch.
             </p>
           </div>
 
-          <div className="inline-flex items-center gap-2 self-start rounded-full border border-blue-200/80 bg-blue-50/70 px-3 py-1 text-xs font-bold text-blue-800 shadow-2xs">
-            <Sparkles className="h-3.5 w-3.5 text-blue-600 animate-spin" style={{ animationDuration: '4s' }} />
-            <span>AI Powered Triage</span>
+          <div className="inline-flex items-center gap-2 self-start rounded border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-bold text-civic">
+            <Radio className="h-3 w-3 text-civic animate-pulse" />
+            <span>AI Automated Triage Protocol Active</span>
           </div>
         </div>
 
-        {/* Stepper Guide */}
-        <div className="grid grid-cols-3 gap-2 py-2 border-y border-slate-200/80 text-xs">
+        {/* Clean Swiss Operational Workflow Stepper */}
+        <div className="grid grid-cols-3 gap-3 pt-3 text-xs border-t border-slate-100">
           <div className="flex items-center gap-2 text-slate-900 font-bold">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-900 text-[10px] text-white">1</span>
-            <span className="hidden sm:inline">Issue Details</span>
+            <span className="flex h-5 w-5 items-center justify-center rounded bg-slate-900 text-[10px] text-white font-mono">
+              1
+            </span>
+            <span>Incident Details &amp; Proof</span>
           </div>
           <div className="flex items-center gap-2 text-slate-900 font-bold">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-900 text-[10px] text-white">2</span>
-            <span className="hidden sm:inline">Map &amp; Duplicate Check</span>
+            <span className="flex h-5 w-5 items-center justify-center rounded bg-slate-900 text-[10px] text-white font-mono">
+              2
+            </span>
+            <span>Spatial GPS &amp; Proximity Check</span>
           </div>
           <div className="flex items-center gap-2 text-slate-500 font-semibold">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-200 text-[10px] text-slate-700">3</span>
-            <span className="hidden sm:inline">Auto-Triage &amp; Dispatch</span>
+            <span className="flex h-5 w-5 items-center justify-center rounded bg-slate-200 text-[10px] text-slate-700 font-mono">
+              3
+            </span>
+            <span>AI Urgency &amp; Crew Dispatch</span>
           </div>
         </div>
       </div>
 
       {error && (
-        <div className="mb-6 flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-800">
-          <AlertTriangle className="h-5 w-5 shrink-0 text-red-600" />
+        <div className="flex items-center gap-2.5 rounded-lg border border-red-300 bg-red-50 p-4 text-xs font-medium text-red-900">
+          <AlertTriangle className="h-4 w-4 shrink-0 text-red-700" />
           <span>{error}</span>
         </div>
       )}
 
-      {/* 2-Column Minimalist Bento Layout */}
+      {/* 2-Column Swiss Operational Grid */}
       <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        {/* Left Column (7 cols): Form Inputs & Evidence Dropzone */}
-        <div className="space-y-6 lg:col-span-7">
-          <div className="bento-card p-6 bg-white border border-slate-200 shadow-subtle space-y-4">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-              <Info className="h-4 w-4 text-brand" />
-              1. Issue Details
-            </h2>
+        {/* Left Column (7 cols): Incident Form Details */}
+        <div className="space-y-5 lg:col-span-7">
+          <div className="civic-card p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                <Info className="h-4 w-4 text-civic" />
+                <span>1. Incident Classification &amp; Description</span>
+              </h2>
+              <span className="text-[11px] font-medium text-slate-500">* Required Fields</span>
+            </div>
 
             {/* Title */}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                Issue Title *
+              <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">
+                Incident Title *
               </label>
               <input
                 type="text"
@@ -243,36 +256,36 @@ export default function ReportIssuePage() {
                 minLength={5}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g., Deep Road Crater Causing Traffic Skids"
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 px-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 transition"
+                placeholder="e.g. Deep Road Crater Threatening Vehicle Axles"
+                className="w-full rounded-lg border border-slate-300 bg-white py-2 px-3 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-civic focus:outline-none focus:ring-1 focus:ring-civic transition"
               />
             </div>
 
-            {/* Interactive Category Selector Buttons */}
+            {/* Category Grid Buttons */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                  Hazard Category *
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                  Hazard Classification *
                 </label>
-                <span className="text-[11px] text-slate-500">Tap to auto-select</span>
+                <span className="text-[11px] text-slate-500 font-medium">Select matching category</span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 <button
                   type="button"
                   onClick={() => setCategoryId("AUTO")}
-                  className={`btn-tactile p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between ${
+                  className={`p-2.5 rounded-lg border text-left transition flex flex-col justify-between ${
                     categoryId === "AUTO"
-                      ? "border-brand bg-gradient-to-br from-blue-50 to-indigo-50/80 shadow-sm ring-2 ring-brand/20"
-                      : "border-slate-200/90 bg-white hover:border-slate-300 hover:bg-slate-50/70"
+                      ? "border-civic bg-blue-50/70 ring-1 ring-civic"
+                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <Sparkles className="h-5 w-5 text-indigo-600" />
-                    {categoryId === "AUTO" && <span className="h-2 w-2 rounded-full bg-brand" />}
+                  <div className="flex items-center justify-between mb-1">
+                    <Sparkles className="h-4 w-4 text-civic" />
+                    {categoryId === "AUTO" && <span className="h-1.5 w-1.5 rounded-full bg-civic" />}
                   </div>
                   <div>
                     <span className="text-xs font-bold text-slate-900 block leading-tight">✨ Auto-Detect</span>
-                    <span className="text-[10px] text-slate-500">Gemini AI</span>
+                    <span className="text-[10px] text-slate-500 font-medium">Gemini AI Vision</span>
                   </div>
                 </button>
 
@@ -286,19 +299,19 @@ export default function ReportIssuePage() {
                         setCategoryId(cat.id);
                         if (!title) setTitle(`${cat.name} Reported on Street`);
                       }}
-                      className={`btn-tactile p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between ${
+                      className={`p-2.5 rounded-lg border text-left transition flex flex-col justify-between ${
                         isSelected
-                          ? "border-brand bg-gradient-to-br from-blue-50 to-indigo-50/80 shadow-sm ring-2 ring-brand/20"
-                          : "border-slate-200/90 bg-white hover:border-slate-300 hover:bg-slate-50/70"
+                          ? "border-civic bg-blue-50/70 ring-1 ring-civic"
+                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
                       }`}
                     >
-                      <div className="flex items-center justify-between mb-1.5">
-                        <DynamicCategoryIcon nameOrSlug={cat.name} size={22} />
-                        {isSelected && <span className="h-2 w-2 rounded-full bg-brand" />}
+                      <div className="flex items-center justify-between mb-1">
+                        <DynamicCategoryIcon nameOrSlug={cat.name} size={18} />
+                        {isSelected && <span className="h-1.5 w-1.5 rounded-full bg-civic" />}
                       </div>
                       <div>
                         <span className="text-xs font-bold text-slate-900 block leading-tight truncate">{cat.name}</span>
-                        <span className="text-[10px] text-slate-500 font-mono">Risk {cat.baseRiskWeight || 25}</span>
+                        <span className="text-[10px] text-slate-500 font-mono">Risk Weight {cat.baseRiskWeight || 25}</span>
                       </div>
                     </button>
                   );
@@ -308,13 +321,13 @@ export default function ReportIssuePage() {
 
             {/* Ward / Zone Selection */}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                Ward / District Zone *
+              <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">
+                Dhaka Municipal Ward Zone *
               </label>
               <select
                 value={wardZone}
                 onChange={(e) => setWardZone(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 px-3 text-sm text-slate-900 focus:bg-white focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 transition"
+                className="w-full rounded-lg border border-slate-300 bg-white py-2 px-3 text-xs font-semibold text-slate-900 focus:border-civic focus:outline-none focus:ring-1 focus:ring-civic transition"
               >
                 <option value="Ward 4">Ward 4 (Mirpur Sector 10)</option>
                 <option value="Ward 9">Ward 9 (Gulshan - Badda)</option>
@@ -327,26 +340,26 @@ export default function ReportIssuePage() {
 
             {/* Address */}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                Specific Location Landmark *
+              <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">
+                Street Address / Landmark *
               </label>
               <div className="relative">
-                <Building className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Building className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
                   type="text"
                   required
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   placeholder="e.g. Opposite City Hospital Gate, Mirpur Road"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 pl-10 pr-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 transition"
+                  className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-civic focus:outline-none focus:ring-1 focus:ring-civic transition"
                 />
               </div>
             </div>
 
             {/* Description */}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                Hazard Description * (Min 15 chars)
+              <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">
+                Detailed Hazard Observation * (Min 15 chars)
               </label>
               <textarea
                 required
@@ -354,32 +367,32 @@ export default function ReportIssuePage() {
                 minLength={15}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Explain the severity, hazards, pedestrian danger, or vehicles affected..."
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 px-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 transition"
+                placeholder="Explain the physical hazard, risk to pedestrians/motorcycles, obstruction to traffic, or depth..."
+                className="w-full rounded-lg border border-slate-300 bg-white py-2 px-3 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-civic focus:outline-none focus:ring-1 focus:ring-civic transition"
               />
             </div>
 
             {/* Photo URL & Quick Sample Selector */}
             <div className="pt-2 border-t border-slate-100">
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                Photographic Proof URL *
+              <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">
+                Photographic Evidence URL *
               </label>
               <div className="relative mb-2">
-                <ImageIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
                   type="url"
                   required
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
                   placeholder="https://..."
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 pl-10 pr-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 transition"
+                  className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-civic focus:outline-none focus:ring-1 focus:ring-civic transition"
                 />
               </div>
 
-              {/* Quick Sample Selector for Demo Testing */}
+              {/* Quick Sample Selector */}
               <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                <span className="text-[11px] font-semibold text-slate-500">
-                  Quick Demo Photos:
+                <span className="text-[11px] font-bold text-slate-500">
+                  Standard Test Evidence:
                 </span>
                 {SAMPLE_PHOTOS.map((sample) => (
                   <button
@@ -389,9 +402,9 @@ export default function ReportIssuePage() {
                       setImageUrl(sample.url);
                       if (!title) setTitle(`${sample.label} Reported on Street`);
                     }}
-                    className={`rounded-lg border px-2 py-0.5 text-xs font-medium transition ${
+                    className={`rounded px-2 py-0.5 text-[11px] font-bold border transition ${
                       imageUrl === sample.url
-                        ? "border-brand bg-blue-50 text-brand font-bold"
+                        ? "border-civic bg-blue-50 text-civic"
                         : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                     }`}
                   >
@@ -400,10 +413,10 @@ export default function ReportIssuePage() {
                 ))}
               </div>
 
-              {/* Live Evidence Preview */}
+              {/* Evidence Preview */}
               {imageUrl && (
-                <div className="mt-3 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-2.5">
-                  <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
+                <div className="mt-3 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-2.5">
+                  <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded border border-slate-200 bg-slate-200">
                     <img
                       src={imageUrl}
                       alt="Hazard preview"
@@ -411,8 +424,10 @@ export default function ReportIssuePage() {
                     />
                   </div>
                   <div className="text-xs">
-                    <span className="font-bold text-slate-800 block">Photographic Evidence Loaded</span>
-                    <span className="text-[11px] text-slate-500">EXIF metadata &amp; visual hazard features will be analyzed by Gemini Vision.</span>
+                    <span className="font-bold text-slate-900 block">Photographic Record Attached</span>
+                    <span className="text-[11px] text-slate-500 font-medium">
+                      High-resolution visual features will be ingested by Gemini Vision for severity extraction.
+                    </span>
                   </div>
                 </div>
               )}
@@ -420,15 +435,15 @@ export default function ReportIssuePage() {
           </div>
         </div>
 
-        {/* Right Column (5 cols): Map Pin Picker & Live AI Pre-Check */}
-        <div className="space-y-6 lg:col-span-5">
-          <div className="bento-card p-6 bg-white border border-slate-200 shadow-subtle space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-brand" />
-                2. Geolocation Pin
+        {/* Right Column (5 cols): Spatial Geolocation & Duplicate Detection */}
+        <div className="space-y-5 lg:col-span-5">
+          <div className="civic-card p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-civic" />
+                <span>2. Geolocation Pin &amp; Spatial Audit</span>
               </h2>
-              <span className="font-mono text-xs text-slate-500 bg-slate-100 rounded px-2 py-0.5">
+              <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 rounded px-2 py-0.5 border border-slate-200">
                 {lat.toFixed(4)}, {lng.toFixed(4)}
               </span>
             </div>
@@ -443,31 +458,31 @@ export default function ReportIssuePage() {
               }}
             />
 
-            {/* Live Duplicate & AI Pre-Check Box (M06) */}
-            <div className="rounded-xl border p-3.5 text-xs transition">
+            {/* Live Duplicate Proximity Audit (M06) */}
+            <div className="rounded-lg border p-3 text-xs transition">
               {checkingDuplicate ? (
-                <div className="flex items-center gap-2 text-slate-500">
-                  <div className="h-3 w-3 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-                  <span>Scanning nearby radius for duplicate reports...</span>
+                <div className="flex items-center gap-2 text-slate-500 font-medium">
+                  <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-civic border-t-transparent" />
+                  <span>Scanning 50m radius for existing reports...</span>
                 </div>
               ) : duplicateCheck?.isDuplicate ? (
-                <div className="space-y-2 text-amber-900 bg-amber-50/80 -m-3.5 p-3.5 rounded-xl border border-amber-200">
-                  <div className="flex items-center gap-1.5 font-bold">
-                    <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
-                    <span>Duplicate Hazard Detected ({duplicateCheck.distanceMeters}m away)</span>
+                <div className="space-y-1.5 text-amber-950 bg-amber-50 -m-3 p-3 rounded-lg border border-amber-300">
+                  <div className="flex items-center gap-1.5 font-bold text-amber-900">
+                    <AlertTriangle className="h-4 w-4 text-amber-700 shrink-0" />
+                    <span>Geospatial Duplicate Detected ({duplicateCheck.distanceMeters}m away)</span>
                   </div>
-                  <p className="text-[11px] leading-relaxed text-amber-800">
-                    A report matching this hazard already exists: <strong>&ldquo;{duplicateCheck.parentReport?.title}&rdquo;</strong>.
-                    To prevent redundant city dispatches, consider upvoting the existing report!
+                  <p className="text-[11px] leading-relaxed text-amber-800 font-medium">
+                    An open report already covers this coordinate: <strong>&ldquo;{duplicateCheck.parentReport?.title}&rdquo;</strong>.
+                    To prevent duplicate municipal dispatch, consider upvoting the existing report!
                   </p>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 text-emerald-800 bg-emerald-50/60 -m-3.5 p-3.5 rounded-xl border border-emerald-200">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                <div className="flex items-center gap-2 text-emerald-950 bg-emerald-50 -m-3 p-3 rounded-lg border border-emerald-300">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-700 shrink-0" />
                   <div>
-                    <span className="font-bold">Clean Geographic Coordinates</span>
-                    <p className="text-[11px] text-emerald-700 mt-0.5">
-                      No conflicting open reports within 50m radius.
+                    <span className="font-bold text-emerald-900">Clean Geolocation Coordinates</span>
+                    <p className="text-[11px] text-emerald-800 font-medium mt-0.5">
+                      No conflicting open hazards within 50-meter buffer radius.
                     </p>
                   </div>
                 </div>
@@ -475,10 +490,10 @@ export default function ReportIssuePage() {
             </div>
 
             {/* AI Triaging Notice */}
-            <div className="flex items-start gap-2 rounded-xl bg-blue-50/50 p-3 border border-blue-100 text-xs text-blue-900">
-              <Sparkles className="h-4 w-4 text-brand shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2 rounded-lg bg-slate-50 p-3 border border-slate-200 text-xs text-slate-700">
+              <FileCheck className="h-4 w-4 text-civic shrink-0 mt-0.5" />
               <span>
-                Submission automatically executes <strong>Gemini AI Triage</strong> to calculate urgency score and initiate the 8-stage resolution workflow.
+                Submission immediately triggers <strong>Gemini AI Triage</strong> to calculate severity score, SLA tier, and register the report in the municipal state machine.
               </span>
             </div>
 
@@ -486,10 +501,10 @@ export default function ReportIssuePage() {
             <button
               type="submit"
               disabled={submitting}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 py-3.5 px-4 text-sm font-bold text-white shadow-sm hover:shadow-glow transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand disabled:opacity-50 transform hover:-translate-y-0.5"
+              className="btn-tactile flex w-full items-center justify-center gap-2 rounded-lg bg-civic hover:bg-civic-hover py-3 px-4 text-xs font-bold text-white shadow-2xs transition disabled:opacity-50"
             >
               <Sparkles className="h-4 w-4" />
-              {submitting ? "Analyzing with Gemini AI & Submitting..." : "Submit Civic Report (Trigger AI Triage)"}
+              {submitting ? "Analyzing with Gemini AI & Submitting..." : "Submit Incident Report (Trigger AI Triage)"}
             </button>
           </div>
         </div>

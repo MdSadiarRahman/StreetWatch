@@ -8,21 +8,26 @@
     --card-bg: #ffffff;
     --card-border: #e2e8f0;
     --text-primary: #0f172a;
-    --text-secondary: #475569;
-    --text-muted: #94a3b8;
-    --primary-brand: #2563eb;
-    --primary-hover: #1d4ed8;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    --civic-blue: #1d4ed8;
   }
 
   body {
     background-color: var(--canvas-bg);
     color: var(--text-primary);
-    font-family: var(--font-sans), Inter, "Plus Jakarta Sans", system-ui, sans-serif;
+    font-family: var(--font-sans), Inter, system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
 
-  /* Sleek modern custom scrollbar */
+  /* Accessible focus ring for all interactive elements */
+  :focus-visible {
+    outline: 2px solid #1d4ed8;
+    outline-offset: 2px;
+  }
+
+  /* Precision Swiss custom scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -43,62 +48,65 @@
 }
 
 @layer utilities {
-  .glass-panel {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(226, 232, 240, 0.85);
+  /* 70% Civic Swiss / Government UX Panels */
+  .civic-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
 
-  .glass-card {
-    background: rgba(255, 255, 255, 0.92);
+  .civic-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.07);
+  }
+
+  .operational-panel {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+  }
+
+  /* 20% Spatial Map & 10% Selective Glassmorphism */
+  .spatial-hud {
+    background: rgba(255, 255, 255, 0.90);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(241, 245, 249, 1);
-    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+    border: 1px solid rgba(226, 232, 240, 0.90);
+    box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+  }
+
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(226, 232, 240, 0.85);
   }
 
   .bento-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 1rem;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .bento-card:hover {
-    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+    box-shadow: 0 6px 16px -4px rgba(15, 23, 42, 0.08);
     border-color: #cbd5e1;
-    transform: translateY(-1px);
   }
 
-  .hero-glow {
-    background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.12) 0%, rgba(248, 250, 252, 0) 70%);
-  }
-
-  .radar-pulse {
-    position: relative;
-  }
-  .radar-pulse::before {
-    content: '';
-    position: absolute;
-    inset: -3px;
-    border-radius: 9999px;
-    background: currentColor;
-    opacity: 0.35;
-    animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
-  }
-
-  /* Tactile Modern Web Buttons & Badges */
+  /* Tactile Civic Buttons */
   .btn-tactile {
     position: relative;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .btn-tactile:hover {
-    transform: translateY(-1.5px);
+    transform: translateY(-1px);
   }
   .btn-tactile:active {
-    transform: translateY(0.5px) scale(0.985);
+    transform: translateY(0.5px) scale(0.99);
   }
 
   .btn-glossy {
@@ -115,16 +123,50 @@
     background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
   }
 
-  .badge-glossy {
+  .radar-pulse {
     position: relative;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 2px rgba(15, 23, 42, 0.05);
+  }
+  .radar-pulse::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 9999px;
+    background: currentColor;
+    opacity: 0.35;
+    animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
   }
 }
 
-/* Leaflet Map Overrides */
+/* Reduced Motion Support for Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .btn-tactile:hover, .bento-card:hover, .civic-card:hover {
+    transform: none !important;
+  }
+}
+
+/* Leaflet Map Overrides for Spatial Cleanliness */
 .leaflet-container {
   width: 100%;
   height: 100%;
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   z-index: 10;
+  font-family: inherit;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 0.75rem !important;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15) !important;
+  border: 1px solid #e2e8f0 !important;
+  padding: 0 !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: inherit !important;
 }

@@ -27,11 +27,11 @@ interface CityMapCanvasProps {
   onSelectReport?: (id: string) => void;
 }
 
-// Helper to center the map when a report is selected in the list
+// Map recentering helper
 function MapRecenter({ lat, lng }: { lat: number; lng: number }) {
   const map = useMap();
   useEffect(() => {
-    map.flyTo([lat, lng], 15, { duration: 1.2 });
+    map.flyTo([lat, lng], 15, { duration: 1.0 });
   }, [lat, lng, map]);
   return null;
 }
@@ -47,27 +47,27 @@ export default function CityMapCanvas({
     setMounted(true);
   }, []);
 
-  // Determine active center
-  const defaultCenter: [number, number] = [23.7808, 90.3802]; // Dhaka coordinates
+  // Center coordinate: Dhaka Metropolitan Area
+  const defaultCenter: [number, number] = [23.7808, 90.3802];
   const selectedReport = useMemo(
     () => reports.find((r) => r.id === selectedReportId),
     [reports, selectedReportId]
   );
 
-  // Generate color-coded custom divIcons
+  // Generate color-coded Swiss municipal divIcons
   const createPinIcon = (report: MapReportPin) => {
-    let pinColor = "#2563EB"; // Blue default
+    let pinColor = "#1D4ED8"; // Civic Blue
     let badgeText = Math.round(report.priorityScore).toString();
 
-    if (report.priorityScore >= 85 || report.status === "ASSIGNED") {
-      pinColor = "#DC2626"; // Crimson
+    if (report.priorityScore >= 80 || report.status === "ASSIGNED") {
+      pinColor = "#DC2626"; // Critical Crimson
     } else if (report.status === "IN_PROGRESS") {
       pinColor = "#D97706"; // Amber
     } else if (
       report.status === "RESOLVED" ||
       report.status === "CITIZEN_VERIFIED"
     ) {
-      pinColor = "#059669"; // Emerald
+      pinColor = "#047857"; // Emerald
       badgeText = "✓";
     }
 
@@ -81,32 +81,32 @@ export default function CityMapCanvas({
           display: flex;
           align-items: center;
           justify-content: center;
-          width: ${isSelected ? "38px" : "32px"};
-          height: ${isSelected ? "38px" : "32px"};
+          width: ${isSelected ? "36px" : "30px"};
+          height: ${isSelected ? "36px" : "30px"};
           background: ${pinColor};
           color: white;
-          font-family: monospace;
+          font-family: ui-monospace, SFMono-Regular, monospace;
           font-weight: 800;
-          font-size: ${isSelected ? "12px" : "11px"};
+          font-size: ${isSelected ? "11px" : "10px"};
           border-radius: 9999px;
-          border: 3px solid white;
-          box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+          border: 2.5px solid #ffffff;
+          box-shadow: 0 2px 8px rgba(15, 23, 42, 0.35);
           transform: ${isSelected ? "scale(1.15)" : "scale(1)"};
-          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
         ">
           ${badgeText}
         </div>
       `,
-      iconSize: isSelected ? [38, 38] : [32, 32],
-      iconAnchor: isSelected ? [19, 19] : [16, 16],
-      popupAnchor: [0, -20],
+      iconSize: isSelected ? [36, 36] : [30, 30],
+      iconAnchor: isSelected ? [18, 18] : [15, 15],
+      popupAnchor: [0, -18],
     });
   };
 
   if (!mounted) {
     return (
-      <div className="h-full w-full animate-pulse bg-slate-100 flex items-center justify-center text-xs text-slate-400">
-        Initializing City Geospatial Canvas...
+      <div className="h-full w-full bg-slate-100 flex items-center justify-center text-xs text-slate-500 font-medium">
+        Initializing Spatial Geospatial Canvas...
       </div>
     );
   }
@@ -145,12 +145,12 @@ export default function CityMapCanvas({
             }}
           >
             <Popup className="streetwatch-map-popup">
-              <div className="p-1 max-w-[240px]">
-                <div className="flex items-center justify-between gap-2 mb-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              <div className="p-3 max-w-[260px] bg-white">
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
                     {report.category?.name || "Civic Hazard"}
                   </span>
-                  <span className="font-mono text-xs font-extrabold text-brand bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">
+                  <span className="font-mono text-[11px] font-bold text-slate-800 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">
                     Score: {Math.round(report.priorityScore)}
                   </span>
                 </div>
@@ -158,17 +158,17 @@ export default function CityMapCanvas({
                   {report.title}
                 </h4>
                 <p className="text-[11px] text-slate-500 mt-1 line-clamp-1">
-                  📍 {report.address}
+                  📍 {report.address} ({report.wardZone})
                 </p>
                 <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-[10px] font-medium text-slate-600">
+                  <span className="text-[10px] font-bold text-slate-600">
                     👍 {report.verificationCount} votes
                   </span>
                   <Link
                     href={`/reports/${report.id}`}
-                    className="text-xs font-bold text-brand hover:underline inline-flex items-center gap-0.5"
+                    className="text-xs font-bold text-civic hover:underline inline-flex items-center gap-0.5"
                   >
-                    Inspect &rarr;
+                    Inspect Record &rarr;
                   </Link>
                 </div>
               </div>
@@ -177,34 +177,33 @@ export default function CityMapCanvas({
         ))}
       </MapContainer>
 
-      {/* Glassmorphic Floating Map Legend & Stats Overlay */}
-      <div className="absolute bottom-4 left-4 z-[400] glass-panel rounded-2xl p-3.5 shadow-lg max-w-[280px] pointer-events-auto">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-2">
-          Live City Map Legend
-        </span>
+      {/* Spatial HUD Legend (Bottom-Left) */}
+      <div className="absolute bottom-4 left-4 z-[400] spatial-hud rounded-lg p-3 max-w-[260px] pointer-events-auto">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-700">
+            Spatial Priority Map
+          </span>
+          <span className="font-mono text-[10px] font-bold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">
+            {reports.length} Incidents
+          </span>
+        </div>
         <div className="grid grid-cols-2 gap-2 text-[11px] font-medium text-slate-700">
           <div className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full bg-status-critical" />
-            <span>Critical (&ge;85)</span>
+            <span>Critical (&ge;80)</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full bg-status-inProgress" />
             <span>In Progress</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-brand" />
-            <span>Verified</span>
+            <span className="h-2.5 w-2.5 rounded-full bg-civic" />
+            <span>AI Triaged</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full bg-status-resolved" />
             <span>Resolved</span>
           </div>
-        </div>
-        <div className="mt-2.5 pt-2 border-t border-slate-200/70 text-[11px] text-slate-500 flex items-center justify-between">
-          <span>Active Issues:</span>
-          <span className="font-mono font-bold text-slate-900">
-            {reports.length}
-          </span>
         </div>
       </div>
     </div>

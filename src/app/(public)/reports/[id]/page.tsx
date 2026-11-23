@@ -16,7 +16,7 @@ import {
   ShieldCheck,
   User,
   RotateCcw,
-  Star,
+  Check,
 } from "lucide-react";
 import { DynamicCategoryIcon } from "@/components/ui/CategoryIcons";
 
@@ -152,7 +152,7 @@ export default function ReportDetailsPage({
 
       setFeedback({
         type: "success",
-        text: data.data.message || "Verification recorded!",
+        text: data.data.message || "Verification recorded in civic ledger!",
       });
     } catch {
       setFeedback({
@@ -193,7 +193,7 @@ export default function ReportDetailsPage({
 
       setFeedback({
         type: "success",
-        text: json.data?.message || "Sign-off recorded successfully!",
+        text: json.data?.message || "Citizen sign-off recorded successfully!",
       });
       setShowDisputeInput(false);
       await loadReport();
@@ -209,27 +209,32 @@ export default function ReportDetailsPage({
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-16 text-center text-sm text-slate-500">
-        <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-        <p className="mt-3">Loading report details &amp; AI decision state...</p>
+      <div className="mx-auto max-w-7xl px-4 py-16 text-center text-xs text-slate-500 font-medium">
+        <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-civic border-t-transparent mb-2" />
+        <p>Loading municipal incident record &amp; AI triage breakdown...</p>
       </div>
     );
   }
 
   if (!report) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <h2 className="text-xl font-bold text-slate-900">Report Not Found</h2>
-        <p className="mt-2 text-sm text-slate-500">
-          The requested civic issue report does not exist or was removed.
-        </p>
-        <Link
-          href="/"
-          className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-brand px-4 py-2 text-xs font-semibold text-white shadow-sm"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Public Map
-        </Link>
+      <div className="mx-auto max-w-xl px-4 py-16 text-center">
+        <div className="civic-card p-8">
+          <AlertTriangle className="h-8 w-8 text-amber-500 mx-auto mb-3" />
+          <h2 className="text-base font-bold text-slate-900">Incident Record Not Found</h2>
+          <p className="mt-1 text-xs text-slate-500">
+            The requested incident ticket does not exist or has been archived.
+          </p>
+          <div className="mt-4">
+            <Link
+              href="/"
+              className="btn-tactile inline-flex items-center gap-1.5 rounded-lg bg-civic px-4 py-2 text-xs font-bold text-white shadow-2xs"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Return to City Map
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
@@ -240,70 +245,75 @@ export default function ReportDetailsPage({
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
-      {/* Top Breadcrumb & Action Header */}
-      <div className="flex items-center justify-between">
+      {/* Top Breadcrumb & Ticket Identifier */}
+      <div className="flex items-center justify-between border-b border-slate-200 pb-4">
         <Link
           href="/"
-          className="btn-tactile inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition"
+          className="btn-tactile inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition"
         >
           <ArrowLeft className="h-3.5 w-3.5 text-slate-500" />
-          <span>Back to City Map</span>
+          <span>City Geospatial Map</span>
         </Link>
 
-        <span className="font-mono text-xs font-semibold text-slate-500 bg-slate-100 rounded-lg px-2.5 py-1 border border-slate-200/60">
-          Ticket #{report.id.slice(0, 10)}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 rounded px-2.5 py-1 border border-slate-200">
+            TICKET #{report.id.slice(0, 10).toUpperCase()}
+          </span>
+        </div>
       </div>
 
       {feedback && (
         <div
-          className={`rounded-xl p-4 text-xs font-semibold border flex items-center gap-2 ${
+          className={`rounded-lg p-3.5 text-xs font-bold border flex items-center gap-2 ${
             feedback.type === "success"
-              ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-              : "bg-red-50 text-red-800 border-red-200"
+              ? "bg-emerald-50 text-emerald-900 border-emerald-300"
+              : "bg-red-50 text-red-900 border-red-300"
           }`}
         >
           {feedback.type === "success" ? (
-            <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+            <CheckCircle2 className="h-4 w-4 text-emerald-700 shrink-0" />
           ) : (
-            <AlertTriangle className="h-4 w-4 text-red-600 shrink-0" />
+            <AlertTriangle className="h-4 w-4 text-red-700 shrink-0" />
           )}
           <span>{feedback.text}</span>
         </div>
       )}
 
-      {/* Main Asymmetric Grid: 65% Left / 35% Right */}
+      {/* Main Operational Layout: 65% Left / 35% Right */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        {/* Left Column (8 cols / 65%): Evidence, Description & Community Verification */}
+        {/* Left Column (8 cols): Photographic Evidence & Citizen Verification */}
         <div className="space-y-6 lg:col-span-8">
-          {/* Main Issue Card */}
-          <div className="bento-card overflow-hidden bg-white border border-slate-200 shadow-subtle p-6 space-y-5">
-            {/* Category, Status & Ward Header */}
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-4">
+          {/* Main Incident Card */}
+          <div className="civic-card p-6 space-y-5">
+            {/* Classification & Status Header */}
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-800 border border-slate-200/80">
-                  <DynamicCategoryIcon nameOrSlug={report.category?.name || ""} size={16} />
+                <span className="inline-flex items-center gap-1.5 rounded bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-800 border border-slate-200">
+                  <DynamicCategoryIcon nameOrSlug={report.category?.name || ""} size={14} />
                   <span>{report.category?.name}</span>
                 </span>
                 <span
-                  className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                  className={`inline-flex items-center gap-1.5 rounded border px-2.5 py-0.5 text-xs font-bold ${
                     isCitizenVerified
-                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                      ? "bg-emerald-50 text-emerald-800 border-emerald-300"
                       : isResolved
-                      ? "bg-amber-50 text-amber-700 border-amber-200"
-                      : "bg-blue-50 text-brand border-blue-200"
+                      ? "bg-amber-50 text-amber-800 border-amber-300"
+                      : "bg-blue-50 text-civic border-blue-300"
                   }`}
                 >
+                  <span className={`h-1.5 w-1.5 rounded-full ${
+                    isCitizenVerified ? "bg-emerald-600" : isResolved ? "bg-amber-600" : "bg-civic"
+                  }`} />
                   {report.status.replace("_", " ")}
                 </span>
                 {report.isDuplicate && (
-                  <span className="rounded-full bg-amber-100 border border-amber-200 px-2.5 py-0.5 text-xs font-bold text-amber-800">
+                  <span className="rounded bg-amber-100 border border-amber-300 px-2 py-0.5 text-[11px] font-bold text-amber-900">
                     Duplicate Cluster Linked
                   </span>
                 )}
               </div>
 
-              <div className="flex items-center gap-3 text-xs text-slate-500">
+              <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
                 <span className="flex items-center gap-1">
                   <MapPin className="h-3.5 w-3.5 text-slate-400" />
                   {report.wardZone}
@@ -315,78 +325,78 @@ export default function ReportDetailsPage({
               </div>
             </div>
 
-            {/* Title & Address */}
+            {/* Title & Street Address */}
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+              <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
                 {report.title}
               </h1>
-              <p className="mt-1 text-xs font-medium text-slate-500 flex items-center gap-1">
+              <p className="mt-1 text-xs font-medium text-slate-600 flex items-center gap-1">
                 📍 {report.address}
               </p>
             </div>
 
-            {/* Before vs After Photo Display */}
+            {/* Photographic Verification Grid (Before vs After) */}
             {report.afterProofUrl ? (
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs font-bold">
-                  <span className="text-slate-700 flex items-center gap-1.5">
-                    <Sparkles className="h-4 w-4 text-emerald-600" />
-                    Photographic Proof Verification (Before vs After)
+                  <span className="text-slate-800 flex items-center gap-1.5">
+                    <ShieldCheck className="h-4 w-4 text-emerald-700" />
+                    Photographic Proof Comparison (Before vs After)
                   </span>
-                  <span className="rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-bold">
-                    Repair Complete
+                  <span className="rounded bg-emerald-50 text-emerald-800 border border-emerald-300 px-2 py-0.5 text-[11px] font-bold">
+                    Repair Evidence Attached
                   </span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <span className="text-xs font-bold text-slate-600 block">
+                    <span className="text-xs font-bold text-slate-700 block">
                       Before Repair (Citizen Evidence)
                     </span>
-                    <div className="relative h-64 w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm group">
+                    <div className="relative h-60 w-full overflow-hidden rounded-lg border border-slate-300 bg-slate-100">
                       <Image
                         src={report.beforeProofUrl || report.imageUrl || "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80"}
                         alt={report.title}
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="object-cover"
                         sizes="(max-width: 640px) 100vw, 35vw"
                       />
-                      <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-white">
-                        Initial Hazard
+                      <div className="absolute top-2.5 left-2.5 bg-slate-900/80 px-2 py-0.5 rounded text-[10px] font-bold text-white">
+                        Initial Defect
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <span className="text-xs font-bold text-emerald-700 block">
+                    <span className="text-xs font-bold text-emerald-800 block">
                       After Repair (Field Worker Evidence)
                     </span>
-                    <div className="relative h-64 w-full overflow-hidden rounded-2xl border-2 border-emerald-300 bg-emerald-50/40 shadow-sm group">
+                    <div className="relative h-60 w-full overflow-hidden rounded-lg border-2 border-emerald-400 bg-emerald-50/50">
                       <Image
                         src={report.afterProofUrl || "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80"}
                         alt="Repaired proof"
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="object-cover"
                         sizes="(max-width: 640px) 100vw, 35vw"
                       />
-                      <div className="absolute top-3 left-3 bg-emerald-600/90 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-white">
-                        Repaired &amp; Cleared
+                      <div className="absolute top-2.5 left-2.5 bg-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold text-white">
+                        Completed Repair
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="relative h-72 sm:h-96 w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm group">
+              <div className="relative h-64 sm:h-80 w-full overflow-hidden rounded-lg border border-slate-300 bg-slate-100">
                 <Image
                   src={report.beforeProofUrl || report.imageUrl || "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80"}
                   alt={report.title}
                   fill
                   priority
-                  className="object-cover group-hover:scale-102 transition-transform duration-300"
+                  className="object-cover"
                   sizes="(max-width: 1024px) 100vw, 65vw"
                 />
-                <div className="absolute top-3.5 left-3.5 bg-black/65 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-white shadow-sm">
-                  Citizen Photo Evidence
+                <div className="absolute top-3 left-3 bg-slate-900/80 px-2.5 py-1 rounded text-[11px] font-bold text-white">
+                  Citizen Photographic Record
                 </div>
               </div>
             )}
@@ -394,70 +404,70 @@ export default function ReportDetailsPage({
             {/* Description */}
             <div>
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                Citizen Observation &amp; Hazard Impact
+                Physical Hazard Observation
               </h3>
-              <p className="text-sm leading-relaxed text-slate-700 bg-slate-50/60 p-4 rounded-xl border border-slate-100">
+              <p className="text-xs sm:text-sm leading-relaxed text-slate-800 bg-slate-50 p-4 rounded-lg border border-slate-200">
                 {report.description}
               </p>
             </div>
           </div>
 
-          {/* Citizen Final Sign-Off Banner (When report is in RESOLVED status) */}
+          {/* Citizen Final Sign-Off Action Card (When in RESOLVED status) */}
           {isResolved && report.isReporter && (
-            <div className="bento-card p-6 bg-emerald-50/70 border border-emerald-300 shadow-md space-y-4 animate-in fade-in">
-              <div className="flex items-center gap-2.5 text-emerald-900">
-                <ShieldCheck className="h-6 w-6 text-emerald-600 shrink-0" />
+            <div className="civic-card p-6 bg-emerald-50/60 border border-emerald-300 space-y-4">
+              <div className="flex items-center gap-2.5 text-emerald-950">
+                <ShieldCheck className="h-5 w-5 text-emerald-700 shrink-0" />
                 <div>
-                  <h3 className="text-base font-bold">
-                    Citizen Final Sign-Off Required (End-to-End Workflow Milestone)
+                  <h3 className="text-sm font-bold text-emerald-900">
+                    Citizen Final Verification Required (Milestone A07)
                   </h3>
-                  <p className="text-xs text-emerald-700">
-                    The municipal field worker has uploaded repair proof. Inspect the photos above and confirm resolution or reopen.
+                  <p className="text-xs text-emerald-800 font-medium">
+                    The municipal crew has marked this repair resolved. Review the After photographic evidence and approve closure or dispute.
                   </p>
                 </div>
               </div>
 
               {showDisputeInput ? (
-                <div className="space-y-3 pt-2">
+                <div className="space-y-3 pt-1">
                   <textarea
                     rows={2}
                     value={disputeFeedback}
                     onChange={(e) => setDisputeFeedback(e.target.value)}
-                    placeholder="Describe what is still hazardous or why you are disputing the repair..."
-                    className="w-full rounded-xl border border-red-200 bg-white p-3 text-xs text-slate-900 focus:outline-none focus:border-red-400"
+                    placeholder="Specify why the repair is incomplete or continues to pose a hazard..."
+                    className="w-full rounded-lg border border-red-300 bg-white p-3 text-xs text-slate-900 focus:outline-none focus:border-red-500"
                   />
                   <div className="flex items-center justify-end gap-2">
                     <button
                       onClick={() => setShowDisputeInput(false)}
-                      className="px-3 py-1.5 text-xs text-slate-600 hover:underline"
+                      className="px-3 py-1.5 text-xs font-bold text-slate-600 hover:text-slate-900"
                     >
-                      Back
+                      Cancel
                     </button>
                     <button
                       onClick={() => handleSignOff(false)}
                       disabled={signingOff}
-                      className="flex items-center gap-1.5 rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-red-700 disabled:opacity-50"
+                      className="btn-tactile flex items-center gap-1.5 rounded-lg bg-red-700 hover:bg-red-800 px-4 py-2 text-xs font-bold text-white disabled:opacity-50"
                     >
                       <RotateCcw className="h-3.5 w-3.5" />
-                      {signingOff ? "Reopening..." : "Confirm Dispute & Reopen"}
+                      {signingOff ? "Reopening..." : "Dispute Repair & Reopen"}
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-3 pt-2">
+                <div className="flex items-center gap-3 pt-1">
                   <button
                     onClick={() => handleSignOff(true)}
                     disabled={signingOff}
-                    className="btn-tactile btn-glossy flex-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:to-teal-800 py-3.5 px-4 text-xs font-black text-white shadow-sm hover:shadow-glowEmerald border border-emerald-500/50 disabled:opacity-50"
+                    className="btn-tactile flex-1 flex items-center justify-center gap-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 py-3 px-4 text-xs font-bold text-white shadow-2xs disabled:opacity-50"
                   >
-                    <CheckCircle2 className="h-4 w-4" />
-                    {signingOff ? "Confirming..." : "Confirm Issue Resolved & Close Ticket (+0.1 Trust)"}
+                    <Check className="h-4 w-4" />
+                    {signingOff ? "Confirming..." : "Approve Repair & Close Incident (+0.1 Trust Score)"}
                   </button>
 
                   <button
                     onClick={() => setShowDisputeInput(true)}
                     disabled={signingOff}
-                    className="btn-tactile rounded-xl border border-rose-300 bg-white hover:bg-rose-50 px-4 py-3.5 text-xs font-bold text-rose-700 shadow-2xs disabled:opacity-50"
+                    className="btn-tactile rounded-lg border border-rose-300 bg-white hover:bg-rose-50 px-4 py-3 text-xs font-bold text-rose-700 disabled:opacity-50"
                   >
                     Dispute &amp; Reopen
                   </button>
@@ -468,33 +478,33 @@ export default function ReportDetailsPage({
 
           {/* Already Verified & Closed Notice */}
           {isCitizenVerified && (
-            <div className="bento-card p-5 bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-900 flex items-center gap-2.5">
-              <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+            <div className="civic-card p-4 bg-emerald-50 border border-emerald-300 text-xs font-bold text-emerald-900 flex items-center gap-2.5">
+              <CheckCircle2 className="h-5 w-5 text-emerald-700 shrink-0" />
               <span>
-                This civic issue has been officially repaired, verified by the citizen reporter, and closed in the municipal system.
+                This civic incident has been fully resolved, verified with photographic proof, and officially closed by the citizen reporter.
               </span>
             </div>
           )}
 
-          {/* Community Verification Action Card (M06) */}
-          <div className="bento-card p-6 bg-white border border-slate-200 shadow-subtle space-y-4">
+          {/* Community Verification Loop */}
+          <div className="civic-card p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                  <ThumbsUp className="h-4 w-4 text-brand" />
-                  Community Consensus &amp; Verification Loop
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                  <ThumbsUp className="h-4 w-4 text-civic" />
+                  <span>Community Consensus &amp; Verification Protocol</span>
                 </h3>
-                <p className="text-xs text-slate-500">
-                  Citizens nearby confirm physical existence to elevate municipal priority.
+                <p className="text-[11px] text-slate-500 font-medium">
+                  Nearby citizens confirm physical existence to elevate municipal prioritization.
                 </p>
               </div>
 
-              <div className="flex items-center gap-3">
-                <span className="font-mono text-sm font-bold text-slate-800 bg-slate-100 px-2.5 py-1 rounded-lg">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs font-bold text-slate-800 bg-slate-100 px-2.5 py-1 rounded border border-slate-200">
                   👍 {report.verificationCount} Confirmed
                 </span>
                 {report.flagCount > 0 && (
-                  <span className="font-mono text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-lg border border-red-200">
+                  <span className="font-mono text-xs font-bold text-red-800 bg-red-50 px-2.5 py-1 rounded border border-red-300">
                     🚩 {report.flagCount} Flags
                   </span>
                 )}
@@ -502,149 +512,149 @@ export default function ReportDetailsPage({
             </div>
 
             {report.isReporter ? (
-              <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-200 text-xs text-slate-600 flex items-center gap-2">
+              <div className="rounded-lg bg-slate-50 p-3 border border-slate-200 text-xs text-slate-600 flex items-center gap-2">
                 <User className="h-4 w-4 text-slate-400 shrink-0" />
-                <span>You reported this issue. Other nearby residents can verify its urgency.</span>
+                <span>You are the primary reporter for this incident. Other nearby residents can verify its urgency.</span>
               </div>
             ) : report.hasUserVoted ? (
-              <div className="rounded-xl bg-emerald-50 p-4 border border-emerald-200 text-xs font-semibold text-emerald-800 flex items-center justify-between">
+              <div className="rounded-lg bg-emerald-50 p-3.5 border border-emerald-300 text-xs font-bold text-emerald-900 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  <CheckCircle2 className="h-4 w-4 text-emerald-700" />
                   <span>
-                    You have verified this report ({report.userVoteType === "FLAG_FALSE" ? "Flagged False" : "Confirmed Active"}).
+                    Your verification is recorded ({report.userVoteType === "FLAG_FALSE" ? "Flagged False" : "Confirmed Active"}).
                   </span>
                 </div>
-                <span className="text-[10px] text-emerald-600 font-normal">Vote Recorded</span>
+                <span className="text-[11px] text-emerald-700">Ledger Confirmed</span>
               </div>
             ) : (
-              <div className="flex items-center gap-3 pt-2">
+              <div className="flex items-center gap-3 pt-1">
                 <button
                   type="button"
                   onClick={() => handleVerifyVote("CONFIRM")}
                   disabled={voting}
-                  className="btn-tactile btn-glossy flex-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 py-3 px-4 text-xs font-black text-white shadow-sm hover:shadow-glow border border-blue-500/40 disabled:opacity-50"
+                  className="btn-tactile flex-1 flex items-center justify-center gap-2 rounded-lg bg-civic hover:bg-civic-hover py-2.5 px-4 text-xs font-bold text-white shadow-2xs disabled:opacity-50"
                 >
                   <ThumbsUp className="h-4 w-4" />
-                  {voting ? "Submitting..." : "Confirm Hazard Exists (+1 Vote)"}
+                  {voting ? "Recording..." : "Verify Hazard Exists (+1 Vote)"}
                 </button>
 
                 <button
                   type="button"
                   onClick={() => handleVerifyVote("FLAG_FALSE")}
                   disabled={voting}
-                  className="btn-tactile flex items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50/70 hover:bg-rose-100 py-3 px-4 text-xs font-bold text-rose-700 shadow-2xs disabled:opacity-50"
+                  className="btn-tactile flex items-center justify-center gap-1.5 rounded-lg border border-rose-300 bg-white hover:bg-rose-50 py-2.5 px-4 text-xs font-bold text-rose-700 disabled:opacity-50"
                 >
                   <Flag className="h-3.5 w-3.5 text-rose-600" />
-                  Flag Fake
+                  Flag Inaccurate
                 </button>
               </div>
             )}
           </div>
         </div>
 
-        {/* Right Column (4 cols / 35%): Explainable AI (A02) & Workflow Stepper (A07) */}
+        {/* Right Column (4 cols): Explainable AI (A02) & State Machine (A07) */}
         <div className="space-y-6 lg:col-span-4">
-          {/* Card A: Explainable AI Priority Card (A02) */}
-          <div className="bento-card p-6 bg-white border border-slate-200 shadow-subtle space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                <Sparkles className="h-4 w-4 text-amber-500" />
+          {/* Card A: Explainable AI Priority Card */}
+          <div className="civic-card p-5 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                <Sparkles className="h-4 w-4 text-civic" />
                 Explainable AI Priority (A02)
               </span>
               <span
-                className={`font-mono text-sm font-extrabold px-2.5 py-0.5 rounded-full border ${
-                  report.priorityScore >= 85
-                    ? "bg-red-50 text-status-critical border-red-200"
-                    : "bg-blue-50 text-brand border-blue-200"
+                className={`font-mono text-xs font-extrabold px-2.5 py-0.5 rounded border ${
+                  report.priorityScore >= 80
+                    ? "bg-rose-50 text-rose-800 border-rose-300"
+                    : "bg-blue-50 text-civic border-blue-300"
                 }`}
               >
                 {Math.round(report.priorityScore)}/100
               </span>
             </div>
 
-            <div className="space-y-3 pt-2 text-xs">
+            <div className="space-y-3 pt-1 text-xs">
               <div>
-                <div className="flex justify-between font-semibold text-slate-700 mb-1">
-                  <span>Hazard Severity</span>
+                <div className="flex justify-between font-bold text-slate-700 mb-1">
+                  <span>Physical Hazard Severity</span>
                   <span className="font-mono">{breakdown?.severityWeight || 35} / 40</span>
                 </div>
-                <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+                <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
                   <div
-                    className="h-full bg-red-500 rounded-full"
+                    className="h-full bg-red-600 rounded-full"
                     style={{ width: `${((breakdown?.severityWeight || 35) / 40) * 100}%` }}
                   />
                 </div>
               </div>
 
               <div>
-                <div className="flex justify-between font-semibold text-slate-700 mb-1">
+                <div className="flex justify-between font-bold text-slate-700 mb-1">
                   <span>Spatial Location Risk</span>
                   <span className="font-mono">{breakdown?.locationRiskWeight || 20} / 25</span>
                 </div>
-                <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+                <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
                   <div
-                    className="h-full bg-amber-500 rounded-full"
+                    className="h-full bg-amber-600 rounded-full"
                     style={{ width: `${((breakdown?.locationRiskWeight || 20) / 25) * 100}%` }}
                   />
                 </div>
               </div>
 
               <div>
-                <div className="flex justify-between font-semibold text-slate-700 mb-1">
+                <div className="flex justify-between font-bold text-slate-700 mb-1">
                   <span>Community Consensus</span>
                   <span className="font-mono">{breakdown?.communityConsensusWeight || 10} / 20</span>
                 </div>
-                <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+                <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
                   <div
-                    className="h-full bg-blue-500 rounded-full"
+                    className="h-full bg-civic rounded-full"
                     style={{ width: `${((breakdown?.communityConsensusWeight || 10) / 20) * 100}%` }}
                   />
                 </div>
               </div>
 
               <div>
-                <div className="flex justify-between font-semibold text-slate-700 mb-1">
-                  <span>SLA Aging Decay</span>
+                <div className="flex justify-between font-bold text-slate-700 mb-1">
+                  <span>SLA Decay Accrual</span>
                   <span className="font-mono">{breakdown?.slaDecayWeight || 10} / 15</span>
                 </div>
-                <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+                <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
                   <div
-                    className="h-full bg-slate-600 rounded-full"
+                    className="h-full bg-slate-700 rounded-full"
                     style={{ width: `${((breakdown?.slaDecayWeight || 10) / 15) * 100}%` }}
                   />
                 </div>
               </div>
             </div>
 
-            <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-100 text-xs text-slate-600 leading-relaxed">
-              <strong className="text-slate-800 block mb-1">AI Reasoning:</strong>
+            <div className="rounded-lg bg-slate-50 p-3 border border-slate-200 text-xs text-slate-700 leading-relaxed">
+              <strong className="text-slate-900 block mb-1">Algorithmic Reasoning:</strong>
               {report.aiAnalysis?.severityReasoning ||
-                "Evaluated based on hazard category danger and public pedestrian vulnerability."}
+                "Evaluated using Gemini multimodal vision and municipal risk weight matrices."}
             </div>
 
             {report.aiAnalysis?.optimizationNote && (
-              <div className="text-[11px] text-slate-500 font-mono bg-blue-50/50 p-2.5 rounded-lg border border-blue-100">
+              <div className="text-[11px] text-slate-600 font-mono bg-blue-50/70 p-2.5 rounded border border-blue-200">
                 ℹ️ {report.aiAnalysis.optimizationNote}
               </div>
             )}
           </div>
 
-          {/* Card B: Live Automated Workflow Stepper (A07) */}
-          <div className="bento-card p-6 bg-white border border-slate-200 shadow-subtle space-y-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-              <Layers className="h-4 w-4 text-brand" />
-              Automated Workflow Lifecycle (A07)
+          {/* Card B: Deterministic State Machine Lifecycle (A07) */}
+          <div className="civic-card p-5 space-y-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5 border-b border-slate-100 pb-3">
+              <Layers className="h-4 w-4 text-civic" />
+              State Machine Progression (A07)
             </span>
 
-            <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
+            <div className="relative pl-6 space-y-5 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
               {[
-                { name: "STEP_1_INGEST", title: "Report Ingested & EXIF Validated" },
+                { name: "STEP_1_INGEST", title: "Incident Ingested & GPS Verified" },
                 { name: "STEP_2_AI_TRIAGE", title: "Gemini AI Triaged & Scored" },
-                { name: "STEP_3_COMMUNITY_GATE", title: "Community Consensus Verified" },
+                { name: "STEP_3_COMMUNITY_GATE", title: "Community Consensus Gate" },
                 { name: "STEP_4_PRIORITY_OPTIMIZE", title: "A02 Constraint Engine Evaluated" },
-                { name: "STEP_5_DISPATCH", title: "Field Worker Dispatched" },
-                { name: "STEP_6_FIELD_START", title: "Field Work In Progress" },
-                { name: "STEP_6_FIELD_RESOLVE", title: "Field Repair Proof Submitted" },
+                { name: "STEP_5_DISPATCH", title: "Municipal Crew Dispatched" },
+                { name: "STEP_6_FIELD_START", title: "Repair In Progress" },
+                { name: "STEP_6_FIELD_RESOLVE", title: "Repair Proof Submitted" },
                 { name: "STEP_7_CITIZEN_SIGNOFF", title: "Citizen Final Verification & Closed" },
               ].map((step, idx) => {
                 const stepLog = report.workflowStepLogs?.find((l) => l.stepName === step.name);
@@ -657,24 +667,24 @@ export default function ReportDetailsPage({
                 return (
                   <div key={step.name} className="relative text-xs">
                     <span
-                      className={`absolute -left-6 top-0.5 flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-bold transition-all ${
+                      className={`absolute -left-6 top-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full text-[10px] font-bold border transition ${
                         isCompleted
-                          ? "bg-emerald-500 text-white border-emerald-600 shadow-2xs"
+                          ? "bg-emerald-600 text-white border-emerald-700"
                           : isRetried
-                          ? "bg-amber-500 text-white border-amber-600"
+                          ? "bg-amber-600 text-white border-amber-700"
                           : isRolledBack
-                          ? "bg-purple-500 text-white border-purple-600"
+                          ? "bg-purple-600 text-white border-purple-700"
                           : isFailed
-                          ? "bg-rose-500 text-white border-rose-600 animate-pulse"
+                          ? "bg-rose-600 text-white border-rose-700"
                           : isCurrent
-                          ? "bg-blue-600 text-white border-blue-700 ring-4 ring-blue-100 shadow-sm"
+                          ? "bg-civic text-white border-blue-800 ring-2 ring-blue-100"
                           : "bg-white text-slate-400 border-slate-300"
                       }`}
                     >
                       {isCompleted ? "✓" : isRolledBack ? "↺" : isFailed ? "✕" : idx + 1}
                     </span>
 
-                    <div className="font-semibold text-slate-800">
+                    <div className="font-bold text-slate-800">
                       {step.title}
                     </div>
 
@@ -682,12 +692,12 @@ export default function ReportDetailsPage({
                       <div className="mt-0.5 flex items-center gap-2 text-[10px] text-slate-400 flex-wrap">
                         <span>{new Date(stepLog.executedAt).toLocaleTimeString()}</span>
                         {stepLog.attemptCount > 1 && (
-                          <span className="rounded bg-amber-100 text-amber-800 px-1 font-semibold">
+                          <span className="rounded bg-amber-100 text-amber-900 px-1 font-bold">
                             Attempt #{stepLog.attemptCount}
                           </span>
                         )}
                         {stepLog.recoveryAction && (
-                          <span className="rounded bg-blue-50 text-blue-800 border border-blue-200 px-1 font-mono text-[9px]">
+                          <span className="rounded bg-blue-50 text-blue-900 border border-blue-200 px-1 font-mono text-[9px]">
                             {stepLog.recoveryAction}
                           </span>
                         )}

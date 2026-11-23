@@ -14,6 +14,7 @@ import {
   AlertCircle,
   X,
   Sparkles,
+  ExternalLink,
 } from "lucide-react";
 
 interface WorkerTask {
@@ -104,7 +105,7 @@ export default function WorkerWorkspacePage() {
       if (res.ok) {
         setActionFeedback({
           type: "success",
-          text: "Task marked In Progress! Municipal dashboard & public map updated.",
+          text: "Task marked In Progress! Municipal command center and city map updated.",
         });
         await fetchTasks();
       } else {
@@ -140,7 +141,7 @@ export default function WorkerWorkspacePage() {
       if (res.ok) {
         setActionFeedback({
           type: "success",
-          text: "Repair proof submitted! Issue is now awaiting Citizen Final Sign-Off.",
+          text: "Repair proof submitted! Incident is now awaiting Citizen Final Sign-Off.",
         });
         setActiveModalReport(null);
         setNotes("");
@@ -148,7 +149,7 @@ export default function WorkerWorkspacePage() {
       } else {
         setActionFeedback({
           type: "error",
-          text: json.error?.message || "Failed to submit resolution.",
+          text: json.error?.message || "Failed to submit repair proof.",
         });
       }
     } catch {
@@ -160,9 +161,9 @@ export default function WorkerWorkspacePage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-16 text-center text-sm text-slate-500">
-        <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-        <p className="mt-3">Loading Field Worker Task Roster...</p>
+      <div className="mx-auto max-w-7xl px-4 py-16 text-center text-xs text-slate-500 font-medium">
+        <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-civic border-t-transparent mb-2" />
+        <p>Loading Municipal Field Operations Roster...</p>
       </div>
     );
   }
@@ -172,57 +173,57 @@ export default function WorkerWorkspacePage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
-      {/* Top Header & Workforce Status Strip */}
-      <div className="bento-card bg-gradient-to-br from-white via-white to-amber-50/30 border border-slate-200/90 p-6 shadow-subtle hover:shadow-float flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+      {/* 70% Civic Swiss Field Worker Header */}
+      <div className="civic-card p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-400 text-white shadow-sm">
+          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-amber-500 text-white shadow-2xs">
             <HardHat className="h-6 w-6" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
+              <h1 className="text-xl font-bold text-slate-900 tracking-tight">
                 {worker?.name}
               </h1>
-              <span className="rounded-full bg-amber-50 border border-amber-200 px-2.5 py-0.5 text-xs font-bold text-amber-800">
+              <span className="rounded border border-amber-300 bg-amber-50 px-2 py-0.5 text-xs font-bold text-amber-900">
                 {worker?.department}
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Mobile Field Operations Terminal &bull; On-Site Repair Dispatch
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              Mobile Field Operations Terminal &bull; On-Site Municipal Dispatch
             </p>
           </div>
         </div>
 
         {/* Capacity Meter */}
-        <div className="flex items-center gap-4 bg-white/90 p-3 rounded-xl border border-slate-200/80 shadow-2xs">
+        <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
           <div>
-            <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-              Workload Slot Status
+            <span className="text-[10px] uppercase font-bold text-slate-500 block tracking-wider">
+              Workload Capacity
             </span>
-            <div className="font-mono text-base font-black text-slate-900">
-              {worker?.activeTaskCount} / {worker?.workerCapacity} Active Tasks
+            <div className="font-mono text-sm font-extrabold text-slate-900">
+              {worker?.activeTaskCount} / {worker?.workerCapacity} Active Work Orders
             </div>
           </div>
           <span
-            className={`rounded-full px-3 py-1 text-xs font-bold ${
+            className={`rounded px-2 py-1 text-[11px] font-bold border ${
               (worker?.activeTaskCount || 0) >= (worker?.workerCapacity || 3)
-                ? "bg-rose-100 text-rose-800 border border-rose-200"
-                : "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                ? "bg-rose-50 text-rose-800 border-rose-300"
+                : "bg-emerald-50 text-emerald-800 border-emerald-300"
             }`}
           >
             {(worker?.activeTaskCount || 0) >= (worker?.workerCapacity || 3)
               ? "Max Capacity (3/3)"
-              : "Capacity Available"}
+              : "Slots Available"}
           </span>
         </div>
       </div>
 
       {actionFeedback && (
         <div
-          className={`rounded-xl p-4 text-xs font-semibold border flex items-center justify-between ${
+          className={`rounded-lg p-3.5 text-xs font-bold border flex items-center justify-between ${
             actionFeedback.type === "success"
-              ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-              : "bg-red-50 text-red-800 border-red-200"
+              ? "bg-emerald-50 text-emerald-900 border-emerald-300"
+              : "bg-red-50 text-red-900 border-red-300"
           }`}
         >
           <span>{actionFeedback.text}</span>
@@ -232,24 +233,24 @@ export default function WorkerWorkspacePage() {
         </div>
       )}
 
-      {/* Active Tasks Feed */}
+      {/* Active Work Orders Feed */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <Clock className="h-4 w-4 text-brand" />
-            Active Assigned Work Orders ({activeTasks.length})
+        <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+          <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+            <Clock className="h-4 w-4 text-civic" />
+            <span>Assigned Field Work Orders ({activeTasks.length})</span>
           </h2>
-          <span className="text-xs text-slate-500">
-            Sorted by Urgency &amp; Arrival Time
+          <span className="text-xs text-slate-500 font-medium">
+            Prioritized by Urgency Score
           </span>
         </div>
 
         {activeTasks.length === 0 ? (
-          <div className="bento-card p-12 text-center bg-white border border-slate-200">
-            <CheckCircle className="mx-auto h-8 w-8 text-emerald-500 mb-2" />
-            <h3 className="text-sm font-bold text-slate-900">No pending work orders!</h3>
-            <p className="text-xs text-slate-500 mt-1">
-              You are currently free. New assignments dispatched by the Authority will appear here.
+          <div className="civic-card p-12 text-center">
+            <CheckCircle className="mx-auto h-8 w-8 text-emerald-600 mb-2" />
+            <h3 className="text-sm font-bold text-slate-900">No pending work orders assigned</h3>
+            <p className="text-xs text-slate-500 font-medium mt-1">
+              You are currently ready for dispatch. Incoming assignments from the Authority Command Center will appear here.
             </p>
           </div>
         ) : (
@@ -260,55 +261,55 @@ export default function WorkerWorkspacePage() {
             return (
               <div
                 key={report.id}
-                className="bento-card bg-white border border-slate-200 p-6 shadow-subtle space-y-4"
+                className="civic-card p-5 space-y-4"
               >
-                {/* Header Info */}
+                {/* Header Information */}
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
                   <div className="flex items-center gap-2">
                     <span
-                      className={`font-mono text-xs font-bold px-2 py-0.5 rounded-full border ${
-                        report.priorityScore >= 85
-                          ? "bg-red-50 text-status-critical border-red-200"
-                          : "bg-blue-50 text-brand border-blue-200"
+                      className={`font-mono text-[11px] font-bold px-2 py-0.5 rounded border ${
+                        report.priorityScore >= 80
+                          ? "bg-rose-50 text-rose-800 border-rose-300"
+                          : "bg-blue-50 text-civic border-blue-300"
                       }`}
                     >
-                      Priority: {Math.round(report.priorityScore)}/100
+                      P-{Math.round(report.priorityScore)}/100
                     </span>
-                    <span className="text-xs font-bold text-slate-700">
+                    <span className="text-xs font-bold text-slate-800">
                       {report.category?.name}
                     </span>
                     {overrideReason && (
-                      <span className="rounded bg-amber-100 text-amber-900 px-2 py-0.5 text-[10px] font-bold border border-amber-200">
+                      <span className="rounded bg-amber-100 text-amber-900 px-2 py-0.5 text-[10px] font-bold border border-amber-300">
                         ⚡ AI Fallback Dispatched
                       </span>
                     )}
                   </div>
 
                   <span
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-bold border ${
+                    className={`rounded px-2.5 py-0.5 text-xs font-bold border ${
                       isInProgress
-                        ? "bg-amber-50 text-amber-800 border-amber-200"
-                        : "bg-blue-50 text-blue-800 border-blue-200"
+                        ? "bg-amber-50 text-amber-800 border-amber-300"
+                        : "bg-blue-50 text-blue-800 border-blue-300"
                     }`}
                   >
-                    {isInProgress ? "In Progress" : "Assigned — Pending Start"}
+                    {isInProgress ? "In Progress" : "Assigned — Ready to Start"}
                   </span>
                 </div>
 
                 {/* Body Details */}
                 <div className="flex flex-col sm:flex-row items-start gap-4">
-                  <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-slate-200">
+                  <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-md border border-slate-200 bg-slate-100">
                     <Image
                       src={report.beforeProofUrl || report.imageUrl || "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=400&auto=format&fit=crop"}
                       alt={report.title}
                       fill
                       className="object-cover"
-                      sizes="96px"
+                      sizes="80px"
                     />
                   </div>
 
-                  <div className="space-y-1.5 flex-1">
-                    <h3 className="text-base font-bold text-slate-900">
+                  <div className="space-y-1 flex-1">
+                    <h3 className="text-sm font-bold text-slate-900">
                       {report.title}
                     </h3>
                     <p className="text-xs text-slate-600 line-clamp-2">
@@ -325,29 +326,30 @@ export default function WorkerWorkspacePage() {
                 <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-3">
                   <Link
                     href={`/reports/${report.id}`}
-                    className="text-xs font-semibold text-slate-600 hover:text-slate-900"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-civic hover:underline"
                   >
-                    View Citizen Ticket Details &rarr;
+                    <span>Inspect Ticket</span>
+                    <ExternalLink className="h-3 w-3" />
                   </Link>
 
                   <div className="flex items-center gap-2">
                     {isAssigned && (
                       <button
                         onClick={() => handleStartWork(report.id)}
-                        className="btn-tactile btn-glossy flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 px-4 py-2 text-xs font-black text-white shadow-sm hover:shadow-glow border border-blue-500/40"
+                        className="btn-tactile flex items-center gap-1.5 rounded-md bg-civic hover:bg-civic-hover px-3.5 py-1.5 text-xs font-bold text-white shadow-2xs transition"
                       >
                         <Play className="h-3.5 w-3.5 fill-current" />
-                        Start Field Work (In-Progress)
+                        <span>Start On-Site Work</span>
                       </button>
                     )}
 
                     {isInProgress && (
                       <button
                         onClick={() => setActiveModalReport(report)}
-                        className="btn-tactile btn-glossy flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:to-teal-800 px-4 py-2 text-xs font-black text-white shadow-sm hover:shadow-glowEmerald border border-emerald-500/40"
+                        className="btn-tactile flex items-center gap-1.5 rounded-md bg-emerald-700 hover:bg-emerald-800 px-3.5 py-1.5 text-xs font-bold text-white shadow-2xs transition"
                       >
                         <Upload className="h-3.5 w-3.5" />
-                        Complete &amp; Submit Proof Photo
+                        <span>Submit Repair Proof &amp; Resolve</span>
                       </button>
                     )}
                   </div>
@@ -360,25 +362,25 @@ export default function WorkerWorkspacePage() {
 
       {/* Completed Tasks History */}
       {completedTasks.length > 0 && (
-        <div className="bento-card p-6 bg-white border border-slate-200 shadow-subtle space-y-3">
-          <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-            Recently Completed Field Repairs ({completedTasks.length})
+        <div className="civic-card p-5 space-y-3">
+          <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2.5">
+            <CheckCircle2 className="h-4 w-4 text-emerald-700" />
+            <span>Recently Completed Field Repairs ({completedTasks.length})</span>
           </h2>
 
           <div className="divide-y divide-slate-100">
             {completedTasks.map(({ report, completedAt }) => (
               <div
                 key={report.id}
-                className="py-3 flex items-center justify-between text-xs"
+                className="py-2.5 flex items-center justify-between text-xs"
               >
                 <div>
                   <h4 className="font-bold text-slate-800">{report.title}</h4>
-                  <span className="text-[11px] text-slate-500">
+                  <span className="text-[11px] text-slate-500 font-medium">
                     {report.address} &bull; Completed {completedAt ? new Date(completedAt).toLocaleDateString() : ""}
                   </span>
                 </div>
-                <span className="rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 font-semibold text-[11px]">
+                <span className="rounded bg-emerald-50 text-emerald-800 border border-emerald-300 px-2 py-0.5 font-bold text-[10px]">
                   {report.status.replace("_", " ")}
                 </span>
               </div>
@@ -389,29 +391,30 @@ export default function WorkerWorkspacePage() {
 
       {/* Resolution Proof Upload Modal */}
       {activeModalReport && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bento-card w-full max-w-lg bg-white p-6 shadow-2xl border border-slate-200 space-y-4">
-            <div className="flex items-start justify-between">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="civic-card w-full max-w-lg bg-white p-6 shadow-overlay border border-slate-300 space-y-4">
+            <div className="flex items-start justify-between border-b border-slate-100 pb-3">
               <div>
-                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                  Submit Repair Proof &amp; Resolve Issue
+                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-700" />
+                  <span>Submit Repair Proof &amp; Resolve Incident</span>
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Task: &ldquo;{activeModalReport.title}&rdquo;
+                <p className="text-xs text-slate-500 font-medium mt-0.5">
+                  Ticket: &ldquo;{activeModalReport.title}&rdquo;
                 </p>
               </div>
               <button
                 onClick={() => setActiveModalReport(null)}
-                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100"
+                aria-label="Close modal"
+                className="rounded p-1 text-slate-400 hover:bg-slate-100"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4" />
               </button>
             </div>
 
             <form onSubmit={handleResolveSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">
                   &ldquo;After&rdquo; Repair Photographic Proof URL *
                 </label>
                 <input
@@ -420,14 +423,14 @@ export default function WorkerWorkspacePage() {
                   value={afterProofUrl}
                   onChange={(e) => setAfterProofUrl(e.target.value)}
                   placeholder="https://..."
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 px-3 text-xs text-slate-900 focus:bg-white focus:border-brand focus:outline-none"
+                  className="w-full rounded-lg border border-slate-300 bg-white py-2 px-3 text-xs text-slate-900 focus:border-civic focus:outline-none focus:ring-1 focus:ring-civic transition"
                 />
               </div>
 
-              {/* Quick Sample Selector for Demo Testing */}
+              {/* Quick Sample Selector */}
               <div className="space-y-1.5">
-                <span className="text-[11px] font-semibold text-slate-500">
-                  Quick Demo Repair Photos:
+                <span className="text-[11px] font-bold text-slate-500">
+                  Standard Verified Field Repair Proofs:
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {REPAIR_PROOF_SAMPLES.map((sample) => (
@@ -435,9 +438,9 @@ export default function WorkerWorkspacePage() {
                       key={sample.label}
                       type="button"
                       onClick={() => setAfterProofUrl(sample.url)}
-                      className={`btn-tactile rounded-lg border px-2.5 py-1 text-[11px] font-bold transition ${
+                      className={`btn-tactile rounded border px-2 py-0.5 text-[11px] font-bold transition ${
                         afterProofUrl === sample.url
-                          ? "border-emerald-600 bg-emerald-50 text-emerald-800 shadow-2xs"
+                          ? "border-emerald-700 bg-emerald-50 text-emerald-900"
                           : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                       }`}
                     >
@@ -448,15 +451,15 @@ export default function WorkerWorkspacePage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                  Worker Repair Notes
+                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">
+                  Field Worker Operational Notes
                 </label>
                 <textarea
                   rows={2}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Materials used, safety tests completed, site cleared..."
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 px-3 text-xs text-slate-900 focus:bg-white focus:border-brand focus:outline-none"
+                  placeholder="Materials applied, compaction tests conducted, safety perimeter removed..."
+                  className="w-full rounded-lg border border-slate-300 bg-white py-2 px-3 text-xs text-slate-900 focus:border-civic focus:outline-none focus:ring-1 focus:ring-civic transition"
                 />
               </div>
 
@@ -464,16 +467,16 @@ export default function WorkerWorkspacePage() {
                 <button
                   type="button"
                   onClick={() => setActiveModalReport(null)}
-                  className="btn-tactile rounded-xl px-3 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100"
+                  className="btn-tactile rounded-md px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-100"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="btn-tactile btn-glossy rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 px-5 py-2.5 text-xs font-black text-white shadow-sm hover:shadow-glowEmerald border border-emerald-500/40 disabled:opacity-50"
+                  className="btn-tactile rounded-md bg-emerald-700 hover:bg-emerald-800 px-4 py-2 text-xs font-bold text-white shadow-2xs transition disabled:opacity-50"
                 >
-                  {submitting ? "Submitting Proof..." : "Confirm & Resolve Issue"}
+                  {submitting ? "Submitting Proof..." : "Confirm & Resolve Incident"}
                 </button>
               </div>
             </form>
