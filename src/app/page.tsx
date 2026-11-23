@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
@@ -12,10 +12,8 @@ import {
   List,
   Map as MapIcon,
   ChevronRight,
-  Radio,
-  SlidersHorizontal,
   X,
-  ExternalLink,
+  RotateCcw,
 } from "lucide-react";
 import { DynamicCategoryIcon } from "@/components/ui/CategoryIcons";
 
@@ -66,6 +64,22 @@ export default function PublicCityMapPage() {
 
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<"map" | "list">("map");
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Global keyboard shortcut for '/' and 'Escape'
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "/" && document.activeElement !== searchInputRef.current && !(document.activeElement instanceof HTMLInputElement || document.activeElement instanceof HTMLTextAreaElement)) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      } else if (e.key === "Escape" && document.activeElement === searchInputRef.current) {
+        setSearch("");
+        searchInputRef.current?.blur();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // Load reports and categories
   useEffect(() => {
@@ -159,6 +173,15 @@ export default function PublicCityMapPage() {
     const sum = filteredReports.reduce((acc, r) => acc + r.priorityScore, 0);
     return Math.round(sum / filteredReports.length);
   }, [filteredReports]);
+
+  const hasActiveFilters = search.trim() !== "" || selectedCategory !== "ALL" || selectedWard !== "ALL" || statusFilter !== "ALL";
+
+  const handleResetFilters = () => {
+    setSearch("");
+    setSelectedCategory("ALL");
+    setSelectedWard("ALL");
+    setStatusFilter("ALL");
+  };
 
   const getStatusBadge = (status: string, score: number) => {
     if (status === "RESOLVED" || status === "CITIZEN_VERIFIED") {
@@ -299,25 +322,33 @@ export default function PublicCityMapPage() {
             </div>
           </div>
 
-          {/* Search Box with Clear Button */}
+          {/* Search Box with Keyboard Shortcut Hint & Clear Button */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
+              ref={searchInputRef}
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Filter by hazard, street landmark, or ward..."
-              className="w-full rounded-lg border border-slate-300 bg-slate-50/60 py-2 pl-9 pr-8 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-civic focus:outline-none focus:ring-1 focus:ring-civic transition"
+              aria-label="Filter incidents by keyword, landmark, or ward"
+              className="w-full rounded-lg border border-slate-300 bg-slate-50/60 py-2 pl-9 pr-14 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-civic focus:outline-none focus:ring-1 focus:ring-civic transition"
             />
-            {search && (
-              <button
-                onClick={() => setSearch("")}
-                aria-label="Clear search query"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            )}
+            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+              {search ? (
+                <button
+                  onClick={() => setSearch("")}
+                  aria-label="Clear search query"
+                  className="text-slate-400 hover:text-slate-600 p-0.5 rounded"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              ) : (
+                <kbd className="hidden sm:inline-block text-[10px] text-slate-400 bg-white border border-slate-200 rounded px-1.5 py-0.5 font-mono font-bold shadow-2xs">
+                  /
+                </kbd>
+              )}
+            </div>
           </div>
 
           {/* Status Filter Chips */}
@@ -326,6 +357,7 @@ export default function PublicCityMapPage() {
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
+                aria-pressed={statusFilter === st}
                 className={`rounded-md px-2.5 py-1 text-[11px] font-bold border transition shrink-0 flex items-center gap-1.5 ${
                   statusFilter === st
                     ? "bg-slate-900 text-white border-slate-900 shadow-2xs"
@@ -380,6 +412,16 @@ export default function PublicCityMapPage() {
               <span className="text-slate-300">&bull;</span>
               <span>Avg Priority:</span>
               <span className="font-mono font-bold text-slate-900">{avgPriority}/100</span>
+              {hasActiveFilters && (
+                <button
+                  onClick={handleResetFilters}
+                  className="inline-flex items-center gap-0.5 text-civic hover:underline font-bold ml-1.5"
+                  title="Reset all search filters"
+                >
+                  <RotateCcw className="h-3 w-3" />
+                  <span>Reset</span>
+                </button>
+              )}
             </div>
 
             <div className="flex items-center gap-1">
@@ -406,12 +448,21 @@ export default function PublicCityMapPage() {
               Retrieving live municipal incident database...
             </div>
           ) : filteredReports.length === 0 ? (
-            <div className="py-12 text-center text-xs text-slate-600 bg-white rounded-lg border border-slate-200 p-6">
-              <AlertCircle className="mx-auto h-6 w-6 text-slate-400 mb-2" />
+            <div className="py-12 text-center text-xs text-slate-600 bg-white rounded-lg border border-slate-200 p-6 space-y-2">
+              <AlertCircle className="mx-auto h-6 w-6 text-slate-400 mb-1" />
               <p className="font-bold text-slate-800">No active incidents matching criteria</p>
-              <p className="text-[11px] text-slate-500 mt-1">
+              <p className="text-[11px] text-slate-500">
                 Try clearing search terms or selecting all wards.
               </p>
+              {hasActiveFilters && (
+                <button
+                  onClick={handleResetFilters}
+                  className="btn-tactile inline-flex items-center gap-1.5 rounded bg-slate-900 text-white px-3 py-1.5 text-xs font-bold mt-2"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  Reset Active Filters
+                </button>
+              )}
             </div>
           ) : (
             filteredReports.map((report) => {

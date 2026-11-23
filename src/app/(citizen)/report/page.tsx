@@ -14,7 +14,6 @@ import {
   Info,
   Radio,
   FileCheck,
-  ShieldAlert,
 } from "lucide-react";
 import { DynamicCategoryIcon } from "@/components/ui/CategoryIcons";
 
@@ -90,6 +89,7 @@ export default function ReportIssuePage() {
   const [duplicateCheck, setDuplicateCheck] = useState<DuplicateCheckData | null>(null);
   const [checkingDuplicate, setCheckingDuplicate] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submissionStage, setSubmissionStage] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
   // Fetch available categories
@@ -142,6 +142,7 @@ export default function ReportIssuePage() {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
+    setSubmissionStage("Analyzing photographic evidence with Gemini Vision...");
 
     try {
       const res = await fetch("/api/reports", {
@@ -164,9 +165,11 @@ export default function ReportIssuePage() {
       if (!res.ok) {
         setError(json.error?.message || "Failed to submit report.");
         setSubmitting(false);
+        setSubmissionStage("");
         return;
       }
 
+      setSubmissionStage("Registering in municipal state machine...");
       startTransition(() => {
         router.push("/dashboard");
         router.refresh();
@@ -174,6 +177,7 @@ export default function ReportIssuePage() {
     } catch {
       setError("An unexpected error occurred while submitting.");
       setSubmitting(false);
+      setSubmissionStage("");
     }
   };
 
@@ -269,10 +273,15 @@ export default function ReportIssuePage() {
                 </label>
                 <span className="text-[11px] text-slate-500 font-medium">Select matching category</span>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <div
+                role="group"
+                aria-label="Hazard categories"
+                className="grid grid-cols-2 sm:grid-cols-3 gap-2"
+              >
                 <button
                   type="button"
                   onClick={() => setCategoryId("AUTO")}
+                  aria-pressed={categoryId === "AUTO"}
                   className={`p-2.5 rounded-lg border text-left transition flex flex-col justify-between ${
                     categoryId === "AUTO"
                       ? "border-civic bg-blue-50/70 ring-1 ring-civic"
@@ -299,6 +308,7 @@ export default function ReportIssuePage() {
                         setCategoryId(cat.id);
                         if (!title) setTitle(`${cat.name} Reported on Street`);
                       }}
+                      aria-pressed={isSelected}
                       className={`p-2.5 rounded-lg border text-left transition flex flex-col justify-between ${
                         isSelected
                           ? "border-civic bg-blue-50/70 ring-1 ring-civic"
@@ -478,7 +488,7 @@ export default function ReportIssuePage() {
                 </div>
               ) : (
                 <div className="flex items-center gap-2 text-emerald-950 bg-emerald-50 -m-3 p-3 rounded-lg border border-emerald-300">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-700 shrink-0" />
+                  <CheckCircle2 className="h-4 w-4 text-emerald-700" />
                   <div>
                     <span className="font-bold text-emerald-900">Clean Geolocation Coordinates</span>
                     <p className="text-[11px] text-emerald-800 font-medium mt-0.5">
@@ -497,14 +507,23 @@ export default function ReportIssuePage() {
               </span>
             </div>
 
-            {/* Submit Button */}
+            {/* Submit Button with Dynamic Stage Feedback */}
             <button
               type="submit"
               disabled={submitting}
               className="btn-tactile flex w-full items-center justify-center gap-2 rounded-lg bg-civic hover:bg-civic-hover py-3 px-4 text-xs font-bold text-white shadow-2xs transition disabled:opacity-50"
             >
-              <Sparkles className="h-4 w-4" />
-              {submitting ? "Analyzing with Gemini AI & Submitting..." : "Submit Incident Report (Trigger AI Triage)"}
+              {submitting ? (
+                <>
+                  <div className="h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>{submissionStage || "Analyzing with Gemini AI..."}</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  <span>Submit Incident Report (Trigger AI Triage)</span>
+                </>
+              )}
             </button>
           </div>
         </div>

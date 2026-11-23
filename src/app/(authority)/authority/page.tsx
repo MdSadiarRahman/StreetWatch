@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import {
   AlertTriangle,
-  CheckCircle,
   HardHat,
   Sparkles,
   RefreshCw,
@@ -16,9 +15,8 @@ import {
   Layers,
   Bug,
   RotateCcw,
-  ShieldAlert,
-  SlidersHorizontal,
   Activity,
+  Filter,
 } from "lucide-react";
 
 interface WorkflowLogEvent {
@@ -110,6 +108,7 @@ export default function AuthorityCommandCenter() {
   const [simulatingId, setSimulatingId] = useState<string | null>(null);
   const [recoveringId, setRecoveringId] = useState<string | null>(null);
   const [recalculating, setRecalculating] = useState(false);
+  const [wardFilter, setWardFilter] = useState<string>("ALL");
 
   const [conflictModal, setConflictModal] = useState<ConflictModalData | null>(null);
   const [actionMessage, setActionMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -140,6 +139,12 @@ export default function AuthorityCommandCenter() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Filtered queue based on selected ward
+  const filteredQueue = useMemo(() => {
+    if (wardFilter === "ALL") return queue;
+    return queue.filter((r) => r.wardZone === wardFilter);
+  }, [queue, wardFilter]);
 
   // Trigger A02 Auto-Assign
   const handleAutoAssign = async (
@@ -413,7 +418,7 @@ export default function AuthorityCommandCenter() {
         {/* Left Column (8 cols): AI Priority & Constraint Queue */}
         <div className="space-y-4 lg:col-span-8">
           <div className="civic-card overflow-hidden">
-            <div className="p-5 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between">
+            <div className="p-5 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between flex-wrap gap-2">
               <div>
                 <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                   <Zap className="h-4 w-4 text-civic" />
@@ -423,14 +428,25 @@ export default function AuthorityCommandCenter() {
                   Ordered by priority score. Execute A02 optimization or test A07 failure recovery.
                 </p>
               </div>
-              <span className="rounded border border-blue-200 bg-blue-50 px-2 py-0.5 text-xs font-bold text-civic font-mono">
-                {queue.length} Active Records
-              </span>
+              <div className="flex items-center gap-2">
+                {wardFilter !== "ALL" && (
+                  <button
+                    onClick={() => setWardFilter("ALL")}
+                    className="inline-flex items-center gap-1 rounded bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 text-xs font-bold"
+                  >
+                    <span>{wardFilter}</span>
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+                <span className="rounded border border-blue-200 bg-blue-50 px-2 py-0.5 text-xs font-bold text-civic font-mono">
+                  {filteredQueue.length} Active Records
+                </span>
+              </div>
             </div>
 
             {/* Reports Queue */}
             <div className="divide-y divide-slate-100">
-              {queue.map((report) => {
+              {filteredQueue.map((report) => {
                 const isUnassigned =
                   report.status === "REPORTED" ||
                   report.status === "AI_TRIAGED" ||
@@ -638,12 +654,12 @@ export default function AuthorityCommandCenter() {
           </div>
         </div>
 
-        {/* Right: Ward Hotspots */}
+        {/* Right: Ward Hotspots with Click-to-Filter */}
         <div className="civic-card p-5 space-y-3">
           <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
             <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
               <MapPin className="h-4 w-4 text-rose-600" />
-              <span>Ward Hazard Concentrations (Dhaka)</span>
+              <span>Ward Hazard Concentrations (Click to Filter)</span>
             </h3>
             <span className="text-[10px] text-slate-500 font-mono font-bold">
               Spatial Density
@@ -651,36 +667,48 @@ export default function AuthorityCommandCenter() {
           </div>
 
           <div className="space-y-3 pt-1">
-            {analytics?.wardHotspots.map((ward) => (
-              <div key={ward.wardZone} className="space-y-1 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-800">{ward.wardZone}</span>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
-                        ward.riskLevel === "CRITICAL"
-                          ? "bg-rose-50 text-rose-800 border-rose-300"
-                          : "bg-amber-50 text-amber-800 border-amber-300"
-                      }`}
-                    >
-                      {ward.riskLevel}
+            {analytics?.wardHotspots.map((ward) => {
+              const isSelected = wardFilter === ward.wardZone;
+              return (
+                <div
+                  key={ward.wardZone}
+                  onClick={() => setWardFilter(isSelected ? "ALL" : ward.wardZone)}
+                  className={`space-y-1 text-xs cursor-pointer p-1.5 rounded transition ${
+                    isSelected ? "bg-blue-50 border border-blue-200" : "hover:bg-slate-50"
+                  }`}
+                  title={`Filter queue by ${ward.wardZone}`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className={`font-bold ${isSelected ? "text-civic" : "text-slate-800"}`}>
+                      {ward.wardZone} {isSelected && "✓"}
                     </span>
-                    <span className="font-mono text-slate-700 font-bold">{ward.openCount} open</span>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
+                          ward.riskLevel === "CRITICAL"
+                            ? "bg-rose-50 text-rose-800 border-rose-300"
+                            : "bg-amber-50 text-amber-800 border-amber-300"
+                        }`}
+                      >
+                        {ward.riskLevel}
+                      </span>
+                      <span className="font-mono text-slate-700 font-bold">{ward.openCount} open</span>
+                    </div>
+                  </div>
+
+                  <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${
+                        ward.riskLevel === "CRITICAL" ? "bg-rose-600" : "bg-amber-500"
+                      }`}
+                      style={{
+                        width: `${Math.min(100, (ward.openCount / 10) * 100)}%`,
+                      }}
+                    />
                   </div>
                 </div>
-
-                <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                  <div
-                    className={`h-full rounded-full ${
-                      ward.riskLevel === "CRITICAL" ? "bg-rose-600" : "bg-amber-500"
-                    }`}
-                    style={{
-                      width: `${Math.min(100, (ward.openCount / 10) * 100)}%`,
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

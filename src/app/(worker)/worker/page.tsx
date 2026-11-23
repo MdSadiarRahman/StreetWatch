@@ -11,9 +11,7 @@ import {
   Play,
   Upload,
   CheckCircle2,
-  AlertCircle,
   X,
-  Sparkles,
   ExternalLink,
 } from "lucide-react";
 
@@ -176,15 +174,15 @@ export default function WorkerWorkspacePage() {
       {/* 70% Civic Swiss Field Worker Header */}
       <div className="civic-card p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-amber-500 text-white shadow-2xs">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-500 text-white shadow-2xs">
             <HardHat className="h-6 w-6" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+              <h1 className="text-xl font-bold text-slate-900 tracking-tight sm:text-2xl">
                 {worker?.name}
               </h1>
-              <span className="rounded border border-amber-300 bg-amber-50 px-2 py-0.5 text-xs font-bold text-amber-900">
+              <span className="rounded border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-xs font-bold text-amber-900">
                 {worker?.department}
               </span>
             </div>
@@ -194,18 +192,18 @@ export default function WorkerWorkspacePage() {
           </div>
         </div>
 
-        {/* Capacity Meter */}
-        <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
+        {/* Capacity Meter with High Contrast */}
+        <div className="flex items-center gap-3 bg-slate-50 p-3.5 rounded-lg border border-slate-200">
           <div>
             <span className="text-[10px] uppercase font-bold text-slate-500 block tracking-wider">
               Workload Capacity
             </span>
-            <div className="font-mono text-sm font-extrabold text-slate-900">
-              {worker?.activeTaskCount} / {worker?.workerCapacity} Active Work Orders
+            <div className="font-mono text-base font-extrabold text-slate-900">
+              {worker?.activeTaskCount} / {worker?.workerCapacity} Active Orders
             </div>
           </div>
           <span
-            className={`rounded px-2 py-1 text-[11px] font-bold border ${
+            className={`rounded px-2.5 py-1 text-xs font-bold border ${
               (worker?.activeTaskCount || 0) >= (worker?.workerCapacity || 3)
                 ? "bg-rose-50 text-rose-800 border-rose-300"
                 : "bg-emerald-50 text-emerald-800 border-emerald-300"
@@ -322,11 +320,11 @@ export default function WorkerWorkspacePage() {
                   </div>
                 </div>
 
-                {/* Worker Action Buttons */}
+                {/* Worker Action Buttons with Minimum 44-48px Touch Targets */}
                 <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-3">
                   <Link
                     href={`/reports/${report.id}`}
-                    className="inline-flex items-center gap-1 text-xs font-bold text-civic hover:underline"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-civic hover:underline py-2"
                   >
                     <span>Inspect Ticket</span>
                     <ExternalLink className="h-3 w-3" />
@@ -336,7 +334,7 @@ export default function WorkerWorkspacePage() {
                     {isAssigned && (
                       <button
                         onClick={() => handleStartWork(report.id)}
-                        className="btn-tactile flex items-center gap-1.5 rounded-md bg-civic hover:bg-civic-hover px-3.5 py-1.5 text-xs font-bold text-white shadow-2xs transition"
+                        className="btn-tactile min-h-[44px] flex items-center gap-1.5 rounded-lg bg-civic hover:bg-civic-hover px-4 py-2.5 text-xs font-bold text-white shadow-2xs transition"
                       >
                         <Play className="h-3.5 w-3.5 fill-current" />
                         <span>Start On-Site Work</span>
@@ -346,7 +344,7 @@ export default function WorkerWorkspacePage() {
                     {isInProgress && (
                       <button
                         onClick={() => setActiveModalReport(report)}
-                        className="btn-tactile flex items-center gap-1.5 rounded-md bg-emerald-700 hover:bg-emerald-800 px-3.5 py-1.5 text-xs font-bold text-white shadow-2xs transition"
+                        className="btn-tactile min-h-[44px] flex items-center gap-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 px-4 py-2.5 text-xs font-bold text-white shadow-2xs transition"
                       >
                         <Upload className="h-3.5 w-3.5" />
                         <span>Submit Repair Proof &amp; Resolve</span>
@@ -438,7 +436,7 @@ export default function WorkerWorkspacePage() {
                       key={sample.label}
                       type="button"
                       onClick={() => setAfterProofUrl(sample.url)}
-                      className={`btn-tactile rounded border px-2 py-0.5 text-[11px] font-bold transition ${
+                      className={`btn-tactile rounded border px-2 py-1 text-[11px] font-bold transition ${
                         afterProofUrl === sample.url
                           ? "border-emerald-700 bg-emerald-50 text-emerald-900"
                           : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
@@ -467,14 +465,14 @@ export default function WorkerWorkspacePage() {
                 <button
                   type="button"
                   onClick={() => setActiveModalReport(null)}
-                  className="btn-tactile rounded-md px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-100"
+                  className="btn-tactile rounded-md px-3 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="btn-tactile rounded-md bg-emerald-700 hover:bg-emerald-800 px-4 py-2 text-xs font-bold text-white shadow-2xs transition disabled:opacity-50"
+                  className="btn-tactile rounded-md bg-emerald-700 hover:bg-emerald-800 px-4 py-2 text-xs font-bold text-white shadow-2xs transition disabled:opacity-50 min-h-[44px]"
                 >
                   {submitting ? "Submitting Proof..." : "Confirm & Resolve Incident"}
                 </button>
