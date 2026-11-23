@@ -192,16 +192,22 @@ export function GarbageCategoryIcon({ size = 24, className = "" }: IconProps) {
 /**
  * Helper to dynamically render category icon by slug or name
  */
-export function DynamicCategoryIcon({
-  nameOrSlug,
-  size = 24,
-  className = "",
-}: {
-  nameOrSlug: string;
+export interface DynamicCategoryIconProps {
+  nameOrSlug?: string;
+  slug?: string;
+  name?: string;
   size?: number;
   className?: string;
-}) {
-  const normalized = (nameOrSlug || "").toLowerCase();
+}
+
+export function DynamicCategoryIcon({
+  nameOrSlug,
+  slug,
+  name,
+  size = 24,
+  className = "",
+}: DynamicCategoryIconProps) {
+  const normalized = (nameOrSlug || slug || name || "").toLowerCase();
 
   if (normalized.includes("pothole") || normalized.includes("road") || normalized.includes("crater")) {
     return <PotholeCategoryIcon size={size} className={className} />;
