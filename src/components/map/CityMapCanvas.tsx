@@ -45,15 +45,16 @@ import { MapDrawer, MapDrawerReport } from "./MapDrawer";
 
 export interface MapReportPin extends MapDrawerReport {}
 
-interface CityMapCanvasProps {
+export interface CityMapCanvasProps {
   reports: MapReportPin[];
   selectedReportId: string | null;
   onSelectReport?: (id: string | null) => void;
   onVerifyReport?: (id: string) => void;
+  initialStyle?: MapStyleKey;
   className?: string;
 }
 
-type MapStyleKey = "positron" | "satellite" | "osm";
+export type MapStyleKey = "dark" | "positron" | "satellite" | "osm";
 
 interface MapStyleConfig {
   name: string;
@@ -63,6 +64,13 @@ interface MapStyleConfig {
 }
 
 const MAP_STYLES: Record<MapStyleKey, MapStyleConfig> = {
+  dark: {
+    name: "Dark Operational GIS",
+    url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    maxZoom: 19,
+  },
   positron: {
     name: "GIS Municipal Light",
     url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
@@ -117,13 +125,14 @@ export default function CityMapCanvas({
   selectedReportId,
   onSelectReport,
   onVerifyReport,
+  initialStyle = "positron",
   className = "",
 }: CityMapCanvasProps) {
   const [mounted, setMounted] = useState(false);
   const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
 
   // Map Controls State
-  const [activeStyle, setActiveStyle] = useState<MapStyleKey>("positron");
+  const [activeStyle, setActiveStyle] = useState<MapStyleKey>(initialStyle);
   const [enableClustering, setEnableClustering] = useState(true);
   const [showLayerMenu, setShowLayerMenu] = useState(false);
   const [showStyleMenu, setShowStyleMenu] = useState(false);
