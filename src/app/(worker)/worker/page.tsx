@@ -5,29 +5,24 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   HardHat,
-  CheckCircle,
-  Clock,
   MapPin,
-  Play,
-  Upload,
-  CheckCircle2,
-  X,
-  ExternalLink,
   Navigation,
+  Play,
+  CheckCircle2,
   Camera,
-  AlertTriangle,
-  Radio,
+  FileText,
+  Clock,
   Sparkles,
-  Layers,
-  Wrench,
-  RotateCcw,
-  Compass,
   Check,
+  AlertTriangle,
   ChevronRight,
-  ShieldCheck,
-  PhoneCall,
+  ExternalLink,
+  RotateCcw,
+  Plus,
   Wifi,
+  Radio,
   Eye,
+  CheckCheck,
 } from "lucide-react";
 import { DynamicCategoryIcon } from "@/components/ui/CategoryIcons";
 
@@ -65,47 +60,37 @@ interface WorkerProfile {
   workerCapacity: number;
 }
 
+// Curated high-res municipal repair evidence proofs for instant 1-tap capture
 const REPAIR_PROOF_SAMPLES = [
   {
-    label: "Road Crater Repaved & Asphalt Sealed",
-    category: "Pothole / Road Damage",
+    id: "proof-1",
+    label: "Asphalt Repaved & Sealed",
     url: "https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80",
-    tags: ["Hot-mix Asphalt Poured", "Vibratory Compacted", "Debris Cleared"],
+    tags: ["Hot-mix asphalt poured", "Vibratory compacted", "Debris cleared"],
   },
   {
-    label: "High-Voltage Wire Re-sleeved & Elevated",
-    category: "Electrical Hazard",
+    id: "proof-2",
+    label: "Live Electrical Wire Sleeved",
     url: "https://images.unsplash.com/photo-1544717302-de2939b7ef71?auto=format&fit=crop&w=800&q=80",
-    tags: ["Insulated Sleeving Installed", "Weatherproof Bracket", "Circuit Tested"],
+    tags: ["Insulated sleeve fitted", "Weatherproof bracket", "Circuit verified"],
   },
   {
-    label: "Reinforced Ductile Iron Manhole Lid Fitted",
-    category: "Drainage & Sewerage",
+    id: "proof-3",
+    label: "Manhole Cast Iron Lid Replaced",
     url: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80",
-    tags: ["Heavy-duty Lid Fitted", "Rim Mortar Re-sealed", "Flow Inspected"],
+    tags: ["Heavy-duty lid installed", "Rim mortar sealed", "Flow inspected"],
   },
 ];
 
-const STANDARD_EQUIPMENT_CHECKLIST: Record<string, string[]> = {
-  default: [
-    "High-Visibility Safety Vests & Helmets",
-    "Emergency Traffic Cones & Warning Signage",
-    "Digital Caliper & Geotagged Camera Terminal",
-    "Municipal Dispatch Radio & First Aid Kit",
-  ],
-  "Road Maintenance": [
-    "Hot-mix Asphalt Bag / Cold Patch Polymer",
-    "Mechanical Plate Compactor & Hand Tamper",
-    "Bituminous Emulsion Tack Coat Sealant",
-    "Asphalt Rake, Shovel & Broom",
-  ],
-  "Electrical & Lighting": [
-    "1000V Insulated Hand Tools & Gloves",
-    "Digital Multimeter & Non-Contact Voltage Tester",
-    "Heavy-Duty Heat Shrink Sleeving",
-    "Telescopic Fiberglass Insulated Pole",
-  ],
-};
+// Minimal typing preset chips for one-handed operation
+const QUICK_RESOLUTION_CHIPS = [
+  "Hot-mix asphalt poured & leveled",
+  "Mechanically compacted",
+  "Edge joint sealed with bitumen",
+  "Safety cones & barricades removed",
+  "Full traffic corridor reopened",
+  "Hazard eliminated per city code",
+];
 
 export default function WorkerWorkspacePage() {
   const [worker, setWorker] = useState<WorkerProfile | null>(null);
@@ -114,23 +99,19 @@ export default function WorkerWorkspacePage() {
   const [authError, setAuthError] = useState(false);
   const [isDemoLoggingIn, setIsDemoLoggingIn] = useState(false);
 
-  // Mobile navigation tabs: "tasks" | "map" | "completed"
-  const [activeTab, setActiveTab] = useState<"tasks" | "map" | "completed">("tasks");
+  // Active Task Index (One-handed task focus)
+  const [activeTaskIndex, setActiveTaskIndex] = useState(0);
 
-  // Shift & duty status
-  const [isOnDuty, setIsOnDuty] = useState(true);
-
-  // Modal / Bottom Sheet state for submitting after proof
-  const [activeModalReport, setActiveModalReport] = useState<WorkerTask["report"] | null>(null);
-  const [afterProofUrl, setAfterProofUrl] = useState(REPAIR_PROOF_SAMPLES[0].url);
-  const [selectedProofIndex, setSelectedProofIndex] = useState(0);
-  const [selectedTags, setSelectedTags] = useState<string[]>(REPAIR_PROOF_SAMPLES[0].tags);
-  const [notes, setNotes] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  // Form & Evidence States
+  const [selectedProofUrl, setSelectedProofUrl] = useState<string>(REPAIR_PROOF_SAMPLES[0].url);
+  const [activeChips, setActiveChips] = useState<string[]>(["Hot-mix asphalt poured & leveled", "Safety cones & barricades removed"]);
+  const [customNote, setCustomNote] = useState("");
+  const [showNoteInput, setShowNoteInput] = useState(false);
+  const [submittingAction, setSubmittingAction] = useState(false);
   const [actionFeedback, setActionFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  // Interactive Checklist states for active tasks
-  const [checkedEquip, setCheckedEquip] = useState<Record<string, Record<string, boolean>>>({});
+  // Full-screen image zoom modal
+  const [zoomedImageUrl, setZoomedImageUrl] = useState<string | null>(null);
 
   const fetchTasks = async () => {
     try {
@@ -176,7 +157,16 @@ export default function WorkerWorkspacePage() {
     }
   };
 
+  // Toggle quick chip for minimal typing
+  const toggleChip = (chip: string) => {
+    setActiveChips((prev) =>
+      prev.includes(chip) ? prev.filter((c) => c !== chip) : [...prev, chip]
+    );
+  };
+
+  // Start Work Handler (Transitions ASSIGNED -> IN_PROGRESS)
   const handleStartWork = async (reportId: string) => {
+    setSubmittingAction(true);
     setActionFeedback(null);
     try {
       const res = await fetch(`/api/worker/tasks/${reportId}/status`, {
@@ -188,7 +178,7 @@ export default function WorkerWorkspacePage() {
       if (res.ok) {
         setActionFeedback({
           type: "success",
-          text: "Work order started! Status set to IN PROGRESS. City dispatch notified.",
+          text: "WORK STARTED! Ticket status set to IN PROGRESS.",
         });
         await fetchTasks();
       } else {
@@ -199,109 +189,98 @@ export default function WorkerWorkspacePage() {
       }
     } catch {
       setActionFeedback({ type: "error", text: "Network error occurred." });
+    } finally {
+      setSubmittingAction(false);
     }
   };
 
-  const handleResolveSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!activeModalReport) return;
-    setSubmitting(true);
+  // Mark Resolved Handler (Transitions IN_PROGRESS -> RESOLVED)
+  const handleMarkResolved = async (reportId: string) => {
+    setSubmittingAction(true);
     setActionFeedback(null);
 
     const fullNotes = [
-      notes.trim(),
-      selectedTags.length > 0 ? `Work Completed: ${selectedTags.join(", ")}` : "",
+      activeChips.length > 0 ? `Tags: ${activeChips.join(", ")}` : "",
+      customNote.trim(),
     ]
       .filter(Boolean)
-      .join(" | ");
+      .join(" | ") || "Physical remediation completed and verified by lead crew.";
 
     try {
-      const res = await fetch(`/api/worker/tasks/${activeModalReport.id}/status`, {
+      const res = await fetch(`/api/worker/tasks/${reportId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           status: "RESOLVED",
-          afterProofUrl,
+          afterProofUrl: selectedProofUrl,
           notes: fullNotes,
         }),
       });
 
       const json = await res.json();
-
       if (res.ok) {
         setActionFeedback({
           type: "success",
-          text: "After-repair evidence submitted! Issue resolved & queued for citizen final sign-off.",
+          text: "ISSUE MARKED RESOLVED! Photographic proof archived for citizen sign-off.",
         });
-        setActiveModalReport(null);
-        setNotes("");
+        setCustomNote("");
+        setShowNoteInput(false);
         await fetchTasks();
       } else {
         setActionFeedback({
           type: "error",
-          text: json.error?.message || "Failed to submit repair proof.",
+          text: json.error?.message || "Failed to resolve issue.",
         });
       }
     } catch {
       setActionFeedback({ type: "error", text: "Network error occurred." });
     } finally {
-      setSubmitting(false);
+      setSubmittingAction(false);
     }
-  };
-
-  const toggleEquipmentItem = (reportId: string, item: string) => {
-    setCheckedEquip((prev) => {
-      const reportItems = prev[reportId] || {};
-      return {
-        ...prev,
-        [reportId]: {
-          ...reportItems,
-          [item]: !reportItems[item],
-        },
-      };
-    });
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0B1120] text-slate-100 flex flex-col items-center justify-center p-6 text-center">
-        <div className="h-10 w-10 border-3 border-amber-500 border-t-transparent rounded-full animate-spin mb-3 shadow-md" />
-        <span className="font-mono text-xs font-bold uppercase tracking-wider text-amber-400">
-          INITIALIZING MOBILE FIELD TERMINAL...
+      <div className="min-h-screen bg-[#080D1A] text-slate-100 flex flex-col items-center justify-center p-6 text-center">
+        <div className="h-12 w-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mb-4" />
+        <span className="font-mono text-xs font-black tracking-widest text-amber-400 uppercase">
+          CONNECTING FIELD TERMINAL...
         </span>
-        <p className="text-[11px] text-slate-400 mt-1">Synchronizing municipal work orders &amp; GPS coordinates</p>
+        <p className="text-xs text-slate-400 mt-1">Acquiring municipal work orders and GPS coordinates</p>
       </div>
     );
   }
 
-  // Auth gate if user is not logged in as worker
+  // 1-Click Authentication Gate if not logged in
   if (authError || !worker) {
     return (
-      <div className="min-h-screen bg-[#0B1120] text-slate-100 flex items-center justify-center p-4">
-        <div className="w-full max-w-md rounded-2xl bg-[#0F172A] border border-slate-700/80 p-6 shadow-2xl space-y-4 text-center">
-          <div className="h-14 w-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 mx-auto flex items-center justify-center">
-            <HardHat className="h-7 w-7" />
+      <div className="min-h-screen bg-[#080D1A] text-slate-100 flex items-center justify-center p-4">
+        <div className="w-full max-w-md rounded-2xl bg-[#0F172A] border border-slate-700 p-6 shadow-2xl space-y-4 text-center">
+          <div className="h-16 w-16 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 mx-auto flex items-center justify-center">
+            <HardHat className="h-8 w-8" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-white">Field Operations Terminal</h2>
+            <h1 className="text-xl font-black text-white uppercase tracking-tight">
+              Field Operations Terminal
+            </h1>
             <p className="text-xs text-slate-400 mt-1">
-              Field Worker credentials are required to inspect and execute municipal work orders.
+              Dedicated high-contrast task interface for on-site municipal response operatives.
             </p>
           </div>
 
-          <div className="p-3 rounded-lg bg-amber-950/40 border border-amber-800/40 text-[11px] text-amber-300 text-left space-y-1">
-            <strong>Demonstration Access:</strong>
-            <p>You can authenticate instantly as the Lead Field Operative with 1 click.</p>
+          <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-800/50 text-xs text-amber-300 text-left space-y-1">
+            <strong>Outdoor Task Mode:</strong>
+            <p>One-handed navigation, large touch targets, minimal typing, and instant proof capture.</p>
           </div>
 
           <button
             type="button"
             onClick={handle1ClickWorkerDemo}
             disabled={isDemoLoggingIn}
-            className="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 shadow-lg disabled:opacity-50"
+            className="w-full min-h-[52px] py-3.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-[0.99] text-slate-950 font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-xl disabled:opacity-50"
           >
             {isDemoLoggingIn ? (
-              <span>Authenticating Terminal...</span>
+              <span>Activating Field Session...</span>
             ) : (
               <>
                 <Sparkles className="h-4 w-4" />
@@ -310,11 +289,8 @@ export default function WorkerWorkspacePage() {
             )}
           </button>
 
-          <Link
-            href="/login"
-            className="block text-xs text-slate-400 hover:text-white font-mono underline pt-2"
-          >
-            Go to standard login screen
+          <Link href="/login" className="block text-xs text-slate-400 hover:text-white font-mono underline pt-2">
+            Standard Login Credentials
           </Link>
         </div>
       </div>
@@ -322,662 +298,511 @@ export default function WorkerWorkspacePage() {
   }
 
   const activeTasks = tasks.filter((t) => t.completedAt === null);
-  const completedTasks = tasks.filter((t) => t.completedAt !== null);
+  const currentTask = activeTasks[activeTaskIndex] || activeTasks[0];
+  const isAssigned = currentTask?.report.status === "ASSIGNED";
+  const isInProgress = currentTask?.report.status === "IN_PROGRESS";
+  const isResolved = currentTask?.report.status === "RESOLVED";
 
   return (
-    <div className="min-h-screen bg-[#0A0F1D] text-slate-100 pb-24">
-      {/* 1. MOBILE-FIRST TOP OPERATIONAL HEADER */}
-      <header className="sticky top-0 z-40 bg-[#0F172A]/95 backdrop-blur-md border-b border-slate-800 px-4 py-3 shadow-md">
-        <div className="mx-auto max-w-2xl flex items-center justify-between gap-3">
-          {/* Worker Info & Unit */}
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="relative">
-              <div className="h-10 w-10 rounded-xl bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-amber-400 shrink-0 shadow-inner">
-                <HardHat className="h-5 w-5" />
-              </div>
-              <span
-                className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#0F172A] ${
-                  isOnDuty ? "bg-emerald-500" : "bg-slate-500"
-                }`}
-              />
+    <div className="min-h-screen bg-[#070B14] text-slate-100 flex flex-col justify-between pb-32">
+      {/* 1. TOP MOBILE TERMINAL COMPACT STATUS BAR (One-Handed Visibility) */}
+      <header className="sticky top-0 z-30 bg-[#0F172A]/95 backdrop-blur-md border-b border-slate-800 px-4 py-2.5">
+        <div className="mx-auto max-w-lg flex items-center justify-between gap-2">
+          {/* Operative Info */}
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="h-8 w-8 rounded-lg bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-amber-400 shrink-0">
+              <HardHat className="h-4 w-4" />
             </div>
-
             <div className="min-w-0">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <h1 className="font-bold text-white text-sm truncate">{worker.name}</h1>
-                <span className="font-mono text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300">
-                  Unit 04
-                </span>
+              <div className="flex items-center gap-1.5">
+                <span className="font-bold text-xs text-white truncate">{worker.name}</span>
+                <span className="h-2 w-2 rounded-full bg-emerald-500" title="Online" />
               </div>
-              <p className="text-[11px] text-slate-400 truncate mt-0.5">
-                {worker.department} &bull; Mirpur Sector
-              </p>
+              <span className="text-[10px] font-mono text-slate-400 truncate block">
+                {worker.department}
+              </span>
             </div>
           </div>
 
-          {/* Duty Switcher & Workload Badge */}
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={() => setIsOnDuty(!isOnDuty)}
-              className={`px-2.5 py-1.5 rounded-lg border text-[11px] font-mono font-bold transition-colors flex items-center gap-1.5 ${
-                isOnDuty
-                  ? "bg-emerald-950/60 border-emerald-700/80 text-emerald-300"
-                  : "bg-slate-800 border-slate-700 text-slate-400"
-              }`}
-            >
-              <Radio className={`h-3 w-3 ${isOnDuty ? "animate-pulse text-emerald-400" : ""}`} />
-              <span>{isOnDuty ? "ON DUTY" : "OFF SHIFT"}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Capacity Progress Strip */}
-        <div className="mx-auto max-w-2xl mt-2.5 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
-          <div className="flex items-center gap-2">
-            <span className="font-mono font-semibold">Active Orders:</span>
-            <span className="font-mono font-bold text-white">
-              {activeTasks.length} / {worker.workerCapacity} max
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1.5 text-emerald-400 font-mono text-[10px]">
+          {/* GPS Accuracy Status */}
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-slate-900 border border-slate-800 text-[10px] font-mono text-emerald-400">
             <Wifi className="h-3 w-3" />
-            <span>GPS Connected (±3m)</span>
+            <span>GPS Locked</span>
           </div>
         </div>
+
+        {/* 2. ONE-HANDED TASK SELECTOR TABS (If multiple active tasks) */}
+        {activeTasks.length > 1 && (
+          <div className="mx-auto max-w-lg mt-2 pt-2 border-t border-slate-800 flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+            <span className="text-[10px] font-mono uppercase text-slate-400 font-bold shrink-0 mr-1">
+              Orders:
+            </span>
+            {activeTasks.map((t, idx) => {
+              const isActive = idx === activeTaskIndex;
+              const pScore = Math.round(t.report.priorityScore);
+              return (
+                <button
+                  key={t.report.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveTaskIndex(idx);
+                    setActionFeedback(null);
+                  }}
+                  className={`min-h-[36px] px-3 rounded-lg font-mono text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 border ${
+                    isActive
+                      ? "bg-amber-500 text-slate-950 border-amber-400 shadow-sm"
+                      : "bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800"
+                  }`}
+                >
+                  <span>#{idx + 1}</span>
+                  <span
+                    className={`px-1 rounded text-[10px] ${
+                      isActive ? "bg-slate-950 text-white" : "bg-slate-800 text-slate-400"
+                    }`}
+                  >
+                    P-{pScore}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </header>
 
-      {/* 2. ACTION FEEDBACK TOAST */}
+      {/* ACTION FEEDBACK ALERT */}
       {actionFeedback && (
-        <div className="mx-auto max-w-2xl px-4 pt-3">
+        <div className="mx-auto max-w-lg w-full px-4 pt-3">
           <div
-            className={`p-3 rounded-xl border flex items-center justify-between gap-2 text-xs font-semibold ${
+            className={`p-3.5 rounded-xl border flex items-center justify-between gap-2 text-xs font-bold ${
               actionFeedback.type === "success"
-                ? "bg-emerald-950/90 border-emerald-600/80 text-emerald-200"
-                : "bg-rose-950/90 border-rose-600/80 text-rose-200"
+                ? "bg-emerald-950 border-emerald-600 text-emerald-200"
+                : "bg-rose-950 border-rose-600 text-rose-200"
             }`}
           >
             <div className="flex items-center gap-2">
               {actionFeedback.type === "success" ? (
-                <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
               ) : (
-                <AlertTriangle className="h-4 w-4 text-rose-400 shrink-0" />
+                <AlertTriangle className="h-5 w-5 text-rose-400 shrink-0" />
               )}
               <span>{actionFeedback.text}</span>
             </div>
-            <button onClick={() => setActionFeedback(null)} className="p-1 hover:bg-black/20 rounded">
-              <X className="h-3.5 w-3.5" />
+            <button
+              onClick={() => setActionFeedback(null)}
+              className="p-1 rounded hover:bg-black/20 text-slate-400 hover:text-white"
+            >
+              ✕
             </button>
           </div>
         </div>
       )}
 
-      {/* 3. TACTICAL SUB-NAVIGATION BAR (MOBILE TABS) */}
-      <div className="sticky top-[89px] z-30 bg-[#0A0F1D]/90 backdrop-blur-sm border-b border-slate-800/80 px-4 py-2">
-        <div className="mx-auto max-w-2xl grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-slate-900 border border-slate-800">
-          <button
-            type="button"
-            onClick={() => setActiveTab("tasks")}
-            className={`py-2 px-3 rounded-lg font-mono text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === "tasks"
-                ? "bg-amber-500 text-slate-950 shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            <span>Active Queue</span>
-            <span
-              className={`px-1.5 py-0.2 rounded-full text-[10px] ${
-                activeTab === "tasks" ? "bg-slate-950 text-white" : "bg-slate-800 text-slate-300"
-              }`}
-            >
-              {activeTasks.length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("map")}
-            className={`py-2 px-3 rounded-lg font-mono text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === "map"
-                ? "bg-amber-500 text-slate-950 shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            <Compass className="h-3.5 w-3.5" />
-            <span>Tactical Map</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("completed")}
-            className={`py-2 px-3 rounded-lg font-mono text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === "completed"
-                ? "bg-amber-500 text-slate-950 shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            <span>Resolved</span>
-            <span
-              className={`px-1.5 py-0.2 rounded-full text-[10px] ${
-                activeTab === "completed" ? "bg-slate-950 text-white" : "bg-slate-800 text-slate-300"
-              }`}
-            >
-              {completedTasks.length}
-            </span>
-          </button>
-        </div>
-      </div>
-
-      {/* 4. MAIN CONTENT AREA */}
-      <main className="mx-auto max-w-2xl px-4 py-4 space-y-4">
-        {/* TAB 1: ACTIVE FIELD WORK ORDERS */}
-        {activeTab === "tasks" && (
+      {/* 3. MAIN TASK RUNNER (TASK APPLICATION VIEW) */}
+      <main className="mx-auto max-w-lg w-full px-4 py-4 space-y-4">
+        {!currentTask ? (
+          <div className="rounded-2xl border border-slate-800 bg-[#0F172A] p-10 text-center space-y-3">
+            <CheckCheck className="h-12 w-12 text-emerald-500 mx-auto" />
+            <h2 className="text-lg font-bold text-white">All Field Orders Completed</h2>
+            <p className="text-xs text-slate-400">
+              No active tasks assigned in your sector. Awaiting dispatch orders from municipal command.
+            </p>
+          </div>
+        ) : (
           <div className="space-y-4">
-            {activeTasks.length === 0 ? (
-              <div className="rounded-2xl border border-slate-800 bg-[#0F172A] p-10 text-center space-y-3 shadow-lg">
-                <div className="h-12 w-12 rounded-full bg-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6" />
-                </div>
-                <h3 className="text-base font-bold text-white">All Field Orders Cleared</h3>
-                <p className="text-xs text-slate-400 max-w-xs mx-auto">
-                  You have completed all assigned work orders for this shift. Stand by on radio frequency for incoming dispatch alerts.
-                </p>
+            {/* A. WORKFLOW PROGRESS STEPPER (Assigned -> Navigate -> Start -> Resolve) */}
+            <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs font-mono font-bold">
+              <div className="flex items-center gap-1.5 text-blue-400">
+                <span className="h-5 w-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px]">
+                  ✓
+                </span>
+                <span>ASSIGNED</span>
               </div>
-            ) : (
-              activeTasks.map(({ report, overrideReason }) => {
-                const isAssigned = report.status === "ASSIGNED";
-                const isInProgress = report.status === "IN_PROGRESS";
-                const priorityNum = Math.round(report.priorityScore);
-                const isUrgent = priorityNum >= 80;
 
-                const equipment =
-                  STANDARD_EQUIPMENT_CHECKLIST[worker.department] ||
-                  STANDARD_EQUIPMENT_CHECKLIST["default"];
+              <span className="text-slate-600">&rarr;</span>
 
-                const taskChecked = checkedEquip[report.id] || {};
-                const checkedCount = Object.values(taskChecked).filter(Boolean).length;
+              <div
+                className={`flex items-center gap-1.5 ${
+                  isInProgress || isResolved ? "text-amber-400 font-black" : "text-slate-500"
+                }`}
+              >
+                <span
+                  className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] ${
+                    isInProgress
+                      ? "bg-amber-500 text-slate-950 animate-pulse"
+                      : isResolved
+                      ? "bg-amber-600 text-white"
+                      : "bg-slate-800 text-slate-500"
+                  }`}
+                >
+                  {isResolved ? "✓" : "2"}
+                </span>
+                <span>IN PROGRESS</span>
+              </div>
 
-                return (
-                  <article
-                    key={report.id}
-                    className={`rounded-2xl border overflow-hidden shadow-xl transition-all ${
-                      isUrgent
-                        ? "border-rose-500/60 bg-[#16101F]"
-                        : "border-slate-700/80 bg-[#0F172A]"
+              <span className="text-slate-600">&rarr;</span>
+
+              <div
+                className={`flex items-center gap-1.5 ${
+                  isResolved ? "text-emerald-400 font-black" : "text-slate-500"
+                }`}
+              >
+                <span
+                  className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] ${
+                    isResolved ? "bg-emerald-500 text-white" : "bg-slate-800 text-slate-500"
+                  }`}
+                >
+                  {isResolved ? "✓" : "3"}
+                </span>
+                <span>RESOLVED</span>
+              </div>
+            </div>
+
+            {/* B. LARGE PRIORITY & LOCATION CARD */}
+            <section className="rounded-2xl border border-slate-700/80 bg-[#0F172A] p-4 space-y-3.5 shadow-xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`font-mono text-xs font-black px-2.5 py-1 rounded border ${
+                      currentTask.report.priorityScore >= 80
+                        ? "bg-rose-950 text-rose-300 border-rose-700"
+                        : "bg-blue-950 text-blue-300 border-blue-700"
                     }`}
                   >
-                    {/* Urgency & Category Header */}
-                    <div className="p-3.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`font-mono text-xs font-black px-2 py-0.5 rounded border shadow-xs ${
-                            isUrgent
-                              ? "bg-rose-950/90 text-rose-300 border-rose-700/80"
-                              : "bg-blue-950/90 text-blue-300 border-blue-700/80"
-                          }`}
-                        >
-                          P-{priorityNum}
-                        </span>
+                    PRIORITY {Math.round(currentTask.report.priorityScore)}/100
+                  </span>
+                  <span className="font-bold text-xs text-white">
+                    {currentTask.report.category?.name}
+                  </span>
+                </div>
 
-                        <span className="font-bold text-xs text-white flex items-center gap-1.5">
-                          <DynamicCategoryIcon nameOrSlug={report.category?.name} size={14} />
-                          <span>{report.category?.name}</span>
-                        </span>
-                      </div>
+                <div className="flex items-center gap-1 text-[11px] font-mono text-amber-400 font-semibold">
+                  <Clock className="h-3.5 w-3.5" />
+                  <span>SLA 4h Target</span>
+                </div>
+              </div>
 
-                      <span
-                        className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded border ${
-                          isInProgress
-                            ? "bg-amber-950/80 border-amber-600 text-amber-300 animate-pulse"
-                            : "bg-blue-950/80 border-blue-600 text-blue-300"
+              {/* Huge Street Address */}
+              <div>
+                <span className="text-[10px] font-mono uppercase text-slate-400 block tracking-wider">
+                  Incident Site Address:
+                </span>
+                <h2 className="text-base font-bold text-white mt-0.5 leading-snug">
+                  {currentTask.report.address}
+                </h2>
+                <span className="text-xs text-slate-400 font-medium flex items-center gap-1 mt-0.5">
+                  <MapPin className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                  {currentTask.report.wardZone} &bull; ~380m from current unit GPS
+                </span>
+              </div>
+
+              {/* C. MASSIVE PRIMARY NAVIGATION BUTTON (>= 50px Touch Target) */}
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                  currentTask.report.address || currentTask.report.wardZone
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full min-h-[50px] py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-[0.99] text-white font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg"
+              >
+                <Navigation className="h-4 w-4" />
+                <span>NAVIGATE TO SITE (GOOGLE MAPS)</span>
+              </a>
+            </section>
+
+            {/* D. BEFORE & AFTER EVIDENCE COMPARISON (The Core Worker Evidence Surface) */}
+            <section className="rounded-2xl border border-slate-700/80 bg-[#0F172A] p-4 space-y-3 shadow-xl">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                  <Camera className="h-4 w-4 text-emerald-400" />
+                  <span>BEFORE / AFTER EVIDENCE COMPARISON</span>
+                </span>
+                <span className="text-[10px] font-mono text-slate-400">Dual Proof Audit</span>
+              </div>
+
+              {/* Side-by-Side 2-Up Evidence Viewer */}
+              <div className="grid grid-cols-2 gap-2.5">
+                {/* BEFORE (Citizen Photo) */}
+                <div className="space-y-1.5">
+                  <div
+                    onClick={() =>
+                      setZoomedImageUrl(
+                        currentTask.report.beforeProofUrl ||
+                          currentTask.report.imageUrl ||
+                          "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800&auto=format&fit=crop"
+                      )
+                    }
+                    className="relative h-36 rounded-xl overflow-hidden bg-slate-800 border-2 border-slate-700 cursor-pointer group"
+                  >
+                    <Image
+                      src={
+                        currentTask.report.beforeProofUrl ||
+                        currentTask.report.imageUrl ||
+                        "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800&auto=format&fit=crop"
+                      }
+                      alt="Before Repair"
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform"
+                    />
+                    <div className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded bg-black/80 text-white font-mono text-[9px] font-black">
+                      BEFORE
+                    </div>
+                    <div className="absolute bottom-1.5 right-1.5 p-1 rounded bg-black/70 text-slate-200">
+                      <Eye className="h-3.5 w-3.5" />
+                    </div>
+                  </div>
+                  <span className="text-[11px] font-bold text-slate-300 block truncate">
+                    Citizen Observation
+                  </span>
+                </div>
+
+                {/* AFTER (Repair Proof) */}
+                <div className="space-y-1.5">
+                  <div
+                    onClick={() => setZoomedImageUrl(selectedProofUrl)}
+                    className="relative h-36 rounded-xl overflow-hidden bg-slate-800 border-2 border-emerald-500/80 cursor-pointer group"
+                  >
+                    <Image
+                      src={selectedProofUrl}
+                      alt="After Repair Proof"
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform"
+                    />
+                    <div className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded bg-emerald-600 text-white font-mono text-[9px] font-black">
+                      AFTER
+                    </div>
+                    <div className="absolute bottom-1.5 right-1.5 p-1 rounded bg-black/70 text-emerald-300">
+                      <Check className="h-3.5 w-3.5" />
+                    </div>
+                  </div>
+                  <span className="text-[11px] font-bold text-emerald-400 block truncate">
+                    Repair Evidence Proof
+                  </span>
+                </div>
+              </div>
+
+              {/* Instant Camera Capture or Proof Picker */}
+              <div className="pt-1 space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-300">Capture After Evidence:</span>
+                  <label className="cursor-pointer text-amber-400 hover:text-amber-300 font-mono text-xs font-bold flex items-center gap-1 bg-amber-500/10 px-2.5 py-1 rounded border border-amber-500/30">
+                    <Camera className="h-3.5 w-3.5" />
+                    <span>Open Device Camera</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                          const localUrl = URL.createObjectURL(e.target.files[0]);
+                          setSelectedProofUrl(localUrl);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+
+                {/* 1-Tap Municipal Proof Presets */}
+                <div className="grid grid-cols-3 gap-2">
+                  {REPAIR_PROOF_SAMPLES.map((sample, sIdx) => {
+                    const isSelected = selectedProofUrl === sample.url;
+                    return (
+                      <button
+                        key={sample.id}
+                        type="button"
+                        onClick={() => setSelectedProofUrl(sample.url)}
+                        className={`p-1.5 rounded-xl border-2 text-left transition-all relative overflow-hidden ${
+                          isSelected
+                            ? "border-emerald-500 bg-emerald-950/40 ring-2 ring-emerald-500/30"
+                            : "border-slate-800 bg-slate-900 opacity-60 hover:opacity-100"
                         }`}
                       >
-                        {isInProgress ? "● IN PROGRESS" : "ASSIGNED / READY"}
-                      </span>
-                    </div>
-
-                    {/* Incident Summary & Photo Preview */}
-                    <div className="p-4 space-y-3">
-                      <div className="flex items-start gap-3">
-                        <div className="relative h-20 w-20 rounded-xl overflow-hidden bg-slate-800 border border-slate-700 shrink-0">
-                          <Image
-                            src={
-                              report.beforeProofUrl ||
-                              report.imageUrl ||
-                              "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=400&auto=format&fit=crop"
-                            }
-                            alt={report.title}
-                            fill
-                            className="object-cover"
-                            sizes="80px"
-                          />
+                        <div className="relative h-12 w-full rounded-lg overflow-hidden bg-slate-800">
+                          <Image src={sample.url} alt={sample.label} fill className="object-cover" />
                         </div>
-
-                        <div className="space-y-1 flex-1 min-w-0">
-                          <h3 className="font-bold text-sm text-white leading-snug line-clamp-1">
-                            {report.title}
-                          </h3>
-                          <p className="text-xs text-slate-300 line-clamp-2">
-                            {report.description}
-                          </p>
-                          <div className="flex items-center gap-1 text-[11px] font-medium text-slate-400 pt-0.5">
-                            <MapPin className="h-3 w-3 text-amber-400 shrink-0" />
-                            <span className="truncate">{report.address}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* GPS Distance & Navigation Bar */}
-                      <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between text-xs">
-                        <div className="space-y-0.5">
-                          <span className="text-[10px] font-mono uppercase text-slate-400 block">
-                            Direct GPS Target
-                          </span>
-                          <span className="font-bold text-slate-200">
-                            {report.wardZone} &bull; ~450m from your unit
-                          </span>
-                        </div>
-
-                        <a
-                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                            report.address || report.wardZone
-                          )}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-colors shrink-0 shadow-sm"
-                        >
-                          <Navigation className="h-3.5 w-3.5" />
-                          <span>Navigate</span>
-                        </a>
-                      </div>
-
-                      {/* Material & Equipment Checklist */}
-                      <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-2">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-mono font-bold text-slate-300 text-[11px] uppercase flex items-center gap-1">
-                            <Wrench className="h-3 w-3 text-amber-400" />
-                            <span>Crew Gear &amp; Material Checklist</span>
-                          </span>
-                          <span className="font-mono text-[10px] text-amber-400">
-                            {checkedCount}/{equipment.length} Verified
-                          </span>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                          {equipment.map((item) => {
-                            const isChecked = !!taskChecked[item];
-                            return (
-                              <button
-                                key={item}
-                                type="button"
-                                onClick={() => toggleEquipmentItem(report.id, item)}
-                                className={`text-left p-2 rounded-lg border text-[11px] font-medium transition-colors flex items-center gap-2 ${
-                                  isChecked
-                                    ? "bg-emerald-950/40 border-emerald-700/60 text-emerald-200"
-                                    : "bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200"
-                                }`}
-                              >
-                                <span
-                                  className={`h-4 w-4 rounded flex items-center justify-center border text-[9px] shrink-0 ${
-                                    isChecked
-                                      ? "bg-emerald-600 border-emerald-500 text-white"
-                                      : "border-slate-600 bg-slate-800"
-                                  }`}
-                                >
-                                  {isChecked && "✓"}
-                                </span>
-                                <span className="truncate">{item}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-
-                      {/* SLA Urgency Countdown Strip */}
-                      <div className="flex items-center justify-between text-[11px] font-mono px-1">
-                        <span className="text-slate-400 flex items-center gap-1">
-                          <Clock className="h-3.5 w-3.5 text-amber-400" />
-                          <span>Service Target: 4h Resolution</span>
+                        <span className="text-[10px] font-mono font-bold text-white block truncate mt-1">
+                          Proof #{sIdx + 1}
                         </span>
-                        <Link
-                          href={`/reports/${report.id}`}
-                          className="text-blue-400 hover:text-blue-300 font-bold flex items-center gap-1"
-                        >
-                          <span>Full Dossier</span>
-                          <ExternalLink className="h-3 w-3" />
-                        </Link>
-                      </div>
-                    </div>
-
-                    {/* 5. PRIMARY LARGE TACTICAL ACTION BUTTON (>= 48px Height) */}
-                    <div className="p-3 bg-slate-900 border-t border-slate-800">
-                      {isAssigned && (
-                        <button
-                          type="button"
-                          onClick={() => handleStartWork(report.id)}
-                          className="w-full min-h-[48px] py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg active:scale-[0.99]"
-                        >
-                          <Play className="h-4 w-4 fill-current" />
-                          <span>START ON-SITE PHYSICAL REPAIR</span>
-                        </button>
-                      )}
-
-                      {isInProgress && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setActiveModalReport(report);
-                            setAfterProofUrl(REPAIR_PROOF_SAMPLES[0].url);
-                            setSelectedProofIndex(0);
-                            setSelectedTags(REPAIR_PROOF_SAMPLES[0].tags);
-                          }}
-                          className="w-full min-h-[48px] py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg active:scale-[0.99]"
-                        >
-                          <Camera className="h-4 w-4" />
-                          <span>CAPTURE AFTER-PROOF &amp; RESOLVE</span>
-                        </button>
-                      )}
-                    </div>
-                  </article>
-                );
-              })
-            )}
-          </div>
-        )}
-
-        {/* TAB 2: TACTICAL MAP & ROUTE PREVIEW */}
-        {activeTab === "map" && (
-          <div className="rounded-2xl border border-slate-800 bg-[#0F172A] p-4 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-              <div className="flex items-center gap-2">
-                <Compass className="h-4 w-4 text-amber-400" />
-                <h3 className="font-mono font-bold text-xs text-white uppercase">
-                  SECTOR ROUTE &amp; DISPATCH RADAR
-                </h3>
-              </div>
-              <span className="font-mono text-[10px] text-slate-400">
-                {activeTasks.length} Work Targets in Ward
-              </span>
-            </div>
-
-            {/* Tactical Grid Visualization */}
-            <div className="h-64 w-full rounded-xl bg-[#070B16] border border-slate-800 relative overflow-hidden flex flex-col items-center justify-center p-4 text-center">
-              {/* Radar Grid Lines */}
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f293d_1px,transparent_1px),linear-gradient(to_bottom,#1f293d_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-30" />
-
-              <div className="relative z-10 space-y-2">
-                <div className="h-12 w-12 rounded-full border-2 border-amber-500/60 bg-amber-500/20 text-amber-400 mx-auto flex items-center justify-center animate-pulse">
-                  <Navigation className="h-6 w-6" />
-                </div>
-                <div className="space-y-0.5">
-                  <span className="font-mono text-xs font-bold text-white block">
-                    Mirpur Sector 10 Tactical Hub
-                  </span>
-                  <p className="text-[11px] text-slate-400 max-w-xs">
-                    Your unit is positioned within 1.2km of all {activeTasks.length} active assignments.
-                  </p>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-            </div>
+            </section>
 
-            {/* List of target stops */}
-            <div className="space-y-2">
-              <span className="text-[11px] font-mono uppercase text-slate-400 font-bold block">
-                Sequence of Work Stops:
-              </span>
-              {activeTasks.map(({ report }, idx) => (
-                <div
-                  key={report.id}
-                  className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="h-6 w-6 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono text-xs font-bold flex items-center justify-center">
-                      {idx + 1}
-                    </span>
-                    <div>
-                      <h4 className="font-bold text-white line-clamp-1">{report.title}</h4>
-                      <span className="text-[11px] text-slate-400">{report.address}</span>
-                    </div>
-                  </div>
-
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                      report.address || report.wardZone
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition"
-                  >
-                    <Navigation className="h-4 w-4" />
-                  </a>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* TAB 3: RESOLVED TASKS LOG */}
-        {activeTab === "completed" && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-              <h3 className="font-mono font-bold text-xs text-white uppercase flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                <span>RESOLVED WORK HISTORY ({completedTasks.length})</span>
-              </h3>
-              <span className="font-mono text-[10px] text-slate-400">Archived Sign-Offs</span>
-            </div>
-
-            {completedTasks.length === 0 ? (
-              <div className="rounded-xl border border-slate-800 bg-[#0F172A] p-8 text-center text-xs text-slate-500 font-mono">
-                No tickets resolved yet on this shift.
+            {/* E. MINIMAL TYPING (1-Tap Work Completed Quick Chips) */}
+            <section className="rounded-2xl border border-slate-700/80 bg-[#0F172A] p-4 space-y-2.5 shadow-xl">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                  <CheckCheck className="h-4 w-4 text-blue-400" />
+                  <span>ONE-TAP RESOLUTION TAGS</span>
+                </span>
+                <span className="text-[10px] font-mono text-slate-400">Zero Typing Needed</span>
               </div>
-            ) : (
-              completedTasks.map(({ report, completedAt }) => (
-                <div
-                  key={report.id}
-                  className="rounded-xl border border-slate-800 bg-[#0F172A] p-3.5 space-y-2 text-xs"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <h4 className="font-bold text-white text-sm">{report.title}</h4>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
-                        {report.address} &bull; {report.wardZone}
-                      </p>
-                    </div>
-                    <span className="px-2 py-0.5 rounded font-mono text-[10px] font-bold bg-emerald-950/80 border border-emerald-700 text-emerald-300">
-                      RESOLVED
-                    </span>
-                  </div>
 
-                  <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
-                    <span>
-                      Completed: {completedAt ? new Date(completedAt).toLocaleTimeString() : "Today"}
-                    </span>
-                    <Link
-                      href={`/reports/${report.id}`}
-                      className="text-blue-400 hover:underline flex items-center gap-1 font-semibold"
+              <div className="flex flex-wrap gap-1.5">
+                {QUICK_RESOLUTION_CHIPS.map((chip) => {
+                  const isChecked = activeChips.includes(chip);
+                  return (
+                    <button
+                      key={chip}
+                      type="button"
+                      onClick={() => toggleChip(chip)}
+                      className={`min-h-[36px] py-1.5 px-3 rounded-lg border text-xs font-medium transition-all flex items-center gap-1.5 ${
+                        isChecked
+                          ? "bg-emerald-950/70 border-emerald-600 text-emerald-200 font-bold"
+                          : "bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200"
+                      }`}
                     >
-                      <span>View Sign-Off</span>
-                      <ChevronRight className="h-3.5 w-3.5" />
-                    </Link>
+                      <span
+                        className={`h-4 w-4 rounded flex items-center justify-center text-[10px] border ${
+                          isChecked
+                            ? "bg-emerald-600 border-emerald-500 text-white"
+                            : "border-slate-700 bg-slate-800"
+                        }`}
+                      >
+                        {isChecked && "✓"}
+                      </span>
+                      <span>{chip}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Optional Custom Note expansion */}
+              {showNoteInput ? (
+                <div className="pt-2 space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <label className="font-semibold text-slate-300">Custom Operative Note:</label>
+                    <button
+                      type="button"
+                      onClick={() => setShowNoteInput(false)}
+                      className="text-slate-400 hover:text-white text-[11px]"
+                    >
+                      Hide Note
+                    </button>
                   </div>
+                  <textarea
+                    rows={2}
+                    value={customNote}
+                    onChange={(e) => setCustomNote(e.target.value)}
+                    placeholder="e.g. Substrate reinforced with 100mm gravel bed..."
+                    className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-amber-500"
+                  />
                 </div>
-              ))
-            )}
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowNoteInput(true)}
+                  className="text-xs text-amber-400 hover:underline flex items-center gap-1 font-mono pt-1"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  <span>Add Custom Field Note</span>
+                </button>
+              )}
+            </section>
           </div>
         )}
       </main>
 
-      {/* 6. MOBILE BOTTOM RESOLUTION EVIDENCE SHEET (MODAL) */}
-      {activeModalReport && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in-50">
-          <div className="w-full max-w-lg rounded-t-2xl sm:rounded-2xl bg-[#0F172A] border border-slate-700 p-5 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
-            <div className="flex items-start justify-between border-b border-slate-800 pb-3">
-              <div>
-                <span className="font-mono text-[10px] font-bold text-amber-400 uppercase tracking-wider block">
-                  FIELD EVIDENCE SUBMISSION
-                </span>
-                <h3 className="font-bold text-sm text-white flex items-center gap-1.5 mt-0.5">
-                  <Camera className="h-4 w-4 text-emerald-400" />
-                  <span>Submit After-Repair Evidence Proof</span>
-                </h3>
-                <p className="text-[11px] text-slate-400 line-clamp-1">{activeModalReport.title}</p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setActiveModalReport(null)}
-                className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Split Before/After Evidence Comparator */}
-            <div className="space-y-1.5">
-              <span className="text-[11px] font-mono uppercase text-slate-300 font-bold block">
-                Evidence Comparison (Before vs After):
-              </span>
-              <div className="grid grid-cols-2 gap-2 text-[10px] font-mono">
-                {/* Before Citizen Photo */}
-                <div className="space-y-1">
-                  <div className="relative h-28 rounded-lg overflow-hidden bg-slate-800 border border-slate-700">
-                    <Image
-                      src={
-                        activeModalReport.beforeProofUrl ||
-                        activeModalReport.imageUrl ||
-                        "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=400&auto=format&fit=crop"
-                      }
-                      alt="Before"
-                      fill
-                      className="object-cover"
-                    />
-                    <span className="absolute bottom-1 left-1 px-1.5 py-0.2 rounded bg-black/80 text-white font-bold">
-                      BEFORE
-                    </span>
-                  </div>
-                  <span className="text-slate-400 truncate block">Reported State</span>
-                </div>
-
-                {/* After Repair Proof */}
-                <div className="space-y-1">
-                  <div className="relative h-28 rounded-lg overflow-hidden bg-slate-800 border border-emerald-500/80">
-                    <Image src={afterProofUrl} alt="After Repair Proof" fill className="object-cover" />
-                    <span className="absolute bottom-1 left-1 px-1.5 py-0.2 rounded bg-emerald-600 text-white font-bold">
-                      AFTER
-                    </span>
-                  </div>
-                  <span className="text-emerald-400 font-semibold truncate block">Repair Verified</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Sample Selector or Real Camera input */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-slate-200">Select Geotagged After Proof:</span>
-                <label className="cursor-pointer text-amber-400 hover:underline flex items-center gap-1 font-mono text-[11px]">
-                  <Camera className="h-3.5 w-3.5" />
-                  <span>Device Camera</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    className="hidden"
-                    onChange={(e) => {
-                      if (e.target.files?.[0]) {
-                        const url = URL.createObjectURL(e.target.files[0]);
-                        setAfterProofUrl(url);
-                      }
-                    }}
-                  />
-                </label>
-              </div>
-
-              <div className="grid grid-cols-3 gap-2">
-                {REPAIR_PROOF_SAMPLES.map((sample, idx) => (
-                  <button
-                    key={sample.label}
-                    type="button"
-                    onClick={() => {
-                      setSelectedProofIndex(idx);
-                      setAfterProofUrl(sample.url);
-                      setSelectedTags(sample.tags);
-                    }}
-                    className={`relative h-16 rounded-lg overflow-hidden border-2 transition-all text-left ${
-                      selectedProofIndex === idx
-                        ? "border-emerald-500 ring-2 ring-emerald-500/40"
-                        : "border-slate-700 opacity-60 hover:opacity-100"
-                    }`}
-                  >
-                    <Image src={sample.url} alt={sample.label} fill className="object-cover" />
-                    <span className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-1 text-[9px] text-white font-mono leading-none">
-                      Proof #{idx + 1}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Quick Resolution Tags */}
-            <div className="space-y-1.5">
-              <span className="text-[11px] font-semibold text-slate-300 block">
-                Work Performed Tags:
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {selectedTags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-2 py-1 rounded-md bg-emerald-950/60 border border-emerald-700/80 text-emerald-200 text-[11px] font-mono flex items-center gap-1"
-                  >
-                    <Check className="h-3 w-3 text-emerald-400" />
-                    <span>{tag}</span>
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Operative Field Notes */}
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-200 block">
-                Operative Field Notes:
+      {/* 4. LARGE PRIMARY STICKY BOTTOM ACTION BAR (Anchored for One-Handed Thumb Reach) */}
+      {currentTask && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0F172A]/95 backdrop-blur-lg border-t border-slate-700 p-3 sm:p-4 shadow-2xl">
+          <div className="mx-auto max-w-lg space-y-2">
+            {/* Secondary Action Toolbar: ADD PHOTO | ADD NOTE */}
+            <div className="grid grid-cols-2 gap-2 text-xs font-bold font-mono">
+              <label className="min-h-[42px] cursor-pointer py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition-colors flex items-center justify-center gap-1.5 active:scale-[0.99]">
+                <Camera className="h-4 w-4 text-emerald-400" />
+                <span>ADD PHOTO</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      const localUrl = URL.createObjectURL(e.target.files[0]);
+                      setSelectedProofUrl(localUrl);
+                      setActionFeedback({
+                        type: "success",
+                        text: "New device photo captured and attached to repair proof!",
+                      });
+                    }
+                  }}
+                />
               </label>
-              <textarea
-                rows={2}
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="e.g. Cleared asphalt edges, packed cold-mix polymer, tested load resistance..."
-                className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-amber-500"
-              />
+
+              <button
+                type="button"
+                onClick={() => setShowNoteInput(!showNoteInput)}
+                className="min-h-[42px] py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition-colors flex items-center justify-center gap-1.5 active:scale-[0.99]"
+              >
+                <FileText className="h-4 w-4 text-blue-400" />
+                <span>{showNoteInput ? "HIDE NOTE" : "ADD NOTE"}</span>
+              </button>
             </div>
 
-            {/* Modal Submit & Cancel Buttons */}
-            <div className="grid grid-cols-2 gap-2 pt-2">
+            {/* MASSIVE PRIMARY ACTION BUTTON (>= 56px Touch Target) */}
+            {isAssigned && (
               <button
                 type="button"
-                onClick={() => setActiveModalReport(null)}
-                className="py-3 px-4 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition"
+                onClick={() => handleStartWork(currentTask.report.id)}
+                disabled={submittingAction}
+                className="w-full min-h-[56px] py-4 px-6 rounded-2xl bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-black text-base tracking-wide transition-all flex items-center justify-center gap-2 shadow-xl disabled:opacity-50"
               >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                onClick={handleResolveSubmit}
-                disabled={submitting}
-                className="py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wide transition flex items-center justify-center gap-2 shadow-lg disabled:opacity-50"
-              >
-                {submitting ? (
-                  <span>Uploading Proof...</span>
+                {submittingAction ? (
+                  <span>COMMITTING TRANSITION...</span>
                 ) : (
                   <>
-                    <CheckCircle2 className="h-4 w-4" />
-                    <span>Confirm &amp; Resolve</span>
+                    <Play className="h-5 w-5 fill-current" />
+                    <span>START WORK</span>
                   </>
                 )}
               </button>
-            </div>
+            )}
+
+            {isInProgress && (
+              <button
+                type="button"
+                onClick={() => handleMarkResolved(currentTask.report.id)}
+                disabled={submittingAction}
+                className="w-full min-h-[56px] py-4 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white font-black text-base tracking-wide transition-all flex items-center justify-center gap-2 shadow-xl disabled:opacity-50"
+              >
+                {submittingAction ? (
+                  <span>SUBMITTING EVIDENCE...</span>
+                ) : (
+                  <>
+                    <CheckCircle2 className="h-5 w-5" />
+                    <span>MARK RESOLVED</span>
+                  </>
+                )}
+              </button>
+            )}
+
+            {isResolved && (
+              <div className="w-full min-h-[52px] py-3 px-4 rounded-xl bg-slate-900 border border-emerald-500/60 text-emerald-300 font-bold text-xs uppercase font-mono flex items-center justify-center gap-2">
+                <Check className="h-4 w-4 text-emerald-400" />
+                <span>WORK COMPLETED &bull; AWAITING CITIZEN SIGN-OFF</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* FULL-SCREEN IMAGE ZOOM MODAL */}
+      {zoomedImageUrl && (
+        <div
+          onClick={() => setZoomedImageUrl(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+        >
+          <div className="relative max-w-lg w-full h-[70vh] rounded-2xl overflow-hidden border border-slate-700">
+            <Image src={zoomedImageUrl} alt="Zoomed Proof" fill className="object-contain" />
+            <button
+              onClick={() => setZoomedImageUrl(null)}
+              className="absolute top-3 right-3 p-2 rounded-full bg-black/80 text-white font-bold"
+            >
+              ✕
+            </button>
           </div>
         </div>
       )}
