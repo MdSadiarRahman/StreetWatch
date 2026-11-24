@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Shield, Lock, Mail, ArrowRight, Sparkles, AlertCircle } from "lucide-react";
+import { Lock, Mail, ArrowRight, Sparkles, AlertCircle, User, Building2, HardHat } from "lucide-react";
 import { BrandLogoEmblem } from "@/components/ui/BrandLogo";
 
 function LoginForm() {
@@ -125,19 +125,19 @@ function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="btn-tactile btn-glossy mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 py-3 px-4 text-sm font-extrabold text-white shadow-sm hover:shadow-glow border border-blue-500/40 disabled:opacity-50"
+            className="btn-tactile mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-civic hover:bg-civic-hover py-3 px-4 text-sm font-bold text-white shadow-sm border border-blue-800/20 disabled:opacity-50"
           >
             {loading ? "Authenticating..." : "Sign In to Grid"}
             {!loading && <ArrowRight className="h-4 w-4" />}
           </button>
         </form>
 
-        {/* Quick Demo Login Section (For Judges & Hackathon Testers) */}
+        {/* Quick Demo Login Section */}
         <div className="mt-6 pt-6 border-t border-slate-100 space-y-2.5">
           <div className="flex items-center justify-between text-xs font-bold text-slate-700">
             <span className="flex items-center gap-1.5 uppercase tracking-wider">
-              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-              1-Click Demo Passes (Hackathon Judges)
+              <Sparkles className="h-3.5 w-3.5 text-civic" />
+              1-Click Role Demo Access
             </span>
           </div>
 
@@ -147,11 +147,11 @@ function LoginForm() {
               type="button"
               onClick={() => handleDemoLogin("citizen@streetwatch.demo")}
               disabled={loading}
-              className="btn-tactile flex items-center justify-between rounded-xl border border-blue-200/90 bg-gradient-to-r from-blue-50/80 to-indigo-50/50 p-3 hover:border-blue-300 hover:shadow-2xs text-left"
+              className="btn-tactile flex items-center justify-between rounded-xl border border-blue-200/90 bg-blue-50/40 p-3 hover:border-blue-300 hover:bg-blue-50/80 hover:shadow-2xs text-left transition-colors"
             >
               <div className="flex items-center gap-2.5">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-600 text-white text-xs font-bold shadow-2xs">
-                  👤
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-2xs">
+                  <User className="h-4 w-4" />
                 </span>
                 <div>
                   <div className="text-xs font-bold text-slate-900">Citizen Reporter Pass</div>
@@ -168,11 +168,11 @@ function LoginForm() {
               type="button"
               onClick={() => handleDemoLogin("admin@streetwatch.demo")}
               disabled={loading}
-              className="btn-tactile flex items-center justify-between rounded-xl border border-rose-200/90 bg-gradient-to-r from-rose-50/80 to-red-50/50 p-3 hover:border-rose-300 hover:shadow-2xs text-left"
+              className="btn-tactile flex items-center justify-between rounded-xl border border-rose-200/90 bg-rose-50/40 p-3 hover:border-rose-300 hover:bg-rose-50/80 hover:shadow-2xs text-left transition-colors"
             >
               <div className="flex items-center gap-2.5">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-rose-600 text-white text-xs font-bold shadow-2xs">
-                  🏛️
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-600 text-white shadow-2xs">
+                  <Building2 className="h-4 w-4" />
                 </span>
                 <div>
                   <div className="text-xs font-bold text-slate-900">Authority Command Key</div>
@@ -189,11 +189,11 @@ function LoginForm() {
               type="button"
               onClick={() => handleDemoLogin("worker1@streetwatch.demo")}
               disabled={loading}
-              className="btn-tactile flex items-center justify-between rounded-xl border border-amber-200/90 bg-gradient-to-r from-amber-50/80 to-orange-50/50 p-3 hover:border-amber-300 hover:shadow-2xs text-left"
+              className="btn-tactile flex items-center justify-between rounded-xl border border-amber-200/90 bg-amber-50/40 p-3 hover:border-amber-300 hover:bg-amber-50/80 hover:shadow-2xs text-left transition-colors"
             >
               <div className="flex items-center gap-2.5">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500 text-white text-xs font-bold shadow-2xs">
-                  👷
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500 text-white shadow-2xs">
+                  <HardHat className="h-4 w-4" />
                 </span>
                 <div>
                   <div className="text-xs font-bold text-slate-900">Field Worker Token</div>

@@ -4,31 +4,20 @@ import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   Camera,
-  Upload,
   MapPin,
   Check,
-  CheckCircle2,
   Sparkles,
-  Clock,
   ArrowRight,
   ArrowLeft,
   Copy,
   ExternalLink,
   ShieldCheck,
-  Layers,
   AlertTriangle,
-  RotateCcw,
-  Compass,
-  Eye,
-  FileText,
   Radio,
   PlusCircle,
-  HelpCircle,
-  Info,
 } from "lucide-react";
 import { DynamicCategoryIcon } from "@/components/ui/CategoryIcons";
 
@@ -45,15 +34,6 @@ const LocationPickerMap = dynamic(
     ),
   }
 );
-
-interface CategoryItem {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  icon?: string;
-  baseRiskWeight: number;
-}
 
 interface DuplicateCheckData {
   isDuplicate: boolean;
@@ -156,8 +136,22 @@ const SAMPLE_HAZARD_PHOTOS = [
   },
 ];
 
+function getDepartmentForSlug(slug: string): string {
+  switch (slug) {
+    case "live-wire":
+      return "Electrical & Lighting";
+    case "manhole":
+    case "waterlogging":
+      return "Water & Drainage";
+    case "garbage":
+      return "Waste Management";
+    case "pothole":
+    default:
+      return "Roads & Highways";
+  }
+}
+
 export default function CitizenReportingPage() {
-  const router = useRouter();
   const shouldReduceMotion = useReducedMotion();
 
   // Progressive Disclosure Step State:
@@ -248,16 +242,17 @@ export default function CitizenReportingPage() {
   // Run AI analysis transition from Step 3 to Step 5
   const handleTriggerAIAnalysis = () => {
     setCurrentStep(4);
-    // Smooth, calm analysis simulation (1.2 seconds)
+    // Smooth, calm analysis transition (1.2 seconds)
     setTimeout(() => {
-      // Find matching sample photo data or compute intelligent defaults
+      // Find matching sample photo data or derive from selected category
       const matched = SAMPLE_HAZARD_PHOTOS.find((p) => p.url === photoUrl);
+      const effectiveSlug = matched ? matched.categorySlug : selectedCategorySlug;
       setAiAnalysisResult({
         detectedCategory: matched ? matched.categoryName : selectedCategoryName,
         severityScore: matched ? matched.estimatedSeverity : 4.2,
-        confidenceScore: 0.95,
+        confidenceScore: matched ? 0.95 : 0.89,
         suggestedTitle: matched ? matched.suggestedTitle : `${selectedCategoryName} near ${address.split(",")[0]}`,
-        departmentRouting: "Municipal Response Division (SLA: 4 Hours)",
+        departmentRouting: getDepartmentForSlug(effectiveSlug),
       });
       setCurrentStep(5);
     }, 1200);
@@ -355,15 +350,15 @@ export default function CitizenReportingPage() {
           </p>
         </div>
 
-        {/* 2. PROGRESS STEP BAR (1 through 6) */}
+        {/* 2. PROGRESS STEP BAR (1 through 4 before final Receipt) */}
         {currentStep < 6 && (
           <div className="bg-white rounded-xl border border-slate-200/90 p-3 shadow-xs">
             <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
               {[
-                { num: 1, label: "Issue Type" },
-                { num: 2, label: "Photo Evidence" },
-                { num: 3, label: "Location" },
-                { num: 5, label: "AI Review & Send" },
+                { num: 1, displayNum: 1, label: "Issue Type" },
+                { num: 2, displayNum: 2, label: "Photo Evidence" },
+                { num: 3, displayNum: 3, label: "Location" },
+                { num: 5, displayNum: 4, label: "AI Review & Send" },
               ].map((s) => {
                 const isPassed = currentStep > s.num;
                 const isCurrent = currentStep === s.num || (currentStep === 4 && s.num === 5);
@@ -379,7 +374,7 @@ export default function CitizenReportingPage() {
                           : "bg-slate-100 text-slate-400"
                       }`}
                     >
-                      {isPassed ? <Check className="h-3.5 w-3.5" /> : s.num}
+                      {isPassed ? <Check className="h-3.5 w-3.5" /> : s.displayNum}
                     </span>
                     <span
                       className={`hidden sm:inline text-xs ${
@@ -407,7 +402,7 @@ export default function CitizenReportingPage() {
           <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-sm space-y-4 animate-in fade-in-50">
             <div className="border-b border-slate-100 pb-3">
               <span className="text-[10px] font-mono font-bold text-blue-600 uppercase tracking-wider block">
-                STEP 1 OF 5
+                STEP 1 OF 4
               </span>
               <h2 className="text-lg font-bold text-slate-900 mt-0.5">
                 What kind of hazard are you reporting?
@@ -472,7 +467,7 @@ export default function CitizenReportingPage() {
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <span className="text-[10px] font-mono font-bold text-blue-600 uppercase tracking-wider block">
-                  STEP 2 OF 5
+                  STEP 2 OF 4
                 </span>
                 <h2 className="text-lg font-bold text-slate-900 mt-0.5">
                   Provide Photographic Evidence
@@ -588,7 +583,7 @@ export default function CitizenReportingPage() {
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <span className="text-[10px] font-mono font-bold text-blue-600 uppercase tracking-wider block">
-                  STEP 3 OF 5
+                  STEP 3 OF 4
                 </span>
                 <h2 className="text-lg font-bold text-slate-900 mt-0.5">
                   Confirm Hazard Location
@@ -616,27 +611,53 @@ export default function CitizenReportingPage() {
                 onLocationSelect={(newLat, newLng) => {
                   setLat(newLat);
                   setLng(newLng);
-                  setAddress(`Ward 4, Coordinate: ${newLat.toFixed(4)}°N, ${newLng.toFixed(4)}°E`);
+                  setAddress(`${wardZone}, Coordinate: ${newLat.toFixed(4)}°N, ${newLng.toFixed(4)}°E`);
                 }}
               />
-              <span className="text-[11px] font-mono text-slate-500 block text-right">
-                📍 Coordinates: {lat.toFixed(5)}°N, {lng.toFixed(5)}°E
+              <span className="text-[11px] font-mono text-slate-500 flex items-center justify-end gap-1">
+                <MapPin className="h-3 w-3 text-blue-600" />
+                <span>Coordinates: {lat.toFixed(5)}°N, {lng.toFixed(5)}°E</span>
               </span>
             </div>
 
             {/* Clean Address & Ward Bar */}
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-slate-700">Street Address / Landmark:</span>
-                <span className="font-mono text-slate-500 text-[11px]">Auto-Detected</span>
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <div className="sm:col-span-2 space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <label htmlFor="report-address" className="font-semibold text-slate-700">
+                      Street Address / Landmark:
+                    </label>
+                    <span className="font-mono text-slate-500 text-[10px]">Editable</span>
+                  </div>
+                  <input
+                    id="report-address"
+                    type="text"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="e.g. Mirpur 10 Circle, near Transit Hub"
+                    className="w-full p-2.5 rounded-lg border border-slate-300 text-xs text-slate-900 bg-white font-medium focus:outline-none focus:border-blue-600"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label htmlFor="report-ward" className="font-semibold text-slate-700 text-xs block">
+                    Municipal Ward:
+                  </label>
+                  <select
+                    id="report-ward"
+                    value={wardZone}
+                    onChange={(e) => setWardZone(e.target.value)}
+                    className="w-full p-2.5 rounded-lg border border-slate-300 text-xs font-mono text-slate-900 bg-white focus:outline-none focus:border-blue-600"
+                  >
+                    <option value="Ward 4">Ward 4 (Mirpur)</option>
+                    <option value="Ward 9">Ward 9 (Gulshan)</option>
+                    <option value="Ward 15">Ward 15 (Dhanmondi)</option>
+                    <option value="Ward 19">Ward 19 (Banani)</option>
+                    <option value="Ward 2">Ward 2 (Pallabi)</option>
+                    <option value="Ward 26">Ward 26 (Farmgate)</option>
+                  </select>
+                </div>
               </div>
-              <input
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="e.g. Mirpur 10 Circle, near Transit Hub"
-                className="w-full p-2.5 rounded-lg border border-slate-300 text-xs text-slate-900 bg-white font-medium focus:outline-none focus:border-blue-600"
-              />
             </div>
 
             {/* Duplicate Notice if found nearby */}
@@ -716,7 +737,7 @@ export default function CitizenReportingPage() {
           <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-sm space-y-5 animate-in fade-in-50">
             <div className="border-b border-slate-100 pb-3">
               <span className="text-[10px] font-mono font-bold text-purple-600 uppercase tracking-wider block">
-                STEP 4 OF 5 &bull; AI TRIAGE PREVIEW
+                STEP 4 OF 4 &bull; AI TRIAGE PREVIEW
               </span>
               <h2 className="text-lg font-bold text-slate-900 mt-0.5">
                 Review Automated Assessment
@@ -734,7 +755,7 @@ export default function CitizenReportingPage() {
                   <span>Gemini Vision Assessment</span>
                 </span>
                 <span className="px-2 py-0.5 rounded bg-purple-100 text-purple-800 font-mono text-[10px] font-bold border border-purple-200">
-                  96% Confidence
+                  {Math.round(aiAnalysisResult.confidenceScore * 100)}% Confidence
                 </span>
               </div>
 
@@ -749,14 +770,20 @@ export default function CitizenReportingPage() {
                 <div className="p-2.5 rounded-lg bg-white border border-purple-100">
                   <span className="text-[10px] font-mono text-slate-500 uppercase block">Severity Index</span>
                   <span className="font-bold text-amber-600 mt-0.5 block">
-                    {aiAnalysisResult.severityScore.toFixed(1)} / 5.0 (High)
+                    {aiAnalysisResult.severityScore.toFixed(1)} / 5.0 (
+                    {aiAnalysisResult.severityScore >= 4.0
+                      ? "Critical"
+                      : aiAnalysisResult.severityScore >= 3.0
+                      ? "High"
+                      : "Moderate"}
+                    )
                   </span>
                 </div>
 
                 <div className="p-2.5 rounded-lg bg-white border border-purple-100 col-span-2 sm:col-span-1">
                   <span className="text-[10px] font-mono text-slate-500 uppercase block">Response Dept</span>
                   <span className="font-bold text-blue-900 mt-0.5 block truncate">
-                    Road Maintenance
+                    {aiAnalysisResult.departmentRouting}
                   </span>
                 </div>
               </div>
@@ -877,8 +904,22 @@ export default function CitizenReportingPage() {
 
                 <div>
                   <span className="text-[10px] font-mono text-slate-500 uppercase block">Assessed Priority:</span>
-                  <span className="font-bold text-red-600 font-mono mt-0.5 block">
-                    P-{submissionReceipt.priorityScore}/100 (Critical Tier)
+                  <span
+                    className={`font-bold font-mono mt-0.5 block ${
+                      submissionReceipt.priorityScore >= 80
+                        ? "text-red-600"
+                        : submissionReceipt.priorityScore >= 60
+                        ? "text-orange-600"
+                        : "text-blue-700"
+                    }`}
+                  >
+                    P-{submissionReceipt.priorityScore}/100 (
+                    {submissionReceipt.priorityScore >= 80
+                      ? "Critical Tier"
+                      : submissionReceipt.priorityScore >= 60
+                      ? "High Priority Tier"
+                      : "Standard Tier"}
+                    )
                   </span>
                 </div>
 

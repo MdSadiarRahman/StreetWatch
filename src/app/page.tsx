@@ -6,24 +6,17 @@ import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Search,
-  Filter,
   MapPin,
-  ThumbsUp,
   AlertCircle,
   List,
-  Map as MapIcon,
-  ChevronRight,
   X,
   RotateCcw,
-  Sparkles,
-  SlidersHorizontal,
-  Flame,
   HardHat,
   CheckCircle2,
 } from "lucide-react";
-import { DynamicCategoryIcon } from "@/components/ui/CategoryIcons";
 import { MapReportPin } from "@/components/map/CityMapCanvas";
 import { IssueCardSkeleton } from "@/components/ui/Skeleton";
+import { EmptyState, ErrorState } from "@/components/ui/EmptyState";
 
 // Dynamic import for Leaflet map canvas with SSR disabled
 const CityMapCanvas = dynamic(
@@ -54,7 +47,7 @@ export default function PublicCityMapPage() {
   // Selection & UI Drawers
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [showFeedDrawer, setShowFeedDrawer] = useState(false);
-  const [showFiltersModal, setShowFiltersModal] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const shouldReduceMotion = useReducedMotion();
 
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -85,27 +78,32 @@ export default function PublicCityMapPage() {
   }, [selectedReportId, showFeedDrawer, search]);
 
   // Load reports and categories
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [repRes, catRes] = await Promise.all([
-          fetch("/api/reports?limit=100"),
-          fetch("/api/categories"),
-        ]);
-        if (repRes.ok) {
-          const json = await repRes.json();
-          setReports(json.data?.items || []);
-        }
-        if (catRes.ok) {
-          const json = await catRes.json();
-          setCategories(json.data?.categories || []);
-        }
-      } catch (err) {
-        console.error("Failed to load map data:", err);
-      } finally {
-        setLoading(false);
+  const loadData = async () => {
+    setFetchError(null);
+    setLoading(true);
+    try {
+      const [repRes, catRes] = await Promise.all([
+        fetch("/api/reports?limit=100"),
+        fetch("/api/categories"),
+      ]);
+      if (!repRes.ok) {
+        throw new Error("Unable to reach municipal geospatial registry.");
       }
+      const repJson = await repRes.json();
+      setReports(repJson.data?.items || []);
+      if (catRes.ok) {
+        const catJson = await catRes.json();
+        setCategories(catJson.data?.categories || []);
+      }
+    } catch (err) {
+      console.error("Failed to load map data:", err);
+      setFetchError((err as Error)?.message || "Unable to connect to live municipal feed.");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadData();
   }, []);
 
@@ -453,6 +451,32 @@ export default function PublicCityMapPage() {
                     <IssueCardSkeleton key={idx} />
                   ))}
                 </div>
+              ) : fetchError ? (
+                <ErrorState
+                  title="Geospatial Feed Unavailable"
+                  message={fetchError}
+                  onRetry={loadData}
+                  className="p-6"
+                />
+              ) : filteredReports.length === 0 ? (
+                <EmptyState
+                  title="No Matching Incidents"
+                  description="No municipal hazards match your active search query or ward filters."
+                  icon={<AlertCircle className="h-5 w-5 text-slate-400" />}
+                  action={
+                    hasActiveFilters ? (
+                      <button
+                        type="button"
+                        onClick={handleResetFilters}
+                        className="btn-tactile inline-flex items-center gap-1.5 rounded-lg bg-civic hover:bg-civic-hover px-3.5 py-2 text-xs font-bold text-white shadow-sm"
+                      >
+                        <RotateCcw className="h-3.5 w-3.5" />
+                        <span>Reset Filters</span>
+                      </button>
+                    ) : undefined
+                  }
+                  className="p-6"
+                />
               ) : (
                 filteredReports.map((report) => {
                   const isSelected = selectedReportId === report.id;

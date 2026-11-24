@@ -7,18 +7,10 @@ import {
   Clock,
   AlertCircle,
   ArrowRight,
-  ShieldCheck,
-  UserCheck,
-  Cpu,
-  Truck,
-  Wrench,
   CheckCircle2,
-  Lock,
   ChevronDown,
   ChevronUp,
-  Sparkles,
   ArrowDown,
-  Info,
 } from "lucide-react";
 import { ReportStatus } from "@/types";
 import {
@@ -231,20 +223,20 @@ export const IssueStatusTimeline: React.FC<IssueStatusTimelineProps> = ({
       <div className="p-4 border-b border-slate-100 bg-slate-50/50">
         {/* Desktop View */}
         <div className="hidden lg:block relative py-2">
-          {/* Background Track */}
-          <div className="absolute top-6 left-8 right-8 h-1 bg-slate-200 rounded-full -z-0" />
-          {/* Animated Active Progress Fill */}
-          <motion.div
-            initial={shouldReduceMotion ? false : { width: 0 }}
-            animate={{
-              width: `${Math.max(0, Math.min(100, (currentIndex / (LIFECYCLE_STEPS.length - 1)) * 100))}%`,
-            }}
-            transition={{
-              duration: 0.35,
-              ease: [0.16, 1, 0.3, 1],
-            }}
-            className="absolute top-6 left-8 h-1 bg-blue-600 rounded-full -z-0"
-          />
+          {/* Background Track & Bounded Progress Fill */}
+          <div className="absolute top-6 left-8 right-8 h-1 bg-slate-200 rounded-full overflow-hidden -z-0">
+            <motion.div
+              initial={shouldReduceMotion ? false : { width: 0 }}
+              animate={{
+                width: `${Math.max(0, Math.min(100, (currentIndex / (LIFECYCLE_STEPS.length - 1)) * 100))}%`,
+              }}
+              transition={{
+                duration: 0.35,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+              className="h-full bg-blue-600 rounded-full"
+            />
+          </div>
 
           <div className="grid grid-cols-7 gap-2 relative z-10 text-center">
             {LIFECYCLE_STEPS.map((step, idx) => {

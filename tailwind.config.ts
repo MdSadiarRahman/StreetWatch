@@ -59,11 +59,21 @@ const config: Config = {
         mono: ["var(--font-mono)", "JetBrains Mono", "SFMono-Regular", "monospace"],
       },
       boxShadow: {
+        "2xs": "0 1px 1px 0 rgba(15, 23, 42, 0.04)",
+        xs: "0 1px 2px 0 rgba(15, 23, 42, 0.05)",
         subtle: "0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.04)",
         card: "0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.06)",
         elevated: "0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04)",
+        float: "0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 4px 10px -4px rgba(15, 23, 42, 0.05)",
+        glow: "0 0 16px -2px rgba(29, 78, 216, 0.25)",
         overlay: "0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.03)",
         focus: "0 0 0 3px rgba(29, 78, 216, 0.2)",
+      },
+      backdropBlur: {
+        xs: "2px",
+      },
+      padding: {
+        "0.2": "0.125rem",
       },
     },
   },

@@ -15,16 +15,12 @@ import {
   Sparkles,
   Check,
   AlertTriangle,
-  ChevronRight,
-  ExternalLink,
-  RotateCcw,
   Plus,
   Wifi,
-  Radio,
   Eye,
   CheckCheck,
+  X,
 } from "lucide-react";
-import { DynamicCategoryIcon } from "@/components/ui/CategoryIcons";
 
 interface WorkerTask {
   assignmentId: string;
@@ -388,17 +384,19 @@ export default function WorkerWorkspacePage() {
               <span>{actionFeedback.text}</span>
             </div>
             <button
+              type="button"
               onClick={() => setActionFeedback(null)}
+              aria-label="Dismiss notification"
               className="p-1 rounded hover:bg-black/20 text-slate-400 hover:text-white"
             >
-              ✕
+              <X className="h-4 w-4" />
             </button>
           </div>
         </div>
       )}
 
       {/* 3. MAIN TASK RUNNER (TASK APPLICATION VIEW) */}
-      <main className="mx-auto max-w-lg w-full px-4 py-4 space-y-4">
+      <div role="region" aria-label="Active Field Task Workspace" className="mx-auto max-w-lg w-full px-4 py-4 space-y-4">
         {!currentTask ? (
           <div className="rounded-2xl border border-slate-800 bg-[#0F172A] p-10 text-center space-y-3">
             <CheckCheck className="h-12 w-12 text-emerald-500 mx-auto" />
@@ -477,7 +475,7 @@ export default function WorkerWorkspacePage() {
 
                 <div className="flex items-center gap-1 text-[11px] font-mono text-amber-400 font-semibold">
                   <Clock className="h-3.5 w-3.5" />
-                  <span>SLA 4h Target</span>
+                  <span>{currentTask.report.priorityScore >= 80 ? "Critical SLA Active" : "Standard SLA Active"}</span>
                 </div>
               </div>
 
@@ -491,7 +489,7 @@ export default function WorkerWorkspacePage() {
                 </h2>
                 <span className="text-xs text-slate-400 font-medium flex items-center gap-1 mt-0.5">
                   <MapPin className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-                  {currentTask.report.wardZone} &bull; ~380m from current unit GPS
+                  {currentTask.report.wardZone} &bull; Active Field Work Order
                 </span>
               </div>
 
@@ -703,7 +701,7 @@ export default function WorkerWorkspacePage() {
             </section>
           </div>
         )}
-      </main>
+      </div>
 
       {/* 4. LARGE PRIMARY STICKY BOTTOM ACTION BAR (Anchored for One-Handed Thumb Reach) */}
       {currentTask && (
@@ -792,16 +790,24 @@ export default function WorkerWorkspacePage() {
       {/* FULL-SCREEN IMAGE ZOOM MODAL */}
       {zoomedImageUrl && (
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Enlarged Evidence Photo"
           onClick={() => setZoomedImageUrl(null)}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
         >
-          <div className="relative max-w-lg w-full h-[70vh] rounded-2xl overflow-hidden border border-slate-700">
-            <Image src={zoomedImageUrl} alt="Zoomed Proof" fill className="object-contain" />
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative max-w-lg w-full h-[70vh] rounded-2xl overflow-hidden border border-slate-700"
+          >
+            <Image src={zoomedImageUrl} alt="Zoomed Evidence Proof" fill className="object-contain" />
             <button
+              type="button"
               onClick={() => setZoomedImageUrl(null)}
-              className="absolute top-3 right-3 p-2 rounded-full bg-black/80 text-white font-bold"
+              aria-label="Close enlarged evidence photo"
+              className="absolute top-3 right-3 p-2 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-full bg-black/80 text-white hover:bg-slate-800 transition"
             >
-              ✕
+              <X className="h-4 w-4" />
             </button>
           </div>
         </div>

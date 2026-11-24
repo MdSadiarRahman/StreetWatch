@@ -92,6 +92,7 @@ export default function ReportDetailsPage({
   params: { id: string };
 }) {
   const [report, setReport] = useState<ReportDetails | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [voting, setVoting] = useState(false);
   const [signingOff, setSigningOff] = useState(false);
@@ -101,10 +102,17 @@ export default function ReportDetailsPage({
 
   const loadReport = async () => {
     try {
-      const res = await fetch(`/api/reports/${params.id}`);
+      const [res, authRes] = await Promise.all([
+        fetch(`/api/reports/${params.id}`),
+        fetch("/api/auth/me").catch(() => null),
+      ]);
       if (res.ok) {
         const json = await res.json();
         setReport(json.data?.report || null);
+      }
+      if (authRes && authRes.ok) {
+        const authJson = await authRes.json();
+        setUserRole(authJson.data?.user?.role || null);
       }
     } catch (err) {
       console.error("Error loading report:", err);
@@ -343,8 +351,9 @@ export default function ReportDetailsPage({
               <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
                 {report.title}
               </h1>
-              <p className="mt-1 text-xs font-medium text-slate-600 flex items-center gap-1">
-                📍 {report.address}
+              <p className="mt-1 text-xs font-medium text-slate-600 flex items-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5 text-civic shrink-0" />
+                <span>{report.address}</span>
               </p>
             </div>
 
@@ -455,12 +464,14 @@ export default function ReportDetailsPage({
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="font-mono text-xs font-bold text-slate-800 bg-slate-100 px-2.5 py-1 rounded border border-slate-200">
-                  👍 {report.verificationCount} Confirmed
+                <span className="inline-flex items-center gap-1 font-mono text-xs font-bold text-slate-800 bg-slate-100 px-2.5 py-1 rounded border border-slate-200">
+                  <ThumbsUp className="h-3.5 w-3.5 text-civic" />
+                  <span>{report.verificationCount} Confirmed</span>
                 </span>
                 {report.flagCount > 0 && (
-                  <span className="font-mono text-xs font-bold text-red-800 bg-red-50 px-2.5 py-1 rounded border border-red-300">
-                    🚩 {report.flagCount} Flags
+                  <span className="inline-flex items-center gap-1 font-mono text-xs font-bold text-red-800 bg-red-50 px-2.5 py-1 rounded border border-red-300">
+                    <Flag className="h-3.5 w-3.5 text-red-600" />
+                    <span>{report.flagCount} Flags</span>
                   </span>
                 )}
               </div>
@@ -519,27 +530,27 @@ export default function ReportDetailsPage({
               severityRating: report.severityScore ? report.severityScore / 20 : 4.0,
               requiresVerification: !report.hasUserVoted && report.status !== "RESOLVED",
               roadSeverity: {
-                scorePct: Math.min(100, report.severityScore || 80),
+                scorePct: Math.min(100, report.aiAnalysis?.priorityBreakdown?.severityWeight ?? report.severityScore ?? 80),
                 metricLabel: `Severity (${((report.severityScore || 80) / 20).toFixed(1)}/5.0)`,
                 explanation: report.aiAnalysis?.severityReasoning || "Physical defect and geometric hazard posing direct pedestrian and vehicle disruption.",
               },
               trafficImportance: {
-                scorePct: 88,
+                scorePct: Math.min(100, report.aiAnalysis?.priorityBreakdown?.locationRiskWeight ?? 85),
                 metricLabel: `${report.wardZone} Arterial Transit Line`,
                 explanation: `Active transit corridor in ${report.wardZone} carrying daily commuter and emergency service traffic.`,
               },
               sensitiveLocations: {
-                scorePct: 92,
+                scorePct: Math.min(100, report.aiAnalysis?.priorityBreakdown?.locationRiskWeight ? Math.min(100, report.aiAnalysis.priorityBreakdown.locationRiskWeight + 5) : 90),
                 metricLabel: "Proximity to Public Facilities",
                 explanation: "Identified within 150m of municipal transit station and local educational facilities.",
                 nearbyEntities: ["Transit Hub (<100m)", "Pedestrian Crosswalk (45m)"],
               },
               similarReports: {
-                scorePct: report.isDuplicate ? 85 : 45,
-                count: report.isDuplicate ? 4 : 1,
+                scorePct: report.aiAnalysis?.priorityBreakdown?.communityConsensusWeight ?? (report.isDuplicate ? 85 : 45),
+                count: report.isDuplicate ? 4 : Math.max(1, report.verificationCount || 1),
                 explanation: report.isDuplicate
                   ? "Geospatially clustered with existing reports within 50m radius."
-                  : "Single verified report currently registered in this immediate cluster.",
+                  : "Verified incident registered in this immediate cluster.",
               },
               imageConfidence: {
                 scorePct: Math.round((report.aiAnalysis?.confidenceScore || 0.94) * 100),
@@ -547,7 +558,7 @@ export default function ReportDetailsPage({
                 explanation: "Computer vision edge contrast and depth boundary validation completed.",
               },
               historicalPattern: {
-                scorePct: 78,
+                scorePct: Math.min(100, report.aiAnalysis?.priorityBreakdown?.slaDecayWeight ?? 75),
                 metricLabel: "Zone Vulnerability Pattern",
                 explanation: `Monsoon and seasonal rainfall impact zone in ${report.wardZone}.`,
               },
@@ -565,7 +576,7 @@ export default function ReportDetailsPage({
                     : "Pending community consensus verification.",
                 },
                 finalOperationalDecision: {
-                  isApproved: report.status === "ASSIGNED" || report.status === "IN_PROGRESS" || report.status === "RESOLVED",
+                  isApproved: report.status === "ASSIGNED" || report.status === "IN_PROGRESS" || report.status === "RESOLVED" || report.status === "CITIZEN_VERIFIED",
                   isOverridden: false,
                   approvedPriority: Math.round(report.priorityScore),
                   approverName: report.status === "ASSIGNED" ? "Zone Dispatch Authority" : null,
@@ -574,29 +585,27 @@ export default function ReportDetailsPage({
                 },
               },
             }}
-            canOverride={true}
+            canOverride={userRole === "AUTHORITY"}
             onApplyOverride={async (overrideData) => {
-              try {
-                const res = await fetch("/api/admin/override-triage", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    reportId: report.id,
-                    priorityScore: overrideData.priorityScore,
-                    severityRating: overrideData.severityRating,
-                    justification: overrideData.justification,
-                  }),
-                });
-                if (res.ok) {
-                  setReport((prev) => (prev ? { ...prev, priorityScore: overrideData.priorityScore } : null));
-                  setFeedback({
-                    type: "success",
-                    text: `Human operator override saved into audit ledger: Priority set to P-${overrideData.priorityScore}`,
-                  });
-                }
-              } catch (e) {
-                console.error(e);
+              const res = await fetch("/api/admin/override-triage", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  reportId: report.id,
+                  priorityScore: overrideData.priorityScore,
+                  severityRating: overrideData.severityRating,
+                  justification: overrideData.justification,
+                }),
+              });
+              const json = await res.json().catch(() => ({}));
+              if (!res.ok) {
+                throw new Error(json.error?.message || "Failed to apply operator override.");
               }
+              setReport((prev) => (prev ? { ...prev, priorityScore: overrideData.priorityScore } : null));
+              setFeedback({
+                type: "success",
+                text: `Human operator override saved into audit ledger: Priority set to P-${overrideData.priorityScore}`,
+              });
             }}
           />
 

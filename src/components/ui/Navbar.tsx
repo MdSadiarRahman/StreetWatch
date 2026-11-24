@@ -149,7 +149,7 @@ export default function Navbar() {
               }`}
             >
               <LayoutDashboard className="h-3.5 w-3.5" />
-              Bento Command Center
+              Command Center
             </Link>
           )}
 
@@ -173,10 +173,10 @@ export default function Navbar() {
           {/* Universal Quick "Report Issue" Action Pill */}
           <Link
             href="/report"
-            className="btn-tactile btn-glossy flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 px-4 py-2 text-xs font-black text-white shadow-sm hover:shadow-glow border border-blue-500/50"
+            className="btn-tactile flex items-center gap-2 rounded-lg bg-civic hover:bg-civic-hover px-4 py-2 text-xs font-bold text-white shadow-sm border border-blue-800/20"
           >
-            <PlusCircle className="h-4 w-4 text-blue-200" />
-            + Report Issue
+            <PlusCircle className="h-4 w-4 text-blue-100" />
+            <span>Report Issue</span>
           </Link>
 
           {loading ? (
@@ -279,7 +279,7 @@ export default function Navbar() {
               className="flex items-center gap-2.5 rounded-xl bg-blue-50/80 px-3 py-2 text-xs font-bold text-blue-700 border border-blue-200/60"
             >
               <PlusCircle className="h-4 w-4 text-blue-600" />
-              + Report New Civic Issue
+              <span>Report New Civic Issue</span>
             </Link>
 
             {user?.role === "CITIZEN" && (

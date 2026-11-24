@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Shield, Lock, Mail, User, ArrowRight, AlertCircle } from "lucide-react";
+import { Lock, Mail, User, ArrowRight, AlertCircle } from "lucide-react";
 import { BrandLogoEmblem } from "@/components/ui/BrandLogo";
 
 export default function RegisterPage() {
@@ -159,7 +159,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-tactile btn-glossy mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 py-3 px-4 text-sm font-extrabold text-white shadow-sm hover:shadow-glow border border-blue-500/40 disabled:opacity-50"
+              className="btn-tactile mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-civic hover:bg-civic-hover py-3 px-4 text-sm font-bold text-white shadow-sm border border-blue-800/20 disabled:opacity-50"
             >
               {loading ? "Creating Citizen Profile..." : "Complete Registration"}
               {!loading && <ArrowRight className="h-4 w-4" />}

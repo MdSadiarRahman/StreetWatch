@@ -1,27 +1,24 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   Sparkles,
   Cpu,
   Scale,
   ShieldCheck,
   AlertTriangle,
-  Info,
   Sliders,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
   MapPin,
-  Clock,
   Car,
   School,
   Layers,
   History,
   Eye,
   Check,
-  RotateCcw,
   UserCheck,
 } from "lucide-react";
 
@@ -175,16 +172,61 @@ export const AIAutoTriagePanel: React.FC<AIAutoTriagePanelProps> = ({
   const [overrideReason, setOverrideReason] = useState("");
   const [isSubmittingOverride, setIsSubmittingOverride] = useState(false);
   const [overrideSuccess, setOverrideSuccess] = useState(false);
+  const [overrideError, setOverrideError] = useState<string | null>(null);
 
-  // Active state of decision (can be updated by operator)
+  // Active state of decision (synced with incoming props when selected report changes)
   const [currentDecision, setCurrentDecision] = useState(triage.governance.finalOperationalDecision);
   const shouldReduceMotion = useReducedMotion();
 
+  useEffect(() => {
+    setOverridePriority(triage.suggestedPriorityScore);
+    setOverrideSeverity(Math.max(1, Math.min(5, Math.round(triage.severityRating))));
+    setOverrideReason("");
+    setShowOverrideForm(false);
+    setOverrideSuccess(false);
+    setOverrideError(null);
+    setCurrentDecision(triage.governance.finalOperationalDecision);
+  }, [
+    triage.reportId,
+    triage.suggestedPriorityScore,
+    triage.severityRating,
+    triage.governance.finalOperationalDecision.isApproved,
+    triage.governance.finalOperationalDecision.approvedPriority,
+  ]);
+
   const confidencePct = Math.round(triage.confidenceScore * 100);
+  const priorityScoreRounded = Math.round(triage.suggestedPriorityScore);
+
+  const severityLabel =
+    triage.severityRating >= 4.0
+      ? { text: "Critical Impact", cls: "text-red-400" }
+      : triage.severityRating >= 3.0
+      ? { text: "Significant Impact", cls: "text-amber-400" }
+      : triage.severityRating >= 2.0
+      ? { text: "Moderate Impact", cls: "text-blue-400" }
+      : { text: "Minor Impact", cls: "text-slate-400" };
+
+  const confidenceLabel =
+    confidencePct >= 85
+      ? { text: "High Reliability", cls: "text-emerald-400" }
+      : confidencePct >= 65
+      ? { text: "Moderate Confidence", cls: "text-amber-400" }
+      : { text: "Requires Inspection", cls: "text-rose-400" };
+
+  const priorityTierLabel =
+    priorityScoreRounded >= 80
+      ? { text: "Critical Tier", cls: "text-red-400" }
+      : priorityScoreRounded >= 60
+      ? { text: "High Priority Tier", cls: "text-orange-400" }
+      : priorityScoreRounded >= 40
+      ? { text: "Medium Priority Tier", cls: "text-amber-400" }
+      : { text: "Standard Tier", cls: "text-blue-400" };
 
   const handleCommitOverride = async () => {
     if (!overrideReason.trim()) return;
     setIsSubmittingOverride(true);
+    setOverrideError(null);
+    setOverrideSuccess(false);
     try {
       if (onApplyOverride) {
         await onApplyOverride({
@@ -197,14 +239,14 @@ export const AIAutoTriagePanel: React.FC<AIAutoTriagePanelProps> = ({
         isApproved: true,
         isOverridden: true,
         approvedPriority: overridePriority,
-        approverName: "Engr. Farhana Yasmin (Authority)",
+        approverName: "Authority Officer",
         operatorJustification: overrideReason,
         decidedAt: "Just now",
       });
       setOverrideSuccess(true);
       setShowOverrideForm(false);
     } catch (e) {
-      console.error(e);
+      setOverrideError((e as Error)?.message || "Failed to save operator override.");
     } finally {
       setIsSubmittingOverride(false);
     }
@@ -269,7 +311,7 @@ export const AIAutoTriagePanel: React.FC<AIAutoTriagePanelProps> = ({
               </span>
               <span className="text-[10px] text-slate-400 font-mono">/ 5.0</span>
             </div>
-            <span className="text-[10px] text-amber-400 font-medium">Significant Impact</span>
+            <span className={`text-[10px] font-medium ${severityLabel.cls}`}>{severityLabel.text}</span>
           </div>
 
           {/* Confidence */}
@@ -279,7 +321,7 @@ export const AIAutoTriagePanel: React.FC<AIAutoTriagePanelProps> = ({
               <span className="font-mono text-lg font-black text-purple-300">{confidencePct}%</span>
               <Sparkles className="h-3 w-3 text-purple-400" />
             </div>
-            <span className="text-[10px] text-emerald-400 font-medium">High Reliability</span>
+            <span className={`text-[10px] font-medium ${confidenceLabel.cls}`}>{confidenceLabel.text}</span>
           </div>
 
           {/* Suggested Priority Score */}
@@ -287,11 +329,11 @@ export const AIAutoTriagePanel: React.FC<AIAutoTriagePanelProps> = ({
             <span className="text-[10px] text-purple-300 font-mono uppercase font-bold">Suggested Priority</span>
             <div className="mt-1 flex items-baseline gap-1.5">
               <span className="font-mono text-xl font-black text-purple-300">
-                P-{Math.round(triage.suggestedPriorityScore)}
+                P-{priorityScoreRounded}
               </span>
               <span className="text-[10px] text-purple-400/80 font-mono">/ 100</span>
             </div>
-            <span className="text-[10px] font-bold text-red-400 font-mono uppercase">Critical Tier</span>
+            <span className={`text-[10px] font-bold font-mono uppercase ${priorityTierLabel.cls}`}>{priorityTierLabel.text}</span>
           </div>
         </div>
       </div>
@@ -378,8 +420,9 @@ export const AIAutoTriagePanel: React.FC<AIAutoTriagePanelProps> = ({
             </div>
             <div className="flex flex-wrap gap-1 text-[10px] font-mono text-slate-300 pt-0.5">
               {triage.sensitiveLocations.nearbyEntities.map((ent) => (
-                <span key={ent} className="px-1.5 py-0.2 rounded bg-slate-800 border border-slate-700">
-                  📍 {ent}
+                <span key={ent} className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded bg-slate-800 border border-slate-700">
+                  <MapPin className="h-2.5 w-2.5 text-purple-400 shrink-0" />
+                  <span>{ent}</span>
                 </span>
               ))}
             </div>
@@ -503,7 +546,8 @@ export const AIAutoTriagePanel: React.FC<AIAutoTriagePanelProps> = ({
               </span>
             </div>
             <p className="text-[11px] text-slate-300">
-              Citizen consensus status: <strong>Verified</strong>
+              Citizen consensus status:{" "}
+              <strong>{triage.governance.humanVerification.isVerified ? "Verified" : "Pending Consensus"}</strong>
             </p>
             <span className="text-[10px] text-slate-400 block line-clamp-1">
               {triage.governance.humanVerification.inspectorAttestation}
@@ -568,6 +612,13 @@ export const AIAutoTriagePanel: React.FC<AIAutoTriagePanelProps> = ({
             </button>
           </div>
 
+          {overrideError && (
+            <div className="p-2.5 rounded bg-rose-950/60 border border-rose-700/80 text-rose-200 text-xs flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-rose-400 shrink-0" />
+              <span>{overrideError}</span>
+            </div>
+          )}
+
           {overrideSuccess && (
             <div className="p-2.5 rounded bg-emerald-950/60 border border-emerald-700/80 text-emerald-200 text-xs flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
@@ -594,9 +645,11 @@ export const AIAutoTriagePanel: React.FC<AIAutoTriagePanelProps> = ({
                     </span>
                   </div>
                   <input
+                    id="override-priority-range"
                     type="range"
                     min="10"
                     max="100"
+                    aria-label="Adjusted Priority Score (0-100)"
                     value={overridePriority}
                     onChange={(e) => setOverridePriority(Number(e.target.value))}
                     className="w-full accent-blue-500 cursor-pointer"

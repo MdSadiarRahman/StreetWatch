@@ -4,7 +4,7 @@
  */
 
 async function testAllPortals() {
-  const BASE_URL = "http://localhost:3000";
+  const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
   console.log("===============================================================");
   console.log("🌐 TESTING ALL STREETWATCH PORTALS & API ENDPOINTS (E2E)");
   console.log("===============================================================\n");
