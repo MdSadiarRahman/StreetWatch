@@ -14,3 +14,5 @@ export * from "./IssueCluster";
 export * from "./IssueCard";
 export * from "./IssueDetailPanel";
 export * from "./ActivityTimeline";
+export * from "./AIAutoTriagePanel";
+

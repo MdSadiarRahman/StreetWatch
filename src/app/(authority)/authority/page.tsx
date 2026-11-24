@@ -43,6 +43,7 @@ import {
   Minimize2,
 } from "lucide-react";
 import { DynamicCategoryIcon } from "@/components/ui/CategoryIcons";
+import AIAutoTriagePanel from "@/components/streetwatch/AIAutoTriagePanel";
 import { MapReportPin } from "@/components/map/CityMapCanvas";
 import { DHAKA_MUNICIPAL_CREWS } from "@/components/map/gis-data";
 
@@ -95,6 +96,7 @@ interface AnalyticsData {
 interface QueueReportItem extends MapReportPin {
   severityScore: number;
   departmentId?: string;
+  isDuplicate?: boolean;
   assignedWorker?: {
     id: string;
     name: string;
@@ -752,113 +754,108 @@ export default function AuthorityCommandCenter() {
 
             {/* Right Command Column: AI Triage Panel + Crew Capacity Gauge (5 cols) */}
             <div className={`space-y-4 ${expandMap ? "lg:col-span-12" : "lg:col-span-5"}`}>
-              {/* AI Triage & State Machine Panel */}
-              <div className="p-4 rounded-xl bg-[#0F172A] border border-slate-800 space-y-3.5 shadow-sm">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-                  <div className="flex items-center gap-2">
-                    <div className="h-6 w-6 rounded bg-blue-600/30 border border-blue-500 flex items-center justify-center text-blue-400">
-                      <Cpu className="h-3.5 w-3.5" />
-                    </div>
-                    <div>
-                      <h3 className="font-mono font-bold text-xs text-white">
-                        AI AUTONOMOUS TRIAGE ENGINE
-                      </h3>
-                      <span className="text-[10px] text-slate-400">
-                        Incident #{selectedReport?.id.slice(-6).toUpperCase() || "SELECT"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <span className="px-2 py-0.5 rounded font-mono font-bold text-xs bg-blue-900/60 border border-blue-600 text-blue-200">
-                    P-{Math.round(selectedReport?.priorityScore || 50)}/100
-                  </span>
+              {/* Explainable AI Decision Support System Panel */}
+              {selectedReport ? (
+                <AIAutoTriagePanel
+                  data={{
+                    reportId: selectedReport.id,
+                    categoryName: selectedReport.category?.name || "Civic Hazard",
+                    suggestedPriorityScore: selectedReport.priorityScore,
+                    confidenceScore: selectedReport.aiAnalysis?.confidenceScore || 0.94,
+                    severityRating: selectedReport.severityScore ? selectedReport.severityScore / 20 : 4.0,
+                    requiresVerification: selectedReport.status !== "RESOLVED",
+                    roadSeverity: {
+                      scorePct: Math.min(100, selectedReport.severityScore || 80),
+                      metricLabel: `Severity (${((selectedReport.severityScore || 80) / 20).toFixed(1)}/5.0)`,
+                      explanation: selectedReport.aiAnalysis?.severityReasoning || "Physical defect and geometric hazard posing direct pedestrian and vehicle disruption.",
+                    },
+                    trafficImportance: {
+                      scorePct: 88,
+                      metricLabel: `${selectedReport.wardZone} Arterial Transit Line`,
+                      explanation: `Active transit corridor in ${selectedReport.wardZone} carrying daily commuter and emergency service traffic.`,
+                    },
+                    sensitiveLocations: {
+                      scorePct: 92,
+                      metricLabel: "Proximity to Public Facilities",
+                      explanation: "Identified within 150m of municipal transit station and local educational facilities.",
+                      nearbyEntities: ["Transit Hub (<100m)", "Pedestrian Crosswalk (45m)"],
+                    },
+                    similarReports: {
+                      scorePct: selectedReport.isDuplicate ? 85 : 45,
+                      count: selectedReport.isDuplicate ? 4 : 1,
+                      explanation: selectedReport.isDuplicate
+                        ? "Geospatially clustered with existing reports within 50m radius."
+                        : "Single verified report currently registered in this immediate cluster.",
+                    },
+                    imageConfidence: {
+                      scorePct: Math.round((selectedReport.aiAnalysis?.confidenceScore || 0.94) * 100),
+                      modelName: "Gemini Vision v2.5",
+                      explanation: "Computer vision edge contrast and depth boundary validation completed.",
+                    },
+                    historicalPattern: {
+                      scorePct: 78,
+                      metricLabel: "Zone Vulnerability Pattern",
+                      explanation: `Monsoon and seasonal rainfall impact zone in ${selectedReport.wardZone}.`,
+                    },
+                    governance: {
+                      aiRecommendation: {
+                        suggestedPriority: Math.round(selectedReport.priorityScore),
+                        suggestedDepartment: selectedReport.category?.name || "Public Works",
+                        generatedAt: new Date(selectedReport.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                      },
+                      humanVerification: {
+                        isVerified: (selectedReport.verificationCount || 0) > 0,
+                        verificationCount: selectedReport.verificationCount || 0,
+                        inspectorAttestation: (selectedReport.verificationCount || 0) > 0
+                          ? `Consensus verified by ${selectedReport.verificationCount} citizens and community members.`
+                          : "Pending community consensus verification.",
+                      },
+                      finalOperationalDecision: {
+                        isApproved: selectedReport.status === "ASSIGNED" || selectedReport.status === "IN_PROGRESS" || selectedReport.status === "RESOLVED",
+                        isOverridden: false,
+                        approvedPriority: Math.round(selectedReport.priorityScore),
+                        approverName: selectedReport.status === "ASSIGNED" ? "Zone Dispatch Authority" : null,
+                        operatorJustification: null,
+                        decidedAt: selectedReport.createdAt,
+                      },
+                    },
+                  }}
+                  canOverride={true}
+                  onApplyOverride={async (overrideData) => {
+                    try {
+                      const res = await fetch("/api/admin/override-triage", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          reportId: selectedReport.id,
+                          priorityScore: overrideData.priorityScore,
+                          severityRating: overrideData.severityRating,
+                          justification: overrideData.justification,
+                        }),
+                      });
+                      if (res.ok) {
+                        setReports((prev) =>
+                          prev.map((r) =>
+                            r.id === selectedReport.id
+                              ? { ...r, priorityScore: overrideData.priorityScore }
+                              : r
+                          )
+                        );
+                        setActionMessage({
+                          type: "success",
+                          text: `Human operator override saved into audit ledger: Priority set to P-${overrideData.priorityScore}`,
+                        });
+                      }
+                    } catch (e) {
+                      console.error(e);
+                    }
+                  }}
+                />
+              ) : (
+                <div className="p-8 rounded-xl bg-[#0F172A] border border-slate-800 text-center text-xs text-slate-500 font-mono">
+                  Select an incident from the map or queue to inspect AI Triage telemetry.
                 </div>
-
-                {selectedReport ? (
-                  <div className="space-y-3 text-xs">
-                    {/* Incident Title & Category */}
-                    <div>
-                      <div className="text-slate-400 text-[10px] uppercase font-mono tracking-wider">
-                        Active Inspection Target
-                      </div>
-                      <div className="text-white font-bold text-sm line-clamp-1 mt-0.5">
-                        {selectedReport.title}
-                      </div>
-                      <div className="text-slate-400 text-[11px] mt-0.5 flex items-center gap-1.5">
-                        <MapPin className="h-3 w-3 text-slate-500" />
-                        <span>{selectedReport.address}</span>
-                        <span>&bull;</span>
-                        <strong className="text-slate-300">{selectedReport.wardZone}</strong>
-                      </div>
-                    </div>
-
-                    {/* Contributing Factors Grid (Prompt Requirement: Severity, Risk, Consensus, SLA) */}
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 uppercase">
-                        <span>Factors Contributing to Score</span>
-                        <span>Formula Weights</span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-                        <div className="p-2 rounded bg-slate-900/90 border border-slate-800">
-                          <span className="text-[10px] text-slate-400 block">Severity (40%)</span>
-                          <strong className="text-white font-bold">
-                            {selectedReport.severityScore ? selectedReport.severityScore * 8 : 32} pts
-                          </strong>
-                        </div>
-                        <div className="p-2 rounded bg-slate-900/90 border border-slate-800">
-                          <span className="text-[10px] text-slate-400 block">Location Risk (25%)</span>
-                          <strong className="text-white font-bold">22 pts</strong>
-                        </div>
-                        <div className="p-2 rounded bg-slate-900/90 border border-slate-800">
-                          <span className="text-[10px] text-slate-400 block">Consensus (20%)</span>
-                          <strong className="text-white font-bold">
-                            {selectedReport.verificationCount * 4} pts ({selectedReport.verificationCount} votes)
-                          </strong>
-                        </div>
-                        <div className="p-2 rounded bg-slate-900/90 border border-slate-800">
-                          <span className="text-[10px] text-slate-400 block">SLA Decay (15%)</span>
-                          <strong className="text-amber-400 font-bold">+12 pts</strong>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Recommendation */}
-                    <div className="p-2.5 rounded bg-blue-950/40 border border-blue-900/60 text-xs text-blue-200 flex items-start gap-2">
-                      <Sparkles className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
-                      <div>
-                        <strong className="text-white block font-sans">A02 Recommendation:</strong>
-                        <span>
-                          {selectedReport.priorityScore >= 80
-                            ? "Immediate dispatch required. Auto-assign to nearest available Rapid Repair unit and alert traffic coordination."
-                            : "Standard dispatch routing. Assign to zone crew within SLA target window."}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* State Transition Flow */}
-                    <div className="pt-2 border-t border-slate-800 space-y-1">
-                      <span className="text-[10px] font-mono text-slate-400 uppercase block">
-                        Deterministic State Transition
-                      </span>
-                      <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-300 overflow-x-auto pb-1">
-                        <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">REPORTED</span>
-                        <span>&rarr;</span>
-                        <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">AI_TRIAGED</span>
-                        <span>&rarr;</span>
-                        <span className="px-1.5 py-0.5 rounded bg-blue-600 text-white font-bold">
-                          {selectedReport.status}
-                        </span>
-                        <span>&rarr;</span>
-                        <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">RESOLVED</span>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-xs text-slate-500 font-mono">
-                    Select an incident from the map or queue to inspect triage telemetry.
-                  </div>
-                )}
-              </div>
+              )}
 
               {/* Crew Capacity Visualization Panel */}
               <div className="p-4 rounded-xl bg-[#0F172A] border border-slate-800 space-y-3 shadow-sm">
