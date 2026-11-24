@@ -113,7 +113,7 @@ export default async function CitizenDashboardPage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+    <div className="mx-auto max-w-7xl px-4 pt-6 pb-24 sm:py-8 sm:px-6 lg:px-8 space-y-6">
       {/* 70% Civic Swiss Portal Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 pb-5">
         <div>

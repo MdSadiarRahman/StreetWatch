@@ -33,6 +33,25 @@
     height: 6px;
   }
 
+  /* Accessible Skip to Content Link */
+  .skip-to-content {
+    position: absolute;
+    top: -100px;
+    left: 1rem;
+    background: #1d4ed8;
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: top 0.15s ease-out;
+  }
+  .skip-to-content:focus {
+    top: 1rem;
+  }
+
   ::-webkit-scrollbar-track {
     background: transparent;
   }

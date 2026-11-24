@@ -136,7 +136,7 @@ export default function CityMapCanvas({
   const [enableClustering, setEnableClustering] = useState(true);
   const [showLayerMenu, setShowLayerMenu] = useState(false);
   const [showStyleMenu, setShowStyleMenu] = useState(false);
-  const [legendCollapsed, setLegendCollapsed] = useState(false);
+  const [legendCollapsed, setLegendCollapsed] = useState(true);
 
   // Active Layers State
   const [layers, setLayers] = useState({
@@ -566,8 +566,8 @@ export default function CityMapCanvas({
       </MapContainer>
 
       {/* FLOATING TOP-RIGHT TOOLBAR: Layer Control, Style Switcher, Zoom, Locate */}
-      <div className="absolute top-4 right-4 z-[450] flex flex-col items-end gap-2 pointer-events-auto">
-        <div className="flex items-center gap-1.5 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-lg p-1 shadow-md">
+      <div className="absolute top-32 sm:top-4 right-3 sm:right-4 z-[450] flex flex-col items-end gap-2 pointer-events-auto">
+        <div className="flex items-center gap-1.5 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-lg p-1 shadow-md">
           {/* Layer Control Button */}
           <div className="relative">
             <button
@@ -576,7 +576,9 @@ export default function CityMapCanvas({
                 setShowLayerMenu(!showLayerMenu);
                 setShowStyleMenu(false);
               }}
-              className={`p-2 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors ${
+              aria-expanded={showLayerMenu}
+              aria-haspopup="true"
+              className={`p-2 min-h-[40px] min-w-[40px] rounded-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
                 showLayerMenu
                   ? "bg-blue-600 text-white"
                   : "text-slate-700 hover:bg-slate-100"
@@ -584,7 +586,7 @@ export default function CityMapCanvas({
               title="Toggle GIS Map Layers"
               aria-label="Layer control"
             >
-              <Layers className="h-4 w-4" />
+              <Layers className="h-4 w-4 shrink-0" />
               <span className="hidden sm:inline text-xs">Layers</span>
             </button>
 
@@ -693,7 +695,9 @@ export default function CityMapCanvas({
                 setShowStyleMenu(!showStyleMenu);
                 setShowLayerMenu(false);
               }}
-              className={`p-2 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors ${
+              aria-expanded={showStyleMenu}
+              aria-haspopup="true"
+              className={`p-2 min-h-[40px] min-w-[40px] rounded-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
                 showStyleMenu
                   ? "bg-blue-600 text-white"
                   : "text-slate-700 hover:bg-slate-100"
@@ -701,7 +705,7 @@ export default function CityMapCanvas({
               title="Select Base Map Cartography"
               aria-label="Map style control"
             >
-              <MapIcon className="h-4 w-4" />
+              <MapIcon className="h-4 w-4 shrink-0" />
               <span className="hidden sm:inline text-xs">Basemap</span>
             </button>
 
@@ -740,7 +744,7 @@ export default function CityMapCanvas({
           <button
             type="button"
             onClick={() => mapInstance?.zoomIn()}
-            className="p-2 text-slate-700 hover:bg-slate-100 rounded-md transition-colors"
+            className="p-2 min-h-[40px] min-w-[40px] text-slate-700 hover:bg-slate-100 rounded-md transition-colors flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
             title="Zoom In"
             aria-label="Zoom in"
           >
@@ -751,7 +755,7 @@ export default function CityMapCanvas({
           <button
             type="button"
             onClick={() => mapInstance?.zoomOut()}
-            className="p-2 text-slate-700 hover:bg-slate-100 rounded-md transition-colors"
+            className="p-2 min-h-[40px] min-w-[40px] text-slate-700 hover:bg-slate-100 rounded-md transition-colors flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
             title="Zoom Out"
             aria-label="Zoom out"
           >
@@ -767,7 +771,7 @@ export default function CityMapCanvas({
               }
               onSelectReport?.(null);
             }}
-            className="p-2 text-slate-700 hover:bg-slate-100 rounded-md transition-colors"
+            className="p-2 min-h-[40px] min-w-[40px] text-slate-700 hover:bg-slate-100 rounded-md transition-colors flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
             title="Reset to City Grid Center"
             aria-label="Reset view"
           >
@@ -777,7 +781,7 @@ export default function CityMapCanvas({
       </div>
 
       {/* FLOATING BOTTOM-LEFT GIS LEGEND */}
-      <div className="absolute bottom-4 left-4 z-[450] pointer-events-auto">
+      <div className="absolute bottom-20 md:bottom-4 left-3 md:left-4 z-[450] pointer-events-auto">
         <div className="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-lg shadow-md p-2.5 text-xs text-slate-700 max-w-[270px]">
           <div className="flex items-center justify-between gap-3 font-bold text-slate-900 uppercase text-[10px] tracking-wider mb-1">
             <span className="flex items-center gap-1.5">

@@ -246,7 +246,7 @@ export default function ReportDetailsPage({
   const isCitizenVerified = report.status === "CITIZEN_VERIFIED";
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+    <div className="mx-auto max-w-7xl px-4 pt-6 pb-24 sm:py-8 sm:px-6 lg:px-8 space-y-6">
       {/* Top Breadcrumb & Ticket Identifier */}
       <div className="flex items-center justify-between border-b border-slate-200 pb-4">
         <Link

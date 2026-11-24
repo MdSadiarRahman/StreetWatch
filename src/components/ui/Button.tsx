@@ -42,10 +42,10 @@ export function Button({
   const shouldReduceMotion = useReducedMotion();
 
   const sizeClasses: Record<ButtonSize, string> = {
-    xs: "px-2.5 py-1 text-[11px] font-bold rounded gap-1.5",
-    sm: "px-3 py-1.5 text-xs font-bold rounded-md gap-1.5",
-    md: "px-4 py-2 text-xs sm:text-sm font-bold rounded-lg gap-2",
-    lg: "px-5 py-2.5 text-sm font-bold rounded-lg gap-2.5",
+    xs: "px-2.5 py-1 text-[11px] font-bold rounded gap-1.5 min-h-[32px] sm:min-h-[28px]",
+    sm: "px-3 py-1.5 text-xs font-bold rounded-md gap-1.5 min-h-[36px]",
+    md: "px-4 py-2 text-xs sm:text-sm font-bold rounded-lg gap-2 min-h-[44px]",
+    lg: "px-5 py-2.5 text-sm font-bold rounded-lg gap-2.5 min-h-[48px]",
   };
 
   const variantClasses: Record<ButtonVariant, string> = {
@@ -126,10 +126,10 @@ export function IconButton({
   const shouldReduceMotion = useReducedMotion();
 
   const sizeClasses = {
-    xs: "p-1 h-7 w-7 rounded",
-    sm: "p-1.5 h-8 w-8 rounded-md",
-    md: "p-2 h-9 w-9 rounded-lg",
-    lg: "p-2.5 h-10 w-10 rounded-lg",
+    xs: "p-1 h-8 w-8 min-h-[36px] min-w-[36px] rounded",
+    sm: "p-1.5 h-9 w-9 min-h-[40px] min-w-[40px] rounded-md",
+    md: "p-2 h-10 w-10 min-h-[44px] min-w-[44px] rounded-lg",
+    lg: "p-2.5 h-12 w-12 min-h-[48px] min-w-[48px] rounded-lg",
   }[size];
 
   const variantClasses: Record<ButtonVariant, string> = {

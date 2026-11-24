@@ -62,6 +62,7 @@ export function Badge({
 
   return (
     <span
+      role="status"
       className={`inline-flex items-center gap-1.5 font-bold rounded border ${sizeClasses} ${variantClasses[variant].container} ${className}`}
       {...props}
     >

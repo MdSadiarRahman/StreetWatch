@@ -535,7 +535,9 @@ export default function AuthorityCommandCenter() {
                   key={item.id}
                   type="button"
                   onClick={() => setActiveSection(item.id as NavSection)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold transition-all ${
+                  aria-label={item.label}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`w-full min-h-[44px] flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                     isActive
                       ? "bg-blue-600 text-white shadow-xs"
                       : "text-slate-400 hover:text-white hover:bg-slate-800/60"

@@ -29,8 +29,13 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-canvas text-slate-900 antialiased font-sans">
+        <a href="#main-content" className="skip-to-content focus:outline-none">
+          Skip to main operational content
+        </a>
         <Navbar />
-        <PageTransition>{children}</PageTransition>
+        <main id="main-content">
+          <PageTransition>{children}</PageTransition>
+        </main>
       </body>
     </html>
   );

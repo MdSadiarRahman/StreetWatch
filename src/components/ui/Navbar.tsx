@@ -220,8 +220,10 @@ export default function Navbar() {
         <div className="flex items-center md:hidden">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="rounded-xl p-2 text-slate-700 hover:bg-slate-100 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-            aria-label="Toggle menu"
+            className="rounded-xl p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-700 hover:bg-slate-100 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+            aria-label={mobileMenuOpen ? "Close mobile navigation menu" : "Open mobile navigation menu"}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-nav-menu"
           >
             {mobileMenuOpen ? (
               <X className="h-5 w-5" />
@@ -234,7 +236,12 @@ export default function Navbar() {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="border-b border-slate-200/90 bg-white/95 px-4 pt-3 pb-5 backdrop-blur-xl md:hidden space-y-3 shadow-float animate-in slide-in-from-top-2 duration-200">
+        <div
+          id="mobile-nav-menu"
+          role="region"
+          aria-label="Mobile Navigation Drawer"
+          className="border-b border-slate-200/90 bg-white/95 px-4 pt-3 pb-5 backdrop-blur-xl md:hidden space-y-3 shadow-float animate-in slide-in-from-top-2 duration-200"
+        >
           {user && (
             <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
               <div className="flex items-center gap-2">

@@ -48,11 +48,11 @@ export function AppShell({
           />
         )}
 
-        <main className="flex-1 w-full pb-16 md:pb-0">
+        <div className="flex-1 w-full pb-16 md:pb-0">
           <ContentContainer size={contentSize} padded={contentPadded}>
             {children}
           </ContentContainer>
-        </main>
+        </div>
       </div>
 
       {/* Mobile Sticky Bottom Navigation */}

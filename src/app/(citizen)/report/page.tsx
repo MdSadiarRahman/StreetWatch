@@ -339,7 +339,7 @@ export default function CitizenReportingPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-[#F8FAFC] text-slate-800 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-[calc(100vh-64px)] bg-[#F8FAFC] text-slate-800 pt-6 pb-24 sm:py-8 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-2xl space-y-6">
         {/* 1. CALM CIVIC HEADER & STEP PROGRESS INDICATOR */}
         <div className="text-center space-y-2">

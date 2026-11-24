@@ -30,7 +30,8 @@ export function MobileNavigation({
     >
       <Link
         href="/"
-        className={`flex flex-col items-center justify-center gap-1 px-3 py-1 rounded-lg text-[10px] font-bold transition min-h-[44px] ${
+        aria-current={pathname === "/" ? "page" : undefined}
+        className={`flex flex-col items-center justify-center gap-1 px-3 py-1 rounded-lg text-[10px] font-bold transition min-h-[48px] min-w-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
           pathname === "/" ? "text-civic font-extrabold" : "text-slate-500 hover:text-slate-800"
         }`}
       >
@@ -40,7 +41,8 @@ export function MobileNavigation({
 
       <Link
         href="/report"
-        className={`flex flex-col items-center justify-center gap-1 px-3 py-1 rounded-lg text-[10px] font-bold transition min-h-[44px] ${
+        aria-current={pathname === "/report" ? "page" : undefined}
+        className={`flex flex-col items-center justify-center gap-1 px-3 py-1 rounded-lg text-[10px] font-bold transition min-h-[48px] min-w-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
           pathname === "/report" ? "text-civic font-extrabold" : "text-slate-500 hover:text-slate-800"
         }`}
       >
@@ -50,7 +52,8 @@ export function MobileNavigation({
 
       <Link
         href="/dashboard"
-        className={`flex flex-col items-center justify-center gap-1 px-3 py-1 rounded-lg text-[10px] font-bold transition min-h-[44px] ${
+        aria-current={pathname === "/dashboard" ? "page" : undefined}
+        className={`flex flex-col items-center justify-center gap-1 px-3 py-1 rounded-lg text-[10px] font-bold transition min-h-[48px] min-w-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
           pathname === "/dashboard" ? "text-civic font-extrabold" : "text-slate-500 hover:text-slate-800"
         }`}
       >
@@ -61,7 +64,8 @@ export function MobileNavigation({
       {userRole === "AUTHORITY" && (
         <Link
           href="/authority"
-          className={`flex flex-col items-center justify-center gap-1 px-3 py-1 rounded-lg text-[10px] font-bold transition min-h-[44px] ${
+          aria-current={pathname.startsWith("/authority") ? "page" : undefined}
+          className={`flex flex-col items-center justify-center gap-1 px-3 py-1 rounded-lg text-[10px] font-bold transition min-h-[48px] min-w-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
             pathname.startsWith("/authority") ? "text-civic font-extrabold" : "text-slate-500 hover:text-slate-800"
           }`}
         >
@@ -73,7 +77,8 @@ export function MobileNavigation({
       {userRole === "FIELD_WORKER" && (
         <Link
           href="/worker"
-          className={`flex flex-col items-center justify-center gap-1 px-3 py-1 rounded-lg text-[10px] font-bold transition min-h-[44px] ${
+          aria-current={pathname.startsWith("/worker") ? "page" : undefined}
+          className={`flex flex-col items-center justify-center gap-1 px-3 py-1 rounded-lg text-[10px] font-bold transition min-h-[48px] min-w-[48px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
             pathname.startsWith("/worker") ? "text-civic font-extrabold" : "text-slate-500 hover:text-slate-800"
           }`}
         >
