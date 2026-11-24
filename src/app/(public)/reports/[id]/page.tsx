@@ -20,6 +20,7 @@ import EvidenceGrid from "@/components/ui/EvidenceGrid";
 import ExplainableAICard from "@/components/ui/ExplainableAICard";
 import WorkflowStepper from "@/components/ui/WorkflowStepper";
 import AIAutoTriagePanel from "@/components/streetwatch/AIAutoTriagePanel";
+import { IssueStatusTimeline } from "@/components/streetwatch/IssueStatusTimeline";
 
 interface WorkflowStep {
   id: string;
@@ -279,6 +280,17 @@ export default function ReportDetailsPage({
           <span>{feedback.text}</span>
         </div>
       )}
+
+      {/* Deterministic Issue Lifecycle Timeline Component */}
+      <IssueStatusTimeline
+        currentStatus={report.status}
+        createdAt={report.createdAt}
+        updatedAt={report.updatedAt}
+        reporterName={report.reporter?.name || "Citizen Reporter"}
+        assignedWorkerName={report.assignments?.[0]?.worker?.name}
+        verificationCount={report.verificationCount || 0}
+        showAuditTrailDefault={true}
+      />
 
       {/* Main Operational Layout: 65% Left / 35% Right */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">

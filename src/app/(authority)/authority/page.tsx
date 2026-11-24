@@ -44,6 +44,7 @@ import {
 } from "lucide-react";
 import { DynamicCategoryIcon } from "@/components/ui/CategoryIcons";
 import AIAutoTriagePanel from "@/components/streetwatch/AIAutoTriagePanel";
+import { IssueStatusTimeline } from "@/components/streetwatch/IssueStatusTimeline";
 import { MapReportPin } from "@/components/map/CityMapCanvas";
 import { DHAKA_MUNICIPAL_CREWS } from "@/components/map/gis-data";
 
@@ -754,6 +755,18 @@ export default function AuthorityCommandCenter() {
 
             {/* Right Command Column: AI Triage Panel + Crew Capacity Gauge (5 cols) */}
             <div className={`space-y-4 ${expandMap ? "lg:col-span-12" : "lg:col-span-5"}`}>
+              {/* Deterministic Lifecycle Timeline & Stepper */}
+              {selectedReport && (
+                <IssueStatusTimeline
+                  currentStatus={selectedReport.status}
+                  createdAt={selectedReport.createdAt}
+                  verificationCount={selectedReport.verificationCount}
+                  assignedWorkerName={selectedReport.assignedWorker?.name}
+                  showAuditTrailDefault={false}
+                  className="bg-[#0F172A] border-slate-700/80 shadow-xl"
+                />
+              )}
+
               {/* Explainable AI Decision Support System Panel */}
               {selectedReport ? (
                 <AIAutoTriagePanel

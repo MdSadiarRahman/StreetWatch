@@ -20,6 +20,7 @@ import IssuePriorityIndicator from "@/components/streetwatch/IssuePriorityIndica
 import SLAIndicator from "@/components/streetwatch/SLAIndicator";
 import AIExplanationPanel from "@/components/streetwatch/AIExplanationPanel";
 import BeforeAfterComparison from "@/components/streetwatch/BeforeAfterComparison";
+import { IssueStatusTimeline } from "@/components/streetwatch/IssueStatusTimeline";
 import { MunicipalCrewLocation } from "./gis-data";
 
 export interface MapDrawerReport {
@@ -146,6 +147,15 @@ export const MapDrawer: React.FC<MapDrawerProps> = ({
             <span>{report.latitude.toFixed(4)}°N, {report.longitude.toFixed(4)}°E</span>
           </div>
         </div>
+
+        {/* Deterministic Lifecycle Stepper */}
+        <IssueStatusTimeline
+          currentStatus={report.status}
+          createdAt={report.createdAt}
+          verificationCount={report.verificationCount}
+          showAuditTrailDefault={false}
+          className="border-slate-200/80 shadow-2xs"
+        />
 
         {/* SLA & Time Target */}
         <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50/80 border border-slate-200/70 text-xs text-slate-700">
