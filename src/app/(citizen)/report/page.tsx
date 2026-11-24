@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   Camera,
   Upload,
@@ -157,6 +158,7 @@ const SAMPLE_HAZARD_PHOTOS = [
 
 export default function CitizenReportingPage() {
   const router = useRouter();
+  const shouldReduceMotion = useReducedMotion();
 
   // Progressive Disclosure Step State:
   // 1: Issue Type -> 2: Photo -> 3: Location -> 4: AI Analysis -> 5: Review & Submit -> 6: Tracking Receipt
@@ -675,7 +677,7 @@ export default function CitizenReportingPage() {
 
         {/* 6. STEP 4: AI ANALYZES (CALM, INTELLIGENT SCAN STATE) */}
         {currentStep === 4 && (
-          <div className="bg-white rounded-2xl border border-slate-200/90 p-10 shadow-sm text-center space-y-4 animate-in fade-in-50">
+          <div className="bg-white rounded-2xl border border-slate-200/90 p-10 shadow-sm text-center space-y-4">
             <div className="relative mx-auto h-16 w-16 flex items-center justify-center">
               <div className="absolute inset-0 rounded-full border-4 border-blue-600/20 animate-ping" />
               <div className="h-14 w-14 rounded-full bg-blue-50 border-2 border-blue-600 flex items-center justify-center text-blue-600 shadow-md">
@@ -690,6 +692,16 @@ export default function CitizenReportingPage() {
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
                 Validating surface depth, calculating road disruption index, and checking municipal SLA dispatch routing.
               </p>
+            </div>
+
+            {/* Calm Scanning Progress Bar */}
+            <div className="h-1.5 w-56 mx-auto bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+              <motion.div
+                initial={shouldReduceMotion ? false : { width: "0%" }}
+                animate={{ width: "100%" }}
+                transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+                className="h-full bg-blue-600 rounded-full"
+              />
             </div>
 
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-[11px] font-mono text-blue-700">

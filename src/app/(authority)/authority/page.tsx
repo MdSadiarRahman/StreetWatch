@@ -1001,14 +1001,20 @@ export default function AuthorityCommandCenter() {
                       <tr
                         key={report.id}
                         onClick={() => setSelectedReportId(report.id)}
-                        className={`cursor-pointer transition-colors ${
+                        className={`cursor-pointer transition-colors relative ${
                           isSelected
-                            ? "bg-blue-950/40 text-white"
+                            ? "bg-blue-950/60 text-white font-medium"
                             : "hover:bg-slate-900/60 text-slate-300"
                         }`}
                       >
                         {/* ID */}
-                        <td className="py-2.5 px-3 font-mono font-bold text-slate-400 text-[11px]">
+                        <td className="py-2.5 px-3 font-mono font-bold text-slate-400 text-[11px] relative">
+                          {isSelected && (
+                            <span
+                              aria-hidden="true"
+                              className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-blue-500 rounded-r"
+                            />
+                          )}
                           #{report.id.slice(-6).toUpperCase()}
                         </td>
 

@@ -2,7 +2,8 @@
 
 import React from "react";
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
-import { EmptyState, LoadingState } from "@/components/ui/EmptyState";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { TableRowSkeleton } from "@/components/ui/Skeleton";
 
 export interface ColumnDef<T> {
   key: string;
@@ -17,6 +18,8 @@ export interface DataTableProps<T> {
   data: T[];
   columns: ColumnDef<T>[];
   keyExtractor: (row: T) => string;
+  selectedKey?: string | null;
+  onRowClick?: (row: T) => void;
   sortKey?: string;
   sortOrder?: "asc" | "desc";
   onSort?: (key: string) => void;
@@ -30,6 +33,8 @@ export function DataTable<T>({
   data,
   columns,
   keyExtractor,
+  selectedKey,
+  onRowClick,
   sortKey,
   sortOrder,
   onSort,
@@ -40,8 +45,29 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   if (isLoading) {
     return (
-      <div className="civic-card bg-white rounded-lg border border-slate-200 overflow-hidden p-8">
-        <LoadingState message="Loading data records..." />
+      <div className={`civic-card bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden ${className}`}>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs" role="table">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider text-[10px]">
+                {columns.map((col) => (
+                  <th
+                    key={col.key}
+                    scope="col"
+                    className={`px-4 py-3 select-none ${col.headerClassName || ""}`}
+                  >
+                    {col.header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {Array.from({ length: 6 }).map((_, idx) => (
+                <TableRowSkeleton key={idx} cols={columns.length} />
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   }
@@ -94,23 +120,39 @@ export function DataTable<T>({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {data.map((row) => (
-              <tr
-                key={keyExtractor(row)}
-                className="hover:bg-slate-50/80 transition-colors"
-              >
-                {columns.map((col) => (
-                  <td
-                    key={col.key}
-                    className={`px-4 py-3 align-middle text-slate-700 ${col.className || ""}`}
-                  >
-                    {col.render
-                      ? col.render(row)
-                      : String((row as Record<string, unknown>)[col.key] ?? "")}
-                  </td>
-                ))}
-              </tr>
-            ))}
+            {data.map((row) => {
+              const rowId = keyExtractor(row);
+              const isSelected = selectedKey && selectedKey === rowId;
+
+              return (
+                <tr
+                  key={rowId}
+                  onClick={() => onRowClick && onRowClick(row)}
+                  className={`transition-colors ${
+                    isSelected
+                      ? "bg-blue-50/80 font-medium"
+                      : "hover:bg-slate-50/80"
+                  } ${onRowClick ? "cursor-pointer" : ""}`}
+                >
+                  {columns.map((col, colIdx) => (
+                    <td
+                      key={col.key}
+                      className={`px-4 py-3 align-middle text-slate-700 relative ${col.className || ""}`}
+                    >
+                      {colIdx === 0 && isSelected && (
+                        <span
+                          aria-hidden="true"
+                          className="absolute left-0 top-1 bottom-1 w-1 bg-blue-600 rounded-r"
+                        />
+                      )}
+                      {col.render
+                        ? col.render(row)
+                        : String((row as Record<string, unknown>)[col.key] ?? "")}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

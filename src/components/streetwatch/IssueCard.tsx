@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { motion, useReducedMotion } from "framer-motion";
 import { MapPin, ThumbsUp, ArrowRight, ShieldCheck, Clock } from "lucide-react";
 import { DynamicCategoryIcon } from "@/components/ui/CategoryIcons";
 import { StatusBadge } from "@/components/ui/Badge";
@@ -27,6 +28,7 @@ export interface IssueCardProps {
       slug: string;
     };
   };
+  isSelected?: boolean;
   onSelect?: (reportId: string) => void;
   showThumbnail?: boolean;
   className?: string;
@@ -34,17 +36,34 @@ export interface IssueCardProps {
 
 export const IssueCard: React.FC<IssueCardProps> = ({
   report,
+  isSelected = false,
   onSelect,
   showThumbnail = true,
   className = "",
 }) => {
+  const shouldReduceMotion = useReducedMotion();
   const categorySlug = report.category?.slug || "pothole";
   const categoryName = report.category?.name || "Civic Hazard";
 
   return (
-    <div
-      className={`civic-card bg-white rounded-lg border border-slate-200/90 hover:border-blue-400 hover:shadow-md transition-all p-3.5 flex flex-col justify-between ${className}`}
+    <motion.div
+      whileHover={
+        shouldReduceMotion
+          ? undefined
+          : { y: -2, transition: { duration: 0.14, ease: "easeOut" } }
+      }
+      className={`civic-card bg-white rounded-lg border transition-colors p-3.5 flex flex-col justify-between relative ${
+        isSelected
+          ? "border-blue-600 ring-2 ring-blue-100 shadow-md"
+          : "border-slate-200/90 hover:border-blue-400 hover:shadow-md"
+      } ${className}`}
     >
+      {isSelected && (
+        <span
+          aria-hidden="true"
+          className="absolute left-0 top-2 bottom-2 w-1 bg-blue-600 rounded-r"
+        />
+      )}
       <div>
         {/* Top Meta Bar */}
         <div className="flex items-start justify-between gap-2 mb-2">
@@ -128,7 +147,7 @@ export const IssueCard: React.FC<IssueCardProps> = ({
           </Link>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

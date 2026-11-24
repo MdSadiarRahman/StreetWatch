@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Check,
   Clock,
@@ -60,6 +61,7 @@ export const IssueStatusTimeline: React.FC<IssueStatusTimelineProps> = ({
   showAuditTrailDefault = true,
 }) => {
   const [showDetailedTrail, setShowDetailedTrail] = useState(showAuditTrailDefault);
+  const shouldReduceMotion = useReducedMotion();
   const activeLifecycleState = mapReportStatusToLifecycle(currentStatus);
   const currentIndex = getLifecycleStepIndex(activeLifecycleState);
   const isFailed = currentStatus === "REJECTED" || currentStatus === "FAILED_RECOVERY";
@@ -232,11 +234,16 @@ export const IssueStatusTimeline: React.FC<IssueStatusTimelineProps> = ({
           {/* Background Track */}
           <div className="absolute top-6 left-8 right-8 h-1 bg-slate-200 rounded-full -z-0" />
           {/* Animated Active Progress Fill */}
-          <div
-            className="absolute top-6 left-8 h-1 bg-blue-600 rounded-full transition-all duration-500 ease-out -z-0"
-            style={{
+          <motion.div
+            initial={shouldReduceMotion ? false : { width: 0 }}
+            animate={{
               width: `${Math.max(0, Math.min(100, (currentIndex / (LIFECYCLE_STEPS.length - 1)) * 100))}%`,
             }}
+            transition={{
+              duration: 0.35,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+            className="absolute top-6 left-8 h-1 bg-blue-600 rounded-full -z-0"
           />
 
           <div className="grid grid-cols-7 gap-2 relative z-10 text-center">
@@ -378,8 +385,15 @@ export const IssueStatusTimeline: React.FC<IssueStatusTimelineProps> = ({
       )}
 
       {/* 4. COMPREHENSIVE DETAILED AUDIT LIFECYCLE TRAIL (Previous, Current, Future) */}
-      {showDetailedTrail && (
-        <div className="p-4 sm:p-6 bg-white space-y-4">
+      <AnimatePresence>
+        {showDetailedTrail && (
+          <motion.div
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="p-4 sm:p-6 bg-white space-y-4 overflow-hidden"
+          >
           <div className="flex items-center justify-between border-b border-slate-100 pb-2">
             <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-500">
               AUDIT TRAIL &amp; STATE MACHINE HISTORY
@@ -494,8 +508,9 @@ export const IssueStatusTimeline: React.FC<IssueStatusTimelineProps> = ({
               );
             })}
           </div>
-        </div>
+        </motion.div>
       )}
+    </AnimatePresence>
     </div>
   );
 };

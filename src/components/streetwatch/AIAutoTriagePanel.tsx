@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Sparkles,
   Cpu,
@@ -177,6 +178,7 @@ export const AIAutoTriagePanel: React.FC<AIAutoTriagePanelProps> = ({
 
   // Active state of decision (can be updated by operator)
   const [currentDecision, setCurrentDecision] = useState(triage.governance.finalOperationalDecision);
+  const shouldReduceMotion = useReducedMotion();
 
   const confidencePct = Math.round(triage.confidenceScore * 100);
 
@@ -321,9 +323,11 @@ export const AIAutoTriagePanel: React.FC<AIAutoTriagePanelProps> = ({
               </span>
             </div>
             <div className="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
-              <div
-                className="h-full bg-amber-500 rounded-full transition-all"
-                style={{ width: `${triage.roadSeverity.scorePct}%` }}
+              <motion.div
+                initial={shouldReduceMotion ? false : { width: 0 }}
+                animate={{ width: `${triage.roadSeverity.scorePct}%` }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="h-full bg-amber-500 rounded-full"
               />
             </div>
             <p className="text-[11px] text-slate-400 leading-snug">{triage.roadSeverity.explanation}</p>
@@ -341,9 +345,11 @@ export const AIAutoTriagePanel: React.FC<AIAutoTriagePanelProps> = ({
               </span>
             </div>
             <div className="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
-              <div
-                className="h-full bg-blue-500 rounded-full transition-all"
-                style={{ width: `${triage.trafficImportance.scorePct}%` }}
+              <motion.div
+                initial={shouldReduceMotion ? false : { width: 0 }}
+                animate={{ width: `${triage.trafficImportance.scorePct}%` }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="h-full bg-blue-500 rounded-full"
               />
             </div>
             <p className="text-[11px] text-slate-400 leading-snug">
@@ -363,9 +369,11 @@ export const AIAutoTriagePanel: React.FC<AIAutoTriagePanelProps> = ({
               </span>
             </div>
             <div className="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
-              <div
-                className="h-full bg-purple-500 rounded-full transition-all"
-                style={{ width: `${triage.sensitiveLocations.scorePct}%` }}
+              <motion.div
+                initial={shouldReduceMotion ? false : { width: 0 }}
+                animate={{ width: `${triage.sensitiveLocations.scorePct}%` }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="h-full bg-purple-500 rounded-full"
               />
             </div>
             <div className="flex flex-wrap gap-1 text-[10px] font-mono text-slate-300 pt-0.5">
@@ -392,9 +400,11 @@ export const AIAutoTriagePanel: React.FC<AIAutoTriagePanelProps> = ({
               </span>
             </div>
             <div className="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
-              <div
-                className="h-full bg-emerald-500 rounded-full transition-all"
-                style={{ width: `${triage.similarReports.scorePct}%` }}
+              <motion.div
+                initial={shouldReduceMotion ? false : { width: 0 }}
+                animate={{ width: `${triage.similarReports.scorePct}%` }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="h-full bg-emerald-500 rounded-full"
               />
             </div>
             <p className="text-[11px] text-slate-400 leading-snug">
@@ -414,9 +424,11 @@ export const AIAutoTriagePanel: React.FC<AIAutoTriagePanelProps> = ({
               </span>
             </div>
             <div className="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
-              <div
-                className="h-full bg-purple-500 rounded-full transition-all"
-                style={{ width: `${triage.imageConfidence.scorePct}%` }}
+              <motion.div
+                initial={shouldReduceMotion ? false : { width: 0 }}
+                animate={{ width: `${triage.imageConfidence.scorePct}%` }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="h-full bg-purple-500 rounded-full"
               />
             </div>
             <p className="text-[11px] text-slate-400 leading-snug">
@@ -436,9 +448,11 @@ export const AIAutoTriagePanel: React.FC<AIAutoTriagePanelProps> = ({
               </span>
             </div>
             <div className="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
-              <div
-                className="h-full bg-amber-500 rounded-full transition-all"
-                style={{ width: `${triage.historicalPattern.scorePct}%` }}
+              <motion.div
+                initial={shouldReduceMotion ? false : { width: 0 }}
+                animate={{ width: `${triage.historicalPattern.scorePct}%` }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="h-full bg-amber-500 rounded-full"
               />
             </div>
             <p className="text-[11px] text-slate-400 leading-snug">

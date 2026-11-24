@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { motion, useReducedMotion } from "framer-motion";
 
 export type ButtonVariant =
   | "primary"
@@ -12,7 +15,8 @@ export type ButtonVariant =
 
 export type ButtonSize = "xs" | "sm" | "md" | "lg";
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onAnimationStart" | "onDragStart" | "onDragEnd" | "onDrag"> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   isLoading?: boolean;
@@ -35,6 +39,8 @@ export function Button({
   disabled,
   ...props
 }: ButtonProps) {
+  const shouldReduceMotion = useReducedMotion();
+
   const sizeClasses: Record<ButtonSize, string> = {
     xs: "px-2.5 py-1 text-[11px] font-bold rounded gap-1.5",
     sm: "px-3 py-1.5 text-xs font-bold rounded-md gap-1.5",
@@ -61,15 +67,25 @@ export function Button({
       "spatial-hud hover:bg-white text-slate-800 shadow-2xs",
   };
 
-  const tactileClass = tactile ? "btn-tactile" : "transition-colors duration-150";
+  const isDisabled = disabled || isLoading;
 
   return (
-    <button
-      disabled={disabled || isLoading}
-      className={`inline-flex items-center justify-center select-none font-sans font-bold cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-civic focus-visible:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
+    <motion.button
+      disabled={isDisabled}
+      whileTap={
+        shouldReduceMotion || isDisabled
+          ? undefined
+          : { scale: 0.98, transition: { duration: 0.08, ease: "easeOut" } }
+      }
+      whileHover={
+        shouldReduceMotion || isDisabled || !tactile
+          ? undefined
+          : { y: -1, transition: { duration: 0.12, ease: "easeOut" } }
+      }
+      className={`inline-flex items-center justify-center select-none font-sans font-bold cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-civic focus-visible:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none transition-shadow ${
         sizeClasses[size]
-      } ${variantClasses[variant]} ${tactileClass} ${className}`}
-      {...props}
+      } ${variantClasses[variant]} ${className}`}
+      {...(props as any)}
     >
       {isLoading ? (
         <>
@@ -86,11 +102,12 @@ export function Button({
           {iconRight && <span className="shrink-0">{iconRight}</span>}
         </>
       )}
-    </button>
+    </motion.button>
   );
 }
 
-export interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface IconButtonProps
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onAnimationStart" | "onDragStart" | "onDragEnd" | "onDrag"> {
   variant?: ButtonVariant;
   size?: "xs" | "sm" | "md" | "lg";
   ariaLabel: string;
@@ -103,8 +120,11 @@ export function IconButton({
   ariaLabel,
   icon,
   className = "",
+  disabled,
   ...props
 }: IconButtonProps) {
+  const shouldReduceMotion = useReducedMotion();
+
   const sizeClasses = {
     xs: "p-1 h-7 w-7 rounded",
     sm: "p-1.5 h-8 w-8 rounded-md",
@@ -124,13 +144,24 @@ export function IconButton({
   };
 
   return (
-    <button
+    <motion.button
+      disabled={disabled}
       aria-label={ariaLabel}
-      className={`btn-tactile inline-flex items-center justify-center transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-civic ${sizeClasses} ${variantClasses[variant]} ${className}`}
-      {...props}
+      whileTap={
+        shouldReduceMotion || disabled
+          ? undefined
+          : { scale: 0.94, transition: { duration: 0.08 } }
+      }
+      whileHover={
+        shouldReduceMotion || disabled
+          ? undefined
+          : { scale: 1.04, transition: { duration: 0.12 } }
+      }
+      className={`inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-civic ${sizeClasses} ${variantClasses[variant]} ${className}`}
+      {...(props as any)}
     >
       {icon}
-    </button>
+    </motion.button>
   );
 }
 

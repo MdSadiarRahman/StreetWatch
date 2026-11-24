@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/ui/Navbar";
+import { PageTransition } from "@/components/layout/PageTransition";
 
 export const metadata: Metadata = {
   title: "StreetWatch — Civic Action & AI Prioritization Platform",
@@ -29,7 +30,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-canvas text-slate-900 antialiased font-sans">
         <Navbar />
-        {children}
+        <PageTransition>{children}</PageTransition>
       </body>
     </html>
   );

@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Search,
   Filter,
@@ -22,6 +23,7 @@ import {
 } from "lucide-react";
 import { DynamicCategoryIcon } from "@/components/ui/CategoryIcons";
 import { MapReportPin } from "@/components/map/CityMapCanvas";
+import { IssueCardSkeleton } from "@/components/ui/Skeleton";
 
 // Dynamic import for Leaflet map canvas with SSR disabled
 const CityMapCanvas = dynamic(
@@ -53,6 +55,7 @@ export default function PublicCityMapPage() {
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [showFeedDrawer, setShowFeedDrawer] = useState(false);
   const [showFiltersModal, setShowFiltersModal] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -352,125 +355,151 @@ export default function PublicCityMapPage() {
       </div>
 
       {/* 4. SLIDING INCIDENT REGISTRY FEED DRAWER (Left side) */}
-      {showFeedDrawer && (
-        <aside
-          aria-label="Incident Registry Feed Drawer"
-          className="absolute left-0 top-0 bottom-0 w-full sm:w-[420px] bg-white/95 backdrop-blur-md border-r border-slate-200/90 shadow-2xl z-40 flex flex-col animate-in slide-in-from-left duration-200 pointer-events-auto"
-        >
-          {/* Feed Header */}
-          <div className="p-4 border-b border-slate-200 bg-slate-50/80 flex items-center justify-between shrink-0">
-            <div>
-              <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <span>Municipal Incident Feed</span>
-                <span className="font-mono text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
-                  {filteredReports.length}
-                </span>
-              </h2>
-              <p className="text-[11px] text-slate-500 mt-0.5">
-                Priority-ranked urban hazards across 24 Wards
-              </p>
+      <AnimatePresence>
+        {showFeedDrawer && (
+          <motion.aside
+            aria-label="Incident Registry Feed Drawer"
+            initial={
+              shouldReduceMotion
+                ? { opacity: 0 }
+                : { x: "-100%", opacity: 0.9 }
+            }
+            animate={{ x: 0, opacity: 1 }}
+            exit={
+              shouldReduceMotion
+                ? { opacity: 0 }
+                : { x: "-100%", opacity: 0.9 }
+            }
+            transition={{
+              duration: 0.22,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+            className="absolute left-0 top-0 bottom-0 w-full sm:w-[420px] bg-white/95 backdrop-blur-md border-r border-slate-200/90 shadow-2xl z-40 flex flex-col pointer-events-auto"
+          >
+            {/* Feed Header */}
+            <div className="p-4 border-b border-slate-200 bg-slate-50/80 flex items-center justify-between shrink-0">
+              <div>
+                <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <span>Municipal Incident Feed</span>
+                  <span className="font-mono text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
+                    {filteredReports.length}
+                  </span>
+                </h2>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Priority-ranked urban hazards across 24 Wards
+                </p>
+              </div>
+
+              <motion.button
+                whileTap={{ scale: 0.92 }}
+                type="button"
+                onClick={() => setShowFeedDrawer(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded-md transition-colors"
+                aria-label="Close feed drawer"
+              >
+                <X className="h-4 w-4" />
+              </motion.button>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setShowFeedDrawer(false)}
-              className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded-md transition-colors"
-              aria-label="Close feed drawer"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-
-          {/* Feed Controls (Category & Ward & Sort) */}
-          <div className="p-3 border-b border-slate-200 space-y-2 bg-white shrink-0 text-xs">
-            <div className="grid grid-cols-2 gap-2">
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full rounded-md border border-slate-200 bg-slate-50 p-1.5 text-xs text-slate-800 font-medium focus:outline-none focus:border-blue-600"
-              >
-                <option value="ALL">All Categories ({categories.length})</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={selectedWard}
-                onChange={(e) => setSelectedWard(e.target.value)}
-                className="w-full rounded-md border border-slate-200 bg-slate-50 p-1.5 text-xs text-slate-800 font-medium focus:outline-none focus:border-blue-600 font-mono"
-              >
-                <option value="ALL">All City Wards</option>
-                <option value="Ward 4">Ward 4 (Mirpur 10)</option>
-                <option value="Ward 9">Ward 9 (Gulshan - Badda)</option>
-                <option value="Ward 15">Ward 15 (Dhanmondi)</option>
-                <option value="Ward 2">Ward 2 (Pallabi)</option>
-                <option value="Ward 26">Ward 26 (Farmgate)</option>
-              </select>
-            </div>
-
-            <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
-              <span>Sort:</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as "priority" | "verifications" | "newest")}
-                className="rounded border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-800"
-              >
-                <option value="priority">Priority Score</option>
-                <option value="verifications">Citizen Votes</option>
-                <option value="newest">Recent First</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Incident Cards Stream */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-2.5 divide-y divide-slate-100 scrollbar-thin">
-            {filteredReports.map((report) => {
-              const isSelected = selectedReportId === report.id;
-              return (
-                <div
-                  key={report.id}
-                  onClick={() => {
-                    setSelectedReportId(report.id);
-                    if (window.innerWidth < 640) setShowFeedDrawer(false);
-                  }}
-                  className={`pt-2.5 first:pt-0 cursor-pointer rounded-lg p-2.5 transition-all ${
-                    isSelected
-                      ? "bg-blue-50/80 border border-blue-400 shadow-xs ring-1 ring-blue-500"
-                      : "hover:bg-slate-50 border border-transparent"
-                  }`}
+            {/* Feed Controls (Category & Ward & Sort) */}
+            <div className="p-3 border-b border-slate-200 space-y-2 bg-white shrink-0 text-xs">
+              <div className="grid grid-cols-2 gap-2">
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full rounded-md border border-slate-200 bg-slate-50 p-1.5 text-xs text-slate-800 font-medium focus:outline-none focus:border-blue-600"
                 >
-                  <div className="flex items-center justify-between gap-1 mb-1">
-                    <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
-                      {report.category?.name || "Hazard"}
-                    </span>
-                    <span
-                      className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded border ${
-                        report.priorityScore >= 80
-                          ? "bg-red-50 text-red-700 border-red-200"
-                          : report.priorityScore >= 60
-                          ? "bg-orange-50 text-orange-700 border-orange-200"
-                          : "bg-blue-50 text-blue-700 border-blue-200"
+                  <option value="ALL">All Categories ({categories.length})</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={selectedWard}
+                  onChange={(e) => setSelectedWard(e.target.value)}
+                  className="w-full rounded-md border border-slate-200 bg-slate-50 p-1.5 text-xs text-slate-800 font-medium focus:outline-none focus:border-blue-600 font-mono"
+                >
+                  <option value="ALL">All City Wards</option>
+                  <option value="Ward 4">Ward 4 (Mirpur 10)</option>
+                  <option value="Ward 9">Ward 9 (Gulshan - Badda)</option>
+                  <option value="Ward 15">Ward 15 (Dhanmondi)</option>
+                  <option value="Ward 2">Ward 2 (Pallabi)</option>
+                  <option value="Ward 26">Ward 26 (Farmgate)</option>
+                </select>
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
+                <span>Sort:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as "priority" | "verifications" | "newest")}
+                  className="rounded border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-800"
+                >
+                  <option value="priority">Priority Score</option>
+                  <option value="verifications">Citizen Votes</option>
+                  <option value="newest">Recent First</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Incident Cards Stream */}
+            <div className="flex-1 overflow-y-auto p-3 space-y-2.5 divide-y divide-slate-100 scrollbar-thin">
+              {loading ? (
+                <div className="space-y-2.5">
+                  {Array.from({ length: 4 }).map((_, idx) => (
+                    <IssueCardSkeleton key={idx} />
+                  ))}
+                </div>
+              ) : (
+                filteredReports.map((report) => {
+                  const isSelected = selectedReportId === report.id;
+                  return (
+                    <div
+                      key={report.id}
+                      onClick={() => {
+                        setSelectedReportId(report.id);
+                        if (window.innerWidth < 640) setShowFeedDrawer(false);
+                      }}
+                      className={`pt-2.5 first:pt-0 cursor-pointer rounded-lg p-2.5 transition-all ${
+                        isSelected
+                          ? "bg-blue-50/80 border border-blue-400 shadow-xs ring-1 ring-blue-500"
+                          : "hover:bg-slate-50 border border-transparent"
                       }`}
                     >
-                      P-{Math.round(report.priorityScore)}
-                    </span>
-                  </div>
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                          {report.category?.name || "Hazard"}
+                        </span>
+                        <span
+                          className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded border ${
+                            report.priorityScore >= 80
+                              ? "bg-red-50 text-red-700 border-red-200"
+                              : report.priorityScore >= 60
+                              ? "bg-orange-50 text-orange-700 border-orange-200"
+                              : "bg-blue-50 text-blue-700 border-blue-200"
+                          }`}
+                        >
+                          P-{Math.round(report.priorityScore)}
+                        </span>
+                      </div>
 
-                  <h3 className="text-xs font-bold text-slate-900 line-clamp-1">{report.title}</h3>
+                      <h3 className="text-xs font-bold text-slate-900 line-clamp-1">{report.title}</h3>
 
-                  <div className="flex items-center gap-1 text-[11px] text-slate-500 mt-1">
-                    <MapPin className="h-3 w-3 shrink-0 text-slate-400" />
-                    <span className="truncate">{report.address}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </aside>
-      )}
+                      <div className="flex items-center gap-1 text-[11px] text-slate-500 mt-1">
+                        <MapPin className="h-3 w-3 shrink-0 text-slate-400" />
+                        <span className="truncate">{report.address}</span>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </motion.aside>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

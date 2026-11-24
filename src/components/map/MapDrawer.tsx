@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   X,
   MapPin,
@@ -78,14 +79,30 @@ export const MapDrawer: React.FC<MapDrawerProps> = ({
 
   const categoryName = report.category?.name || "Civic Hazard";
   const categorySlug = report.category?.slug || "pothole";
+  const shouldReduceMotion = useReducedMotion();
 
   // Find closest crew if available (lat/lng euclidean approx)
   const closestCrew = nearbyCrews.length > 0 ? nearbyCrews[0] : null;
 
   return (
-    <aside
+    <motion.aside
       aria-label="Selected Incident Inspector"
-      className={`fixed md:absolute right-0 bottom-0 md:top-0 w-full md:w-[420px] max-h-[85vh] md:max-h-full h-auto md:h-full bg-white/95 backdrop-blur-md border-t md:border-t-0 md:border-l border-slate-200/90 shadow-2xl z-[500] flex flex-col rounded-t-2xl md:rounded-none overflow-hidden transition-all duration-300 animate-in slide-in-from-bottom md:slide-in-from-right ${className}`}
+      initial={
+        shouldReduceMotion
+          ? { opacity: 0 }
+          : { opacity: 0.85, x: 24 }
+      }
+      animate={{ opacity: 1, x: 0 }}
+      exit={
+        shouldReduceMotion
+          ? { opacity: 0 }
+          : { opacity: 0, x: 24 }
+      }
+      transition={{
+        duration: 0.22,
+        ease: [0.16, 1, 0.3, 1],
+      }}
+      className={`fixed md:absolute right-0 bottom-0 md:top-0 w-full md:w-[420px] max-h-[85vh] md:max-h-full h-auto md:h-full bg-white/95 backdrop-blur-md border-t md:border-t-0 md:border-l border-slate-200/90 shadow-2xl z-[500] flex flex-col rounded-t-2xl md:rounded-none overflow-hidden ${className}`}
     >
       {/* Drawer Header */}
       <div className="p-4 border-b border-slate-200 bg-slate-50/80 flex items-center justify-between gap-3 shrink-0">
@@ -230,7 +247,7 @@ export const MapDrawer: React.FC<MapDrawerProps> = ({
           <ChevronRight className="h-4 w-4" />
         </Link>
       </div>
-    </aside>
+    </motion.aside>
   );
 };
 

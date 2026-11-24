@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   MapPin,
   LayoutDashboard,
@@ -69,16 +70,20 @@ export function Sidebar({
   className = "",
 }: SidebarProps) {
   const pathname = usePathname();
+  const shouldReduceMotion = useReducedMotion();
 
   const visibleItems = SIDEBAR_NAV_ITEMS.filter(
     (item) => !item.roles || item.roles.includes(userRole)
   );
 
   return (
-    <aside
-      className={`hidden lg:flex flex-col border-r border-slate-200 bg-white transition-all duration-200 ${
-        collapsed ? "w-16" : "w-64"
-      } ${className}`}
+    <motion.aside
+      animate={{ width: collapsed ? 64 : 256 }}
+      transition={{
+        duration: shouldReduceMotion ? 0.01 : 0.2,
+        ease: [0.16, 1, 0.3, 1],
+      }}
+      className={`hidden lg:flex flex-col border-r border-slate-200 bg-white overflow-hidden shrink-0 ${className}`}
       aria-label="Sidebar navigation"
     >
       <div className="flex-1 py-4 px-3 space-y-1">
@@ -93,22 +98,40 @@ export function Sidebar({
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center justify-between rounded-lg px-3 py-2.5 text-xs font-bold transition ${
-                isActive
-                  ? "bg-slate-900 text-white shadow-2xs"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80"
-              }`}
+              className="block relative rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-civic"
               title={collapsed ? item.label : undefined}
             >
-              <div className="flex items-center gap-3">
-                <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-white" : "text-slate-500"}`} />
-                {!collapsed && <span>{item.label}</span>}
-              </div>
-              {!collapsed && item.badge && (
-                <span className="rounded bg-blue-100 text-civic px-1.5 py-0.5 text-[10px] font-mono font-extrabold">
-                  {item.badge}
-                </span>
-              )}
+              <motion.div
+                whileHover={
+                  shouldReduceMotion
+                    ? undefined
+                    : { x: 2, transition: { duration: 0.1 } }
+                }
+                whileTap={
+                  shouldReduceMotion
+                    ? undefined
+                    : { scale: 0.98, transition: { duration: 0.08 } }
+                }
+                className={`relative flex items-center justify-between rounded-lg px-3 py-2.5 text-xs font-bold transition-colors ${
+                  isActive
+                    ? "bg-slate-900 text-white shadow-2xs"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80"
+                }`}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <Icon
+                    className={`h-4 w-4 shrink-0 ${
+                      isActive ? "text-white" : "text-slate-500"
+                    }`}
+                  />
+                  {!collapsed && <span className="truncate">{item.label}</span>}
+                </div>
+                {!collapsed && item.badge && (
+                  <span className="rounded bg-blue-100 text-civic px-1.5 py-0.5 text-[10px] font-mono font-extrabold shrink-0">
+                    {item.badge}
+                  </span>
+                )}
+              </motion.div>
             </Link>
           );
         })}
@@ -129,6 +152,8 @@ export function Sidebar({
           </div>
         </div>
       )}
-    </aside>
+    </motion.aside>
   );
 }
+
+export default Sidebar;
