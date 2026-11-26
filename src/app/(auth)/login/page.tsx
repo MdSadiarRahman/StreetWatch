@@ -3,11 +3,14 @@
 import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Lock, Mail, ArrowRight, Sparkles, AlertCircle, User, Building2, HardHat } from "lucide-react";
+import { Mail, ArrowRight, Sparkles, AlertCircle, User, Building2, HardHat } from "lucide-react";
 import { BrandLogoEmblem } from "@/components/ui/BrandLogo";
+import { PasswordInput } from "@/components/account/PasswordInput";
+import { useAuth } from "@/components/auth/AuthContext";
 
 function LoginForm() {
   const router = useRouter();
+  const { refreshUser } = useAuth();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "";
 
@@ -39,9 +42,12 @@ function LoginForm() {
         return;
       }
 
+      setPassword("");
+      await refreshUser();
+
       // Role-based redirect
       const role = data.data?.user?.role;
-      if (callbackUrl) {
+      if (callbackUrl && callbackUrl.startsWith("/")) {
         router.push(callbackUrl);
       } else if (role === "AUTHORITY") {
         router.push("/authority");
@@ -89,14 +95,20 @@ function LoginForm() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label
+              htmlFor="login-email"
+              className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5"
+            >
               Email Address
             </label>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Mail className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
+                id="login-email"
+                name="email"
                 type="email"
                 required
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@example.com"
@@ -105,20 +117,25 @@ function LoginForm() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-              Password
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••••••"
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-3.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 transition"
-              />
+          <div className="space-y-1.5">
+            <PasswordInput
+              id="login-password"
+              name="password"
+              label="Password"
+              value={password}
+              onChange={setPassword}
+              autoComplete="current-password"
+              placeholder="Enter your password"
+              required
+              disabled={loading}
+            />
+            <div className="flex justify-end">
+              <Link
+                href="/forgot-password"
+                className="text-xs font-semibold text-[#2563EB] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] rounded px-0.5"
+              >
+                Forgot password?
+              </Link>
             </div>
           </div>
 

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
-import { db } from "@/lib/db";
+import { getUserRecordById, sanitizeUser } from "@/lib/auth/account-store";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   const session = await getCurrentUser();
@@ -18,53 +20,22 @@ export async function GET() {
     );
   }
 
-  let user: any = null;
-  try {
-    user = await db.user.findUnique({
-      where: { id: session.userId },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        departmentId: true,
-        workerCapacity: true,
-        activeTaskCount: true,
-        trustScore: true,
-        createdAt: true,
-      },
-    });
-  } catch {
-    // Database offline fallback
-    user = {
-      id: session.userId,
-      name: session.name,
-      email: session.email,
-      role: session.role,
-      departmentId: session.departmentId || null,
-      workerCapacity: 3,
-      activeTaskCount: session.role === "FIELD_WORKER" ? 3 : 0,
-      trustScore: 1.5,
-      createdAt: new Date().toISOString(),
-    };
-  }
-
+  const user = await getUserRecordById(session.userId);
   if (!user) {
-    user = {
-      id: session.userId,
-      name: session.name,
-      email: session.email,
-      role: session.role,
-      departmentId: session.departmentId || null,
-      workerCapacity: 3,
-      activeTaskCount: session.role === "FIELD_WORKER" ? 3 : 0,
-      trustScore: 1.5,
-      createdAt: new Date().toISOString(),
-    };
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: "UNAUTHORIZED",
+          message: "Session expired or account unavailable.",
+        },
+      },
+      { status: 401 }
+    );
   }
 
   return NextResponse.json({
     success: true,
-    data: { user },
+    data: { user: sanitizeUser(user) },
   });
 }

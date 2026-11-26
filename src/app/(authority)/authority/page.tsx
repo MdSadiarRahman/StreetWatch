@@ -32,6 +32,8 @@ import {
 import AIAutoTriagePanel from "@/components/streetwatch/AIAutoTriagePanel";
 import { IssueStatusTimeline } from "@/components/streetwatch/IssueStatusTimeline";
 import { MapReportPin } from "@/components/map/CityMapCanvas";
+import { useAuth } from "@/components/auth/AuthContext";
+import { AccountDropdown } from "@/components/account/AccountDropdown";
 
 // Dynamic import for GIS Map Canvas with SSR disabled
 const CityMapCanvas = dynamic(() => import("@/components/map/CityMapCanvas"), {
@@ -125,6 +127,7 @@ interface ConflictModalData {
 type NavSection = "overview" | "issues" | "live_map" | "crews" | "analytics" | "reports" | "settings";
 
 export default function AuthorityCommandCenter() {
+  const { user: authUser, signingOut, logout } = useAuth();
   const [activeSection, setActiveSection] = useState<NavSection>("overview");
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [reports, setReports] = useState<QueueReportItem[]>([]);
@@ -523,17 +526,24 @@ export default function AuthorityCommandCenter() {
           <span className="w-px h-5 bg-slate-800" />
 
           {/* User Profile */}
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-blue-900/60 border border-blue-500/40 flex items-center justify-center font-bold text-xs text-blue-200">
-              AR
-            </div>
-            <div className="hidden sm:block text-left">
-              <span className="text-xs font-bold text-white block leading-tight">Admin Rahman</span>
-              <span className="text-[10px] font-mono text-emerald-400 block leading-tight">
-                AUTHORITY OFFICER
-              </span>
-            </div>
-          </div>
+          {authUser ? (
+            <AccountDropdown user={authUser} onLogout={logout} signingOut={signingOut} theme="dark" />
+          ) : (
+            <Link
+              href="/settings"
+              className="flex items-center gap-2 rounded-xl border border-slate-800 bg-[#0F172A] px-2.5 py-1.5 hover:bg-slate-800 transition"
+            >
+              <div className="h-7 w-7 rounded-full bg-blue-900/60 border border-blue-500/40 flex items-center justify-center font-bold text-xs text-blue-200">
+                AU
+              </div>
+              <div className="hidden sm:block text-left">
+                <span className="text-xs font-bold text-white block leading-tight">Authority Desk</span>
+                <span className="text-[10px] font-mono text-emerald-400 block leading-tight">
+                  AUTHORITY OFFICER
+                </span>
+              </div>
+            </Link>
+          )}
         </div>
       </header>
 
@@ -587,6 +597,25 @@ export default function AuthorityCommandCenter() {
                 </button>
               );
             })}
+
+            <div className="pt-2 mt-2 border-t border-slate-800/80 space-y-1">
+              <Link
+                href="/profile"
+                aria-label="My Profile"
+                className="civic-btn-tertiary w-full min-h-[40px] flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              >
+                <Users className="h-4 w-4 shrink-0" />
+                <span className="hidden md:inline">My Profile</span>
+              </Link>
+              <Link
+                href="/settings"
+                aria-label="Account Settings"
+                className="civic-btn-tertiary w-full min-h-[40px] flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              >
+                <Settings className="h-4 w-4 shrink-0" />
+                <span className="hidden md:inline">Account Settings</span>
+              </Link>
+            </div>
           </nav>
 
           {/* Bottom Telemetry Footer */}

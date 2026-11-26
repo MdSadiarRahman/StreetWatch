@@ -11,6 +11,7 @@ export interface JWTPayload {
   name: string;
   role: Role;
   departmentId?: string | null;
+  sessionVersion?: number;
 }
 
 export async function signJWT(payload: JWTPayload): Promise<string> {

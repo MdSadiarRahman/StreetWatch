@@ -14,6 +14,8 @@ import {
   ShieldCheck,
   AlertCircle,
   ExternalLink,
+  Settings,
+  User,
 } from "lucide-react";
 import Image from "next/image";
 import { DynamicCategoryIcon } from "@/components/ui/CategoryIcons";
@@ -131,13 +133,29 @@ export default async function CitizenDashboardPage() {
           </p>
         </div>
 
-        <Link
-          href="/report"
-          className="civic-btn-primary inline-flex items-center justify-center gap-2 rounded-lg bg-civic hover:bg-civic-hover px-4 py-2.5 text-xs font-bold text-white shadow-2xs"
-        >
-          <PlusCircle className="h-4 w-4" />
-          <span>Report New Hazard</span>
-        </Link>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Link
+            href="/profile"
+            className="civic-btn-secondary inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-700 shadow-2xs"
+          >
+            <User className="h-3.5 w-3.5 text-civic" />
+            <span>Profile</span>
+          </Link>
+          <Link
+            href="/settings"
+            className="civic-btn-secondary inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-700 shadow-2xs"
+          >
+            <Settings className="h-3.5 w-3.5 text-slate-500" />
+            <span>Settings</span>
+          </Link>
+          <Link
+            href="/report"
+            className="civic-btn-primary inline-flex items-center justify-center gap-2 rounded-lg bg-civic hover:bg-civic-hover px-4 py-2.5 text-xs font-bold text-white shadow-2xs"
+          >
+            <PlusCircle className="h-4 w-4" />
+            <span>Report New Hazard</span>
+          </Link>
+        </div>
       </div>
 
       {/* 3 Precision Swiss Metric Tiles */}

@@ -35,10 +35,27 @@ export interface UserProfile {
   name: string;
   email: string;
   role: Role;
+  phone?: string | null;
+  ward?: string | null;
+  location?: string | null;
+  address?: string | null;
+  avatarUrl?: string | null;
+  emailVerified?: boolean;
+  emailVerifiedAt?: string | null;
+  passwordChangedAt?: string | null;
+  notifyStatusUpdates?: boolean;
+  notifyAssignments?: boolean;
+  notifyResolutions?: boolean;
+  notifySystem?: boolean;
+  prefCompactTables?: boolean;
+  prefDefaultWard?: string | null;
   departmentId?: string | null;
+  departmentName?: string | null;
   workerCapacity?: number;
   activeTaskCount?: number;
   trustScore: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ReportItem {

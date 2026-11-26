@@ -3,11 +3,16 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Lock, Mail, User, ArrowRight, AlertCircle } from "lucide-react";
+import { Mail, User, ArrowRight, AlertCircle } from "lucide-react";
 import { BrandLogoEmblem } from "@/components/ui/BrandLogo";
+import { PasswordInput } from "@/components/account/PasswordInput";
+import { PasswordStrengthMeter } from "@/components/account/PasswordStrengthMeter";
+import { evaluatePasswordStrength } from "@/lib/auth/password-policy";
+import { useAuth } from "@/components/auth/AuthContext";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { refreshUser } = useAuth();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -16,17 +21,19 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const strength = evaluatePasswordStrength(password);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+    if (!strength.isValid) {
+      setError("Please satisfy all password policy requirements.");
       return;
     }
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
       return;
     }
 
@@ -37,10 +44,9 @@ export default function RegisterPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name,
-          email,
+          name: name.trim(),
+          email: email.trim(),
           password,
-          role: "CITIZEN",
         }),
       });
 
@@ -52,6 +58,9 @@ export default function RegisterPage() {
         return;
       }
 
+      setPassword("");
+      setConfirmPassword("");
+      await refreshUser();
       router.push("/dashboard");
       router.refresh();
     } catch {
@@ -87,14 +96,20 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label
+                htmlFor="register-name"
+                className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5"
+              >
                 Full Name
               </label>
               <div className="relative">
-                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <User className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
+                  id="register-name"
+                  name="name"
                   type="text"
                   required
+                  autoComplete="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Tanvir Ahmed"
@@ -104,14 +119,20 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label
+                htmlFor="register-email"
+                className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5"
+              >
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Mail className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <input
+                  id="register-email"
+                  name="email"
                   type="email"
                   required
+                  autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
@@ -120,41 +141,38 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                Password (min 6 characters)
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <input
-                  type="password"
-                  required
-                  minLength={6}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 transition"
-                />
-              </div>
+            <div className="space-y-2">
+              <PasswordInput
+                id="register-password"
+                name="password"
+                label="Password"
+                value={password}
+                onChange={setPassword}
+                autoComplete="new-password"
+                placeholder="Create a strong password"
+                required
+                disabled={loading}
+                describedBy="register-pw-strength"
+              />
+              <PasswordStrengthMeter id="register-pw-strength" password={password} />
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                Confirm Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <input
-                  type="password"
-                  required
-                  minLength={6}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-10 pr-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 transition"
-                />
-              </div>
-            </div>
+            <PasswordInput
+              id="register-confirm-password"
+              name="confirmPassword"
+              label="Confirm Password"
+              value={confirmPassword}
+              onChange={setConfirmPassword}
+              autoComplete="new-password"
+              placeholder="Re-enter your password"
+              required
+              disabled={loading}
+              error={
+                confirmPassword && confirmPassword !== password
+                  ? "Passwords do not match."
+                  : null
+              }
+            />
 
             <button
               type="submit"

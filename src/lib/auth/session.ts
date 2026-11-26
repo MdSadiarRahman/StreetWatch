@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { verifyJWT, JWTPayload } from "./jwt";
+import { getUserSessionVersion } from "./account-store";
 import { Role } from "@/types";
 
 export const SESSION_COOKIE_NAME = "streetwatch_session";
@@ -28,7 +29,17 @@ export async function clearSessionCookie() {
 export async function getCurrentUser(): Promise<JWTPayload | null> {
   const token = await getSessionToken();
   if (!token) return null;
-  return verifyJWT(token);
+  const payload = await verifyJWT(token);
+  if (!payload) return null;
+
+  // Enforce server-side sessionVersion check so password change/reset invalidates older tokens
+  const expectedVersion = await getUserSessionVersion(payload.userId);
+  if (expectedVersion === null) return null;
+  if ((payload.sessionVersion ?? 1) !== expectedVersion) {
+    return null;
+  }
+
+  return payload;
 }
 
 export async function requireAuth(): Promise<JWTPayload> {

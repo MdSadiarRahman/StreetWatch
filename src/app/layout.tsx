@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/ui/Navbar";
 import { PageTransition } from "@/components/layout/PageTransition";
+import { AuthProvider } from "@/components/auth/AuthContext";
 
 export const metadata: Metadata = {
   title: "StreetWatch — Civic Action & AI Prioritization Platform",
@@ -32,10 +33,12 @@ export default function RootLayout({
         <a href="#main-content" className="skip-to-content focus:outline-none">
           Skip to main operational content
         </a>
-        <Navbar />
-        <main id="main-content">
-          <PageTransition>{children}</PageTransition>
-        </main>
+        <AuthProvider>
+          <Navbar />
+          <main id="main-content">
+            <PageTransition>{children}</PageTransition>
+          </main>
+        </AuthProvider>
       </body>
     </html>
   );

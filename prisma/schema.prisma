@@ -43,27 +43,70 @@ enum WorkflowStepStatus {
 }
 
 model User {
-  id              String        @id @default(cuid())
-  name            String
-  email           String        @unique
-  passwordHash    String
-  role            Role          @default(CITIZEN)
-  departmentId    String?
-  department      Department?   @relation(fields: [departmentId], references: [id])
-  workerCapacity  Int           @default(3)
-  activeTaskCount Int           @default(0)
-  trustScore      Float         @default(1.0)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id                  String    @id @default(cuid())
+  name                String
+  email               String    @unique
+  passwordHash        String
+  role                Role      @default(CITIZEN)
+  phone               String?
+  ward                String?
+  location            String?
+  address             String?
+  avatarUrl           String?
+  emailVerified       Boolean   @default(false)
+  emailVerifiedAt     DateTime?
+  passwordChangedAt   DateTime?
+  sessionVersion      Int       @default(1)
+  notifyStatusUpdates Boolean   @default(true)
+  notifyAssignments   Boolean   @default(true)
+  notifyResolutions   Boolean   @default(true)
+  notifySystem        Boolean   @default(true)
+  prefCompactTables   Boolean   @default(false)
+  prefDefaultWard     String?
+  departmentId        String?
+  department          Department? @relation(fields: [departmentId], references: [id])
+  workerCapacity      Int       @default(3)
+  activeTaskCount     Int       @default(0)
+  trustScore          Float     @default(1.0)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
-  reports            Report[]       @relation("ReporterReports")
-  verifications      Verification[]
-  workerAssignments  Assignment[]   @relation("WorkerAssignments")
-  createdAssignments Assignment[]   @relation("AdminAssignments")
-  auditLogs          AuditLog[]
+  reports                 Report[]                 @relation("ReporterReports")
+  verifications           Verification[]
+  workerAssignments       Assignment[]             @relation("WorkerAssignments")
+  createdAssignments      Assignment[]             @relation("AdminAssignments")
+  auditLogs               AuditLog[]
+  passwordResetTokens     PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
 
   @@index([role])
   @@index([departmentId])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model Department {

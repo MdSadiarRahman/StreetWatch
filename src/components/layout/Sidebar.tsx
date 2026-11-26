@@ -55,6 +55,18 @@ export const SIDEBAR_NAV_ITEMS: NavItem[] = [
     icon: HardHat,
     roles: ["FIELD_WORKER"],
   },
+  {
+    label: "My Profile",
+    href: "/profile",
+    icon: FileText,
+    roles: ["CITIZEN", "AUTHORITY", "FIELD_WORKER"],
+  },
+  {
+    label: "Account Settings",
+    href: "/settings",
+    icon: Layers,
+    roles: ["CITIZEN", "AUTHORITY", "FIELD_WORKER"],
+  },
 ];
 
 export interface SidebarProps {

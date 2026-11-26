@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   MapPin,
   LayoutDashboard,
@@ -12,55 +12,24 @@ import {
   Menu,
   X,
   User,
+  Settings,
   FileText,
   GitBranch,
   Radio,
 } from "lucide-react";
 import BrandLogo from "@/components/ui/BrandLogo";
 import { Role } from "@/types";
-
-interface SessionUser {
-  id: string;
-  name: string;
-  email: string;
-  role: Role;
-}
+import { useAuth } from "@/components/auth/AuthContext";
+import { AccountDropdown } from "@/components/account/AccountDropdown";
+import { UserAvatar, formatRoleLabel } from "@/components/account/UserAvatar";
 
 export default function Navbar() {
   const pathname = usePathname();
-  const router = useRouter();
-  const [user, setUser] = useState<SessionUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading, signingOut, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    async function fetchSession() {
-      try {
-        const res = await fetch("/api/auth/me");
-        if (res.ok) {
-          const json = await res.json();
-          setUser(json.data?.user || null);
-        } else {
-          setUser(null);
-        }
-      } catch {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchSession();
-  }, [pathname]);
-
   const handleLogout = async () => {
-    try {
-      await fetch("/api/auth/logout", { method: "POST" });
-      setUser(null);
-      router.push("/login");
-      router.refresh();
-    } catch (err) {
-      console.error("Logout failed:", err);
-    }
+    await logout();
   };
 
   const getRoleBadge = (role: Role) => {
@@ -197,23 +166,10 @@ export default function Navbar() {
           </Link>
 
           {loading ? (
-            <div className="h-8 w-20 animate-pulse rounded-lg bg-slate-200 ml-1" />
+            <div className="h-9 w-28 animate-pulse rounded-xl bg-slate-200 ml-1" />
           ) : user ? (
-            <div className="flex items-center gap-2 pl-2 ml-1 border-l border-[#E4E7EC]">
-              <div className="flex items-center gap-1.5 rounded-lg border border-[#E4E7EC] bg-[#F7F9FC] px-2.5 py-1.5 text-xs text-[#101828]">
-                <User className="h-3.5 w-3.5 text-[#667085]" />
-                <span className="font-semibold max-w-[100px] truncate">{user.name}</span>
-              </div>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="flex items-center gap-1 rounded-lg border border-[#E4E7EC] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#667085] transition hover:bg-rose-50 hover:border-rose-200 hover:text-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
-                title="Logout from session"
-                aria-label="Logout"
-              >
-                <LogOut className="h-3.5 w-3.5" />
-                <span className="hidden xl:inline">Logout</span>
-              </button>
+            <div className="flex items-center pl-2 ml-1 border-l border-[#E4E7EC]">
+              <AccountDropdown user={user} onLogout={handleLogout} signingOut={signingOut} />
             </div>
           ) : (
             <div className="flex items-center gap-1.5 pl-2 ml-1 border-l border-[#E4E7EC]">
@@ -266,21 +222,19 @@ export default function Navbar() {
         >
           {user && (
             <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-full bg-blue-50 border border-blue-200 text-[#2563EB] font-bold text-xs flex items-center justify-center">
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-[#101828]">{user.name}</div>
-                  <div className="text-[10px] text-[#667085]">{user.email}</div>
+              <div className="flex items-center gap-2.5 min-w-0">
+                <UserAvatar name={user.name} avatarUrl={user.avatarUrl} role={user.role} size="sm" />
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-[#101828] truncate">{user.name}</div>
+                  <div className="text-[10px] text-[#667085] truncate">{user.email}</div>
                 </div>
               </div>
               <span
-                className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+                className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold shrink-0 ${
                   getRoleBadge(user.role).color
                 }`}
               >
-                {getRoleBadge(user.role).label}
+                {formatRoleLabel(user.role)}
               </span>
             </div>
           )}
@@ -353,6 +307,27 @@ export default function Navbar() {
                 <HardHat className="h-4 w-4 text-emerald-600" />
                 Worker Terminal
               </Link>
+            )}
+
+            {user && (
+              <div className="grid grid-cols-2 gap-1.5 pt-1">
+                <Link
+                  href="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 rounded-lg border border-[#E4E7EC] bg-[#F7F9FC] px-3 py-2.5 min-h-[44px] text-xs font-semibold text-[#101828] hover:bg-slate-100 transition"
+                >
+                  <User className="h-4 w-4 text-[#2563EB]" />
+                  Profile
+                </Link>
+                <Link
+                  href="/settings"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 rounded-lg border border-[#E4E7EC] bg-[#F7F9FC] px-3 py-2.5 min-h-[44px] text-xs font-semibold text-[#101828] hover:bg-slate-100 transition"
+                >
+                  <Settings className="h-4 w-4 text-[#667085]" />
+                  Settings
+                </Link>
+              </div>
             )}
           </div>
 

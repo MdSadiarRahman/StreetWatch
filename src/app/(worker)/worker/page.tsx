@@ -20,7 +20,12 @@ import {
   Eye,
   CheckCheck,
   X,
+  Settings,
+  User,
 } from "lucide-react";
+import { useAuth } from "@/components/auth/AuthContext";
+import { AccountDropdown } from "@/components/account/AccountDropdown";
+import { UserAvatar } from "@/components/account/UserAvatar";
 
 interface WorkerTask {
   assignmentId: string;
@@ -89,6 +94,7 @@ const QUICK_RESOLUTION_CHIPS = [
 ];
 
 export default function WorkerWorkspacePage() {
+  const { user: authUser, signingOut, logout } = useAuth();
   const [worker, setWorker] = useState<WorkerProfile | null>(null);
   const [tasks, setTasks] = useState<WorkerTask[]>([]);
   const [loading, setLoading] = useState(true);
@@ -305,13 +311,17 @@ export default function WorkerWorkspacePage() {
       <header className="sticky top-0 z-30 bg-[#0F172A]/95 backdrop-blur-md border-b border-slate-800 px-4 py-2.5">
         <div className="mx-auto max-w-lg flex items-center justify-between gap-2">
           {/* Operative Info */}
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="h-8 w-8 rounded-lg bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-amber-400 shrink-0">
-              <HardHat className="h-4 w-4" />
-            </div>
+          <div className="flex items-center gap-2.5 min-w-0">
+            <UserAvatar
+              name={authUser?.name || worker.name}
+              avatarUrl={authUser?.avatarUrl}
+              role="FIELD_WORKER"
+              size="sm"
+              theme="dark"
+            />
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="font-bold text-xs text-white truncate">{worker.name}</span>
+                <span className="font-bold text-xs text-white truncate">{authUser?.name || worker.name}</span>
                 <span className="h-2 w-2 rounded-full bg-emerald-500" title="Online" />
               </div>
               <span className="text-[10px] font-mono text-slate-400 truncate block">
@@ -320,10 +330,32 @@ export default function WorkerWorkspacePage() {
             </div>
           </div>
 
-          {/* GPS Accuracy Status */}
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-slate-900 border border-slate-800 text-[10px] font-mono text-emerald-400">
-            <Wifi className="h-3 w-3" />
-            <span>GPS Locked</span>
+          {/* GPS Accuracy Status & Account Menu */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <div className="hidden xs:flex sm:flex items-center gap-1 px-2 py-1 rounded-md bg-slate-900 border border-slate-800 text-[10px] font-mono text-emerald-400">
+              <Wifi className="h-3 w-3" />
+              <span>GPS</span>
+            </div>
+            {authUser ? (
+              <AccountDropdown user={authUser} onLogout={logout} signingOut={signingOut} theme="dark" compact />
+            ) : (
+              <div className="flex items-center gap-1">
+                <Link
+                  href="/profile"
+                  aria-label="My Profile"
+                  className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white"
+                >
+                  <User className="h-4 w-4" />
+                </Link>
+                <Link
+                  href="/settings"
+                  aria-label="Account Settings"
+                  className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white"
+                >
+                  <Settings className="h-4 w-4" />
+                </Link>
+              </div>
+            )}
           </div>
         </div>
 

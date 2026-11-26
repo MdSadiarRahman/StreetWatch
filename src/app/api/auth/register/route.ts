@@ -1,12 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as bcrypt from "bcryptjs";
-import { db } from "@/lib/db";
 import { registerSchema } from "@/lib/validations/auth";
 import { signJWT } from "@/lib/auth/jwt";
 import { setSessionCookie } from "@/lib/auth/session";
+import { checkRateLimit, getClientIp, verifySameOrigin } from "@/lib/auth/security";
+import { registerCitizenUser } from "@/lib/auth/account-store";
 
 export async function POST(req: NextRequest) {
   try {
+    if (!verifySameOrigin(req)) {
+      return NextResponse.json(
+        { success: false, error: { code: "FORBIDDEN", message: "Invalid request origin." } },
+        { status: 403 }
+      );
+    }
+
+    const ip = getClientIp(req);
+    const rate = checkRateLimit(`register:${ip}`, 15, 15 * 60 * 1000);
+    if (!rate.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "RATE_LIMITED",
+            message: "Too many registration attempts. Please try again shortly.",
+          },
+        },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const result = registerSchema.safeParse(body);
 
@@ -16,7 +39,7 @@ export async function POST(req: NextRequest) {
           success: false,
           error: {
             code: "VALIDATION_ERROR",
-            message: "Invalid registration input",
+            message: result.error.errors[0]?.message || "Invalid registration details.",
             details: result.error.errors,
           },
         },
@@ -24,14 +47,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { name, email, password, role, departmentId } = result.data;
+    const { name, email, password } = result.data;
+    const passwordHash = await bcrypt.hash(password, 10);
 
-    // Check existing email
-    const existingUser = await db.user.findUnique({
-      where: { email: email.toLowerCase() },
+    // Server-side authorization invariant: public registration always creates CITIZEN accounts
+    const registration = await registerCitizenUser({
+      name,
+      email,
+      passwordHash,
     });
 
-    if (existingUser) {
+    if (!registration.ok) {
       return NextResponse.json(
         {
           success: false,
@@ -44,44 +70,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    const newUser = await db.user.create({
-      data: {
-        name,
-        email: email.toLowerCase(),
-        passwordHash,
-        role,
-        departmentId: departmentId || null,
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        departmentId: true,
-        trustScore: true,
-        createdAt: true,
-      },
-    });
-
-    // Create Audit Log
-    await db.auditLog.create({
-      data: {
-        actorId: newUser.id,
-        action: "USER_REGISTER",
-        entityType: "User",
-        entityId: newUser.id,
-        metadata: { role: newUser.role, email: newUser.email },
-      },
-    });
-
     const token = await signJWT({
-      userId: newUser.id,
-      email: newUser.email,
-      name: newUser.name,
-      role: newUser.role,
-      departmentId: newUser.departmentId,
+      userId: registration.user.id,
+      email: registration.user.email,
+      name: registration.user.name,
+      role: registration.user.role,
+      departmentId: registration.user.departmentId,
+      sessionVersion: registration.sessionVersion,
     });
 
     await setSessionCookie(token);
@@ -90,8 +85,7 @@ export async function POST(req: NextRequest) {
       {
         success: true,
         data: {
-          user: newUser,
-          token,
+          user: registration.user,
         },
       },
       { status: 201 }
@@ -103,7 +97,7 @@ export async function POST(req: NextRequest) {
         success: false,
         error: {
           code: "SERVER_ERROR",
-          message: "Internal server error during registration.",
+          message: "Unable to create your account right now. Please try again.",
         },
       },
       { status: 500 }

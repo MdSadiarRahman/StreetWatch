@@ -138,7 +138,18 @@ export function TopNavigation({
         <div className="hidden md:flex items-center gap-2">
           {user ? (
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-800">{user.name}</span>
+              <Link
+                href="/profile"
+                className="text-xs font-bold text-slate-800 hover:text-civic transition px-2 py-1 rounded-md hover:bg-slate-100"
+              >
+                {user.name}
+              </Link>
+              <Link
+                href="/settings"
+                className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-2xs transition"
+              >
+                Settings
+              </Link>
               <button
                 onClick={onLogout}
                 className="btn-tactile inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-2xs transition"

@@ -41,8 +41,9 @@ export async function middleware(request: NextRequest) {
   const isCitizenRoute = pathname.startsWith("/dashboard") || pathname.startsWith("/report");
   const isAuthorityRoute = pathname.startsWith("/authority");
   const isWorkerRoute = pathname.startsWith("/worker");
+  const isAccountRoute = pathname.startsWith("/profile") || pathname.startsWith("/settings");
 
-  if (isCitizenRoute || isAuthorityRoute || isWorkerRoute) {
+  if (isCitizenRoute || isAuthorityRoute || isWorkerRoute || isAccountRoute) {
     // Unauthenticated -> redirect to login
     if (!user) {
       const loginUrl = new URL("/login", request.url);
@@ -73,6 +74,8 @@ export const config = {
     "/report/:path*",
     "/authority/:path*",
     "/worker/:path*",
+    "/profile/:path*",
+    "/settings/:path*",
     "/login",
     "/register",
   ],
