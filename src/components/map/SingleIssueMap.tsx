@@ -4,6 +4,7 @@ import React from "react";
 import { MapContainer, TileLayer, Marker, Circle } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { useTheme } from "@/components/theme/ThemeContext";
 
 export interface SingleIssueMapProps {
   latitude: number;
@@ -56,6 +57,7 @@ export default function SingleIssueMap({
   status = "REPORTED",
   heightClassName = "h-52",
 }: SingleIssueMapProps) {
+  const { resolvedTheme } = useTheme();
   const isResolved = status === "RESOLVED" || status === "CITIZEN_VERIFIED";
   const contextStroke = isResolved ? "#12B76A" : "#2563EB";
   const position: [number, number] = [latitude, longitude];
@@ -64,7 +66,7 @@ export default function SingleIssueMap({
   return (
     <div
       aria-label={`Focused location map for ${address || "selected issue"}`}
-      className={`relative w-full ${heightClassName} rounded-xl overflow-hidden border border-[#E4E7EC] bg-slate-100`}
+      className={`relative w-full ${heightClassName} rounded-xl overflow-hidden border border-[#E4E7EC] dark:border-slate-700 bg-slate-100 dark:bg-slate-900`}
     >
       <MapContainer
         key={`${latitude}-${longitude}`}
@@ -75,8 +77,13 @@ export default function SingleIssueMap({
         className="h-full w-full z-0"
       >
         <TileLayer
+          key={resolvedTheme}
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+          url={
+            resolvedTheme === "dark"
+              ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+              : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+          }
           maxZoom={19}
         />
         <Circle

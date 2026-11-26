@@ -14,12 +14,16 @@ import {
   Lock,
   LogOut,
   Mail,
+  Monitor,
+  Moon,
   Shield,
   ShieldCheck,
   Sliders,
+  Sun,
   User as UserIcon,
 } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthContext";
+import { useTheme, ThemeMode } from "@/components/theme/ThemeContext";
 import { UserAvatar, formatRoleLabel, getRoleBadgeClasses } from "@/components/account/UserAvatar";
 import { ChangePasswordForm } from "@/components/account/ChangePasswordForm";
 import { DHAKA_WARDS } from "@/lib/auth/password-policy";
@@ -44,6 +48,7 @@ function formatLastChanged(isoDate?: string | null): string {
 
 export function SettingsWorkspace({ initialTab = "account" }: { initialTab?: string }) {
   const { user, loading, signingOut, setUserState, logout } = useAuth();
+  const { theme: activeThemeMode, resolvedTheme, mounted: themeMounted, setTheme } = useTheme();
   const validTab = ["account", "security", "notifications", "preferences", "sessions"].includes(
     initialTab
   )
@@ -642,8 +647,78 @@ export function SettingsWorkspace({ initialTab = "account" }: { initialTab?: str
                     </div>
                   )}
 
-                  <div className="space-y-4">
+                  <div className="space-y-5">
                     <div>
+                      <span className="block text-xs font-bold uppercase tracking-wider text-[#344054] mb-1">
+                        Interface Color Theme
+                      </span>
+                      <p className="text-xs text-[#667085] mb-3">
+                        Choose how StreetWatch renders across all Citizen, Public, Authority, and Field Worker portals.
+                        {themeMounted && (
+                          <span className="ml-1 font-semibold text-[#101828]">
+                            (Active: {resolvedTheme === "dark" ? "Dark Mode" : "Light Mode"})
+                          </span>
+                        )}
+                      </p>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5" role="radiogroup" aria-label="Theme mode">
+                        {(
+                          [
+                            {
+                              value: "light" as ThemeMode,
+                              label: "Light Mode",
+                              desc: "Civic Swiss crisp daylight",
+                              icon: Sun,
+                            },
+                            {
+                              value: "dark" as ThemeMode,
+                              label: "Dark Mode",
+                              desc: "Low-glare command slate",
+                              icon: Moon,
+                            },
+                            {
+                              value: "system" as ThemeMode,
+                              label: "System",
+                              desc: "Follow OS preference",
+                              icon: Monitor,
+                            },
+                          ]
+                        ).map((opt) => {
+                          const Icon = opt.icon;
+                          const selected = themeMounted && activeThemeMode === opt.value;
+                          return (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              role="radio"
+                              aria-checked={selected}
+                              onClick={() => setTheme(opt.value)}
+                              className={`civic-interactive-card flex items-start gap-2.5 rounded-xl border p-3 text-left transition min-h-[58px] ${
+                                selected
+                                  ? "border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20"
+                                  : "border-[#E4E7EC] bg-[#F7F9FC] hover:border-slate-300"
+                              }`}
+                            >
+                              <div
+                                className={`mt-0.5 rounded-lg p-1.5 ${
+                                  selected
+                                    ? "bg-[#2563EB] text-white"
+                                    : "bg-white text-[#475467] border border-[#E4E7EC]"
+                                }`}
+                              >
+                                <Icon className="h-3.5 w-3.5" />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="text-xs font-bold text-[#101828]">{opt.label}</div>
+                                <div className="text-[11px] text-[#667085] leading-snug">{opt.desc}</div>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="border-t border-[#E4E7EC] pt-4">
                       <label
                         htmlFor="pref-default-ward"
                         className="block text-xs font-bold uppercase tracking-wider text-[#344054] mb-1.5"

@@ -43,6 +43,7 @@ import {
 } from "./gis-data";
 import { clusterGeospatialPoints } from "./spatial-cluster";
 import { MapDrawer, MapDrawerReport } from "./MapDrawer";
+import { useTheme } from "@/components/theme/ThemeContext";
 
 export interface MapReportPin extends MapDrawerReport {}
 
@@ -137,6 +138,7 @@ export default function CityMapCanvas({
   containedMode = false,
   className = "",
 }: CityMapCanvasProps) {
+  const { resolvedTheme, mounted: themeMounted } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
 
@@ -159,6 +161,16 @@ export default function CityMapCanvas({
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!themeMounted) return;
+    setActiveStyle((prev) => {
+      if (prev === "positron" || prev === "dark") {
+        return resolvedTheme === "dark" ? "dark" : "positron";
+      }
+      return prev;
+    });
+  }, [resolvedTheme, themeMounted]);
 
   const selectedReport = useMemo(
     () => reports.find((r) => r.id === selectedReportId) || null,
@@ -584,7 +596,7 @@ export default function CityMapCanvas({
           containedMode ? "top-3 right-3" : "top-32 sm:top-4 right-3 sm:right-4"
         } z-[450] flex flex-col items-end gap-2 pointer-events-auto`}
       >
-        <div className="flex items-center gap-1.5 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-lg p-1 shadow-md">
+        <div className="flex items-center gap-1.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-700/90 rounded-lg p-1 shadow-md">
           {/* Layer Control Button */}
           <div className="relative">
             <button
@@ -598,7 +610,7 @@ export default function CityMapCanvas({
               className={`p-2 min-h-[40px] min-w-[40px] rounded-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
                 showLayerMenu
                   ? "bg-blue-600 text-white"
-                  : "text-slate-700 hover:bg-slate-100"
+                  : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
               }`}
               title="Toggle GIS Map Layers"
               aria-label="Layer control"
@@ -609,8 +621,8 @@ export default function CityMapCanvas({
 
             {/* Layer Control Dropdown Popover */}
             {showLayerMenu && (
-              <div className="absolute right-0 top-11 w-56 bg-white/95 backdrop-blur-md rounded-lg shadow-xl border border-slate-200 p-3 z-50 text-xs text-slate-800 space-y-2.5 animate-in fade-in-50 zoom-in-95">
-                <div className="font-bold text-[11px] text-slate-500 uppercase tracking-wider pb-1 border-b border-slate-100 flex items-center justify-between">
+              <div className="absolute right-0 top-11 w-56 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 p-3 z-50 text-xs text-slate-800 dark:text-slate-200 space-y-2.5 animate-in fade-in-50 zoom-in-95">
+                <div className="font-bold text-[11px] text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-1 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                   <span>Operational Layers</span>
                   <button
                     type="button"
@@ -717,7 +729,7 @@ export default function CityMapCanvas({
               className={`p-2 min-h-[40px] min-w-[40px] rounded-md text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
                 showStyleMenu
                   ? "bg-blue-600 text-white"
-                  : "text-slate-700 hover:bg-slate-100"
+                  : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
               }`}
               title="Select Base Map Cartography"
               aria-label="Map style control"
@@ -728,7 +740,7 @@ export default function CityMapCanvas({
 
             {/* Map Style Dropdown Popover */}
             {showStyleMenu && (
-              <div className="absolute right-0 top-11 w-52 bg-white/95 backdrop-blur-md rounded-lg shadow-xl border border-slate-200 p-2 z-50 text-xs text-slate-800 space-y-1 animate-in fade-in-50 zoom-in-95">
+              <div className="absolute right-0 top-11 w-52 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 p-2 z-50 text-xs text-slate-800 dark:text-slate-200 space-y-1 animate-in fade-in-50 zoom-in-95">
                 {(Object.keys(MAP_STYLES) as MapStyleKey[]).map((styleKey) => {
                   const cfg = MAP_STYLES[styleKey];
                   const isActive = activeStyle === styleKey;
@@ -742,12 +754,12 @@ export default function CityMapCanvas({
                       }}
                       className={`w-full text-left px-2.5 py-1.5 rounded-md flex items-center justify-between text-xs transition-colors ${
                         isActive
-                          ? "bg-blue-50 text-blue-700 font-bold"
-                          : "hover:bg-slate-100 text-slate-700 font-medium"
+                          ? "bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-bold"
+                          : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium"
                       }`}
                     >
                       <span>{cfg.name}</span>
-                      {isActive && <span className="text-blue-600 text-xs">✓</span>}
+                      {isActive && <span className="text-blue-600 dark:text-blue-400 text-xs">✓</span>}
                     </button>
                   );
                 })}
@@ -755,13 +767,13 @@ export default function CityMapCanvas({
             )}
           </div>
 
-          <span className="w-px h-5 bg-slate-200" />
+          <span className="w-px h-5 bg-slate-200 dark:bg-slate-700" />
 
           {/* Zoom In */}
           <button
             type="button"
             onClick={() => mapInstance?.zoomIn()}
-            className="p-2 min-h-[40px] min-w-[40px] text-slate-700 hover:bg-slate-100 rounded-md transition-colors flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+            className="p-2 min-h-[40px] min-w-[40px] text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
             title="Zoom In"
             aria-label="Zoom in"
           >
@@ -772,7 +784,7 @@ export default function CityMapCanvas({
           <button
             type="button"
             onClick={() => mapInstance?.zoomOut()}
-            className="p-2 min-h-[40px] min-w-[40px] text-slate-700 hover:bg-slate-100 rounded-md transition-colors flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+            className="p-2 min-h-[40px] min-w-[40px] text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
             title="Zoom Out"
             aria-label="Zoom out"
           >
@@ -788,7 +800,7 @@ export default function CityMapCanvas({
               }
               onSelectReport?.(null);
             }}
-            className="p-2 min-h-[40px] min-w-[40px] text-slate-700 hover:bg-slate-100 rounded-md transition-colors flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+            className="p-2 min-h-[40px] min-w-[40px] text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
             title="Reset to City Grid Center"
             aria-label="Reset view"
           >
@@ -803,16 +815,16 @@ export default function CityMapCanvas({
           containedMode ? "bottom-3 left-3" : "bottom-20 md:bottom-4 left-3 md:left-4"
         } z-[450] pointer-events-auto`}
       >
-        <div className="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-lg shadow-md p-2.5 text-xs text-slate-700 max-w-[270px]">
-          <div className="flex items-center justify-between gap-3 font-bold text-slate-900 uppercase text-[10px] tracking-wider mb-1">
+        <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-700/90 rounded-lg shadow-md p-2.5 text-xs text-slate-700 dark:text-slate-200 max-w-[270px]">
+          <div className="flex items-center justify-between gap-3 font-bold text-slate-900 dark:text-slate-100 uppercase text-[10px] tracking-wider mb-1">
             <span className="flex items-center gap-1.5">
-              <Info className="h-3.5 w-3.5 text-blue-600" />
+              <Info className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
               <span>Municipal GIS Legend</span>
             </span>
             <button
               type="button"
               onClick={() => setLegendCollapsed(!legendCollapsed)}
-              className="text-slate-400 hover:text-slate-700 p-0.5 rounded text-[10px] uppercase font-mono"
+              className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-0.5 rounded text-[10px] uppercase font-mono"
             >
               {legendCollapsed ? "Expand" : "Hide"}
             </button>

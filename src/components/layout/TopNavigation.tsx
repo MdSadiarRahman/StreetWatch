@@ -14,6 +14,7 @@ import {
   User,
 } from "lucide-react";
 import BrandLogo from "@/components/ui/BrandLogo";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { Role } from "@/types";
 
 export interface TopNavigationProps {
@@ -134,8 +135,9 @@ export function TopNavigation({
           )}
         </div>
 
-        {/* Right: Actions & User Info */}
+        {/* Right: Theme Toggle, Actions & User Info */}
         <div className="hidden md:flex items-center gap-2">
+          <ThemeToggle compact />
           {user ? (
             <div className="flex items-center gap-2">
               <Link
@@ -176,8 +178,9 @@ export function TopNavigation({
           )}
         </div>
 
-        {/* Mobile Hamburger Trigger */}
+        {/* Mobile Theme & Hamburger Trigger */}
         <div className="flex md:hidden items-center gap-2">
+          <ThemeToggle compact />
           <button
             onClick={() => setMobileDrawerOpen(!mobileDrawerOpen)}
             className="rounded-lg p-2 text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-civic"

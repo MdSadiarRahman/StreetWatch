@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { useTheme } from "@/components/theme/ThemeContext";
 
 // SVG-styled high-contrast pin for coordinate placement
 const pinSvg = `
@@ -41,6 +42,7 @@ export default function LocationPickerMap({
   initialLng,
   onLocationSelect,
 }: LocationPickerProps) {
+  const { resolvedTheme } = useTheme();
   const [position, setPosition] = useState<[number, number]>([initialLat, initialLng]);
 
   useEffect(() => {
@@ -53,7 +55,7 @@ export default function LocationPickerMap({
   };
 
   return (
-    <div className="h-[280px] w-full rounded-lg overflow-hidden border border-slate-300 shadow-2xs relative">
+    <div className="h-[280px] w-full rounded-lg overflow-hidden border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900 shadow-2xs relative">
       <MapContainer
         center={position}
         zoom={14}
@@ -61,8 +63,13 @@ export default function LocationPickerMap({
         className="h-full w-full"
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          key={resolvedTheme}
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url={
+            resolvedTheme === "dark"
+              ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+              : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          }
         />
         <Marker position={position} icon={customMarkerIcon} />
         <MapClickHandler onSelect={handleSelect} />

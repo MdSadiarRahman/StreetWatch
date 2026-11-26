@@ -26,6 +26,8 @@ import {
 import { useAuth } from "@/components/auth/AuthContext";
 import { AccountDropdown } from "@/components/account/AccountDropdown";
 import { UserAvatar } from "@/components/account/UserAvatar";
+import { useTheme } from "@/components/theme/ThemeContext";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 interface WorkerTask {
   assignmentId: string;
@@ -95,6 +97,7 @@ const QUICK_RESOLUTION_CHIPS = [
 
 export default function WorkerWorkspacePage() {
   const { user: authUser, signingOut, logout } = useAuth();
+  const { resolvedTheme } = useTheme();
   const [worker, setWorker] = useState<WorkerProfile | null>(null);
   const [tasks, setTasks] = useState<WorkerTask[]>([]);
   const [loading, setLoading] = useState(true);
@@ -243,7 +246,7 @@ export default function WorkerWorkspacePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#080D1A] text-slate-100 flex flex-col items-center justify-center p-6 text-center">
+      <div className="min-h-screen ops-theme-root bg-[#080D1A] text-slate-100 flex flex-col items-center justify-center p-6 text-center">
         <div className="h-12 w-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mb-4" />
         <span className="font-mono text-xs font-black tracking-widest text-amber-400 uppercase">
           CONNECTING FIELD TERMINAL...
@@ -256,8 +259,11 @@ export default function WorkerWorkspacePage() {
   // 1-Click Authentication Gate if not logged in
   if (authError || !worker) {
     return (
-      <div className="min-h-screen bg-[#080D1A] text-slate-100 flex items-center justify-center p-4">
+      <div className="min-h-screen ops-theme-root bg-[#080D1A] text-slate-100 flex items-center justify-center p-4">
         <div className="w-full max-w-md rounded-2xl bg-[#0F172A] border border-slate-700 p-6 shadow-2xl space-y-4 text-center">
+          <div className="flex justify-end">
+            <ThemeToggle surface={resolvedTheme} showLabel />
+          </div>
           <div className="h-16 w-16 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 mx-auto flex items-center justify-center">
             <HardHat className="h-8 w-8" />
           </div>
@@ -306,7 +312,7 @@ export default function WorkerWorkspacePage() {
   const isResolved = currentTask?.report.status === "RESOLVED";
 
   return (
-    <div className="min-h-screen bg-[#070B14] text-slate-100 flex flex-col justify-between pb-32">
+    <div className="min-h-screen ops-theme-root bg-[#070B14] text-slate-100 flex flex-col justify-between pb-32">
       {/* 1. TOP MOBILE TERMINAL COMPACT STATUS BAR (One-Handed Visibility) */}
       <header className="sticky top-0 z-30 bg-[#0F172A]/95 backdrop-blur-md border-b border-slate-800 px-4 py-2.5">
         <div className="mx-auto max-w-lg flex items-center justify-between gap-2">
@@ -317,7 +323,7 @@ export default function WorkerWorkspacePage() {
               avatarUrl={authUser?.avatarUrl}
               role="FIELD_WORKER"
               size="sm"
-              theme="dark"
+              theme={resolvedTheme}
             />
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
@@ -330,14 +336,15 @@ export default function WorkerWorkspacePage() {
             </div>
           </div>
 
-          {/* GPS Accuracy Status & Account Menu */}
+          {/* GPS Accuracy Status, Theme Toggle & Account Menu */}
           <div className="flex items-center gap-1.5 shrink-0">
+            <ThemeToggle surface={resolvedTheme} compact />
             <div className="hidden xs:flex sm:flex items-center gap-1 px-2 py-1 rounded-md bg-slate-900 border border-slate-800 text-[10px] font-mono text-emerald-400">
               <Wifi className="h-3 w-3" />
               <span>GPS</span>
             </div>
             {authUser ? (
-              <AccountDropdown user={authUser} onLogout={logout} signingOut={signingOut} theme="dark" compact />
+              <AccountDropdown user={authUser} onLogout={logout} signingOut={signingOut} theme={resolvedTheme} compact />
             ) : (
               <div className="flex items-center gap-1">
                 <Link

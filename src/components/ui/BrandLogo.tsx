@@ -144,24 +144,24 @@ export default function BrandLogo({
     <div className={`group flex items-center gap-2.5 select-none ${className}`}>
       <div className="relative">
         <BrandLogoEmblem size={pixelSizes[size]} />
-        <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-white" />
+        <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900" />
       </div>
 
       {showText && (
         <div className="flex flex-col">
           <div className="flex items-center gap-1.5 leading-none">
-            <span className={`${textSizes[size]} font-black tracking-tight text-slate-900 group-hover:text-blue-900 transition-colors`}>
-              Street<span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Watch</span>
+            <span className={`${textSizes[size]} font-black tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-blue-900 dark:group-hover:text-blue-300 transition-colors`}>
+              Street<span className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">Watch</span>
             </span>
 
             {showBadge && (
-              <span className={`hidden sm:inline-flex items-center rounded-md bg-gradient-to-r from-blue-50 to-indigo-50 font-extrabold text-blue-700 border border-blue-200/80 uppercase shadow-2xs ${badgeSizes[size]}`}>
+              <span className={`hidden sm:inline-flex items-center rounded-md bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/80 dark:to-indigo-950/80 font-extrabold text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800/80 uppercase shadow-2xs ${badgeSizes[size]}`}>
                 AI 2.0
               </span>
             )}
           </div>
 
-          <span className="text-[9px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider sm:tracking-widest mt-0.5 truncate">
+          <span className="text-[9px] sm:text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider sm:tracking-widest mt-0.5 truncate">
             Civic Auto-Triage &bull; Dhaka
           </span>
         </div>

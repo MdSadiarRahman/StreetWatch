@@ -34,6 +34,8 @@ import { IssueStatusTimeline } from "@/components/streetwatch/IssueStatusTimelin
 import { MapReportPin } from "@/components/map/CityMapCanvas";
 import { useAuth } from "@/components/auth/AuthContext";
 import { AccountDropdown } from "@/components/account/AccountDropdown";
+import { useTheme } from "@/components/theme/ThemeContext";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 // Dynamic import for GIS Map Canvas with SSR disabled
 const CityMapCanvas = dynamic(() => import("@/components/map/CityMapCanvas"), {
@@ -128,6 +130,7 @@ type NavSection = "overview" | "issues" | "live_map" | "crews" | "analytics" | "
 
 export default function AuthorityCommandCenter() {
   const { user: authUser, signingOut, logout } = useAuth();
+  const { resolvedTheme } = useTheme();
   const [activeSection, setActiveSection] = useState<NavSection>("overview");
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [reports, setReports] = useState<QueueReportItem[]>([]);
@@ -399,7 +402,7 @@ export default function AuthorityCommandCenter() {
 
   if (loading) {
     return (
-      <div className="h-screen w-screen bg-[#080D1A] flex flex-col items-center justify-center text-xs text-slate-400 font-mono">
+      <div className="h-screen w-screen ops-theme-root bg-[#080D1A] flex flex-col items-center justify-center text-xs text-slate-400 font-mono">
         <div className="h-8 w-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-3" />
         <span>CONNECTING TO STREETWATCH OPERATIONAL COMMAND CENTER...</span>
       </div>
@@ -407,7 +410,7 @@ export default function AuthorityCommandCenter() {
   }
 
   return (
-    <div className="min-h-screen bg-[#080D1A] text-slate-100 flex flex-col font-sans overflow-x-hidden">
+    <div className="min-h-screen ops-theme-root bg-[#080D1A] text-slate-100 flex flex-col font-sans overflow-x-hidden">
       {/* 1. TOP BAR: StreetWatch Identity, System Status, Area, Notifications, User Menu */}
       <header className="h-14 bg-[#0B1120] border-b border-slate-800/90 px-4 flex items-center justify-between shrink-0 z-40 sticky top-0 shadow-md">
         {/* Left: Identity & Live System Telemetry */}
@@ -523,11 +526,13 @@ export default function AuthorityCommandCenter() {
             )}
           </div>
 
+          <ThemeToggle surface={resolvedTheme} compact />
+
           <span className="w-px h-5 bg-slate-800" />
 
           {/* User Profile */}
           {authUser ? (
-            <AccountDropdown user={authUser} onLogout={logout} signingOut={signingOut} theme="dark" />
+            <AccountDropdown user={authUser} onLogout={logout} signingOut={signingOut} theme={resolvedTheme} />
           ) : (
             <Link
               href="/settings"
@@ -866,7 +871,7 @@ export default function AuthorityCommandCenter() {
                   reports={reports}
                   selectedReportId={selectedReportId}
                   onSelectReport={(id) => setSelectedReportId(id)}
-                  initialStyle="dark"
+                  initialStyle={resolvedTheme === "dark" ? "dark" : "positron"}
                   className="h-full w-full"
                 />
               </div>

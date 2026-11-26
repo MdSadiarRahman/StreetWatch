@@ -22,10 +22,13 @@ import { Role } from "@/types";
 import { useAuth } from "@/components/auth/AuthContext";
 import { AccountDropdown } from "@/components/account/AccountDropdown";
 import { UserAvatar, formatRoleLabel } from "@/components/account/UserAvatar";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { useTheme } from "@/components/theme/ThemeContext";
 
 export default function Navbar() {
   const pathname = usePathname();
   const { user, loading, signingOut, logout } = useAuth();
+  const { resolvedTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -165,11 +168,13 @@ export default function Navbar() {
             <span>Report an Issue</span>
           </Link>
 
+          <ThemeToggle compact />
+
           {loading ? (
             <div className="h-9 w-28 animate-pulse rounded-xl bg-slate-200 ml-1" />
           ) : user ? (
             <div className="flex items-center pl-2 ml-1 border-l border-[#E4E7EC]">
-              <AccountDropdown user={user} onLogout={handleLogout} signingOut={signingOut} />
+              <AccountDropdown user={user} onLogout={handleLogout} signingOut={signingOut} theme={resolvedTheme} />
             </div>
           ) : (
             <div className="flex items-center gap-1.5 pl-2 ml-1 border-l border-[#E4E7EC]">
@@ -189,8 +194,9 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* MOBILE ACTION + HAMBURGER */}
+        {/* MOBILE ACTION + THEME TOGGLE + HAMBURGER */}
         <div className="flex items-center gap-1.5 sm:gap-2 md:hidden shrink-0">
+          <ThemeToggle compact />
           <Link
             href="/report"
             className="inline-flex items-center gap-1 rounded-lg bg-[#2563EB] hover:bg-blue-700 px-2.5 sm:px-3 py-2 min-h-[40px] text-[11px] sm:text-xs font-bold text-white shadow-sm whitespace-nowrap"

@@ -254,7 +254,7 @@ export const AIAutoTriagePanel: React.FC<AIAutoTriagePanelProps> = ({
 
   return (
     <div
-      className={`rounded-xl border border-slate-700/80 bg-[#0F172A] shadow-xl text-slate-100 overflow-hidden divide-y divide-slate-800 civic-interactive-ai ${className}`}
+      className={`ops-theme-root rounded-xl border border-slate-700/80 bg-[#0F172A] shadow-xl text-slate-100 overflow-hidden divide-y divide-slate-800 civic-interactive-ai ${className}`}
       role="region"
       aria-label="Explainable AI Auto-Triage Decision Support System"
     >
