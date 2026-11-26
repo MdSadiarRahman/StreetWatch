@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { MOCK_DEPARTMENTS, MOCK_REPORTS, MOCK_USERS } from "@/lib/mock-data";
 
 export const dynamic = "force-dynamic";
 
@@ -128,75 +129,98 @@ export async function GET() {
     });
   } catch (error) {
     console.warn("Generating fallback analytics (database offline)");
+    const totalReports = MOCK_REPORTS.length;
+    const resolvedReports = MOCK_REPORTS.filter(
+      (r) => r.status === "RESOLVED" || r.status === "CITIZEN_VERIFIED"
+    );
+    const resolvedCount = resolvedReports.length;
+    const resolutionRatePercent =
+      totalReports > 0 ? Math.round((resolvedCount / totalReports) * 100) : 0;
+
+    const criticalUnassignedCount = MOCK_REPORTS.filter(
+      (r) =>
+        r.priorityScore >= 80 &&
+        ["REPORTED", "AI_TRIAGED", "COMMUNITY_VERIFIED", "PRIORITY_SCORED"].includes(r.status)
+    ).length;
+
+    const avgPriorityScore =
+      totalReports > 0
+        ? Math.round(MOCK_REPORTS.reduce((acc, r) => acc + r.priorityScore, 0) / totalReports)
+        : 0;
+
+    const mockWorkers = MOCK_USERS.filter((u) => u.role === "FIELD_WORKER");
+    const totalSlots = mockWorkers.reduce((acc, w) => acc + w.workerCapacity, 0);
+    const activeSlots = mockWorkers.reduce((acc, w) => acc + w.activeTaskCount, 0);
+
+    const departmentStats = MOCK_DEPARTMENTS.map((dept) => {
+      const deptWorkers = mockWorkers
+        .filter((w) => w.departmentId === dept.id)
+        .map((w) => ({
+          id: w.id,
+          name: w.name,
+          activeTaskCount: w.activeTaskCount,
+          workerCapacity: w.workerCapacity,
+        }));
+      const totalCapacity = deptWorkers.reduce((acc, w) => acc + w.workerCapacity, 0);
+      const activeLoad = deptWorkers.reduce((acc, w) => acc + w.activeTaskCount, 0);
+      const openReports = MOCK_REPORTS.filter(
+        (r) =>
+          r.category.departmentId === dept.id &&
+          !["RESOLVED", "CITIZEN_VERIFIED", "REJECTED"].includes(r.status)
+      ).length;
+
+      return {
+        id: dept.id,
+        name: dept.name,
+        slaHours: dept.slaHours,
+        workerCount: deptWorkers.length,
+        totalCapacity,
+        activeLoad,
+        isSaturated: totalCapacity > 0 && activeLoad >= totalCapacity,
+        openReports,
+        workers: deptWorkers,
+      };
+    });
+
+    const wardMap: Record<string, { openCount: number; criticalCount: number }> = {};
+    for (const r of MOCK_REPORTS) {
+      if (["RESOLVED", "CITIZEN_VERIFIED", "REJECTED"].includes(r.status)) continue;
+      if (!wardMap[r.wardZone]) wardMap[r.wardZone] = { openCount: 0, criticalCount: 0 };
+      wardMap[r.wardZone].openCount += 1;
+      if (r.priorityScore >= 80) wardMap[r.wardZone].criticalCount += 1;
+    }
+
+    const wardHotspots = Object.entries(wardMap)
+      .map(([wardZone, stats]) => ({
+        wardZone,
+        openCount: stats.openCount,
+        criticalCount: stats.criticalCount,
+        riskLevel: stats.criticalCount >= 2 ? "CRITICAL" : stats.openCount >= 2 ? "HIGH" : "MEDIUM",
+      }))
+      .sort((a, b) => b.openCount - a.openCount);
+
     return NextResponse.json({
       success: true,
       data: {
-        totalReports: 12,
-        criticalUnassignedCount: 2,
-        resolvedCount: 6,
-        resolutionRatePercent: 50,
-        avgPriorityScore: 84,
+        totalReports,
+        criticalUnassignedCount,
+        resolvedCount,
+        resolutionRatePercent,
+        avgPriorityScore,
         workforceCapacity: {
-          totalSlots: 6,
-          activeSlots: 4,
-          utilizationPercent: 67,
+          totalSlots,
+          activeSlots,
+          utilizationPercent: totalSlots > 0 ? Math.round((activeSlots / totalSlots) * 100) : 0,
         },
-        departmentStats: [
-          {
-            id: "dept-elec",
-            name: "Electrical & Lighting",
-            slaHours: 12,
-            workerCount: 1,
-            totalCapacity: 3,
-            activeLoad: 3,
-            isSaturated: true,
-            openReports: 3,
-            workers: [{ id: "usr-worker-1", name: "Rafiqul Islam (Electrical Lead)", activeTaskCount: 3, workerCapacity: 3 }],
-          },
-          {
-            id: "dept-water",
-            name: "Water & Drainage",
-            slaHours: 24,
-            workerCount: 1,
-            totalCapacity: 3,
-            activeLoad: 1,
-            isSaturated: false,
-            openReports: 1,
-            workers: [{ id: "usr-worker-3", name: "Arif Chowdhury (Drainage Crew)", activeTaskCount: 1, workerCapacity: 3 }],
-          },
-          {
-            id: "dept-roads",
-            name: "Roads & Highways",
-            slaHours: 48,
-            workerCount: 1,
-            totalCapacity: 3,
-            activeLoad: 1,
-            isSaturated: false,
-            openReports: 2,
-            workers: [{ id: "usr-worker-2", name: "Kamal Hossain (Roads Specialist)", activeTaskCount: 1, workerCapacity: 3 }],
-          },
-        ],
-        wardHotspots: [
-          { wardZone: "Ward 4", openCount: 3, criticalCount: 2, riskLevel: "CRITICAL" },
-          { wardZone: "Ward 19", openCount: 2, criticalCount: 1, riskLevel: "HIGH" },
-          { wardZone: "Ward 16", openCount: 2, criticalCount: 0, riskLevel: "MEDIUM" },
-        ],
-        recentWorkflowLogs: [
-          {
-            id: "log-1",
-            stepName: "MATERIALS_STAGED",
-            status: "SUCCESS",
-            executedAt: new Date(Date.now() - 3600000).toISOString(),
-            report: { id: "rep-001", title: "Exposed Live Wire Near Primary School", status: "ASSIGNED" },
-          },
-          {
-            id: "log-2",
-            stepName: "SAFETY_ASSESSMENT",
-            status: "SUCCESS",
-            executedAt: new Date(Date.now() - 7200000).toISOString(),
-            report: { id: "rep-002", title: "Uncovered Deep Drainage Manhole", status: "AI_TRIAGED" },
-          },
-        ],
+        departmentStats,
+        wardHotspots,
+        recentWorkflowLogs: MOCK_REPORTS.slice(0, 6).map((r, idx) => ({
+          id: `log-${idx + 1}`,
+          stepName: r.status === "FAILED_RECOVERY" ? "RECOVERY_TRIGGERED" : "AI_TRIAGE_SCORED",
+          status: r.status === "FAILED_RECOVERY" ? "FAILED" : "SUCCESS",
+          executedAt: r.updatedAt,
+          report: { id: r.id, title: r.title, status: r.status },
+        })),
       },
     });
   }

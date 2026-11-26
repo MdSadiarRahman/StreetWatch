@@ -73,6 +73,30 @@ const DEMO_META_BY_EMAIL: Record<
     location: "Dhaka North",
     address: "Mirpur Sector 10, Road 12",
   },
+  "sarah@streetwatch.demo": {
+    phone: "+8801711000002",
+    ward: "Ward 15",
+    location: "Dhaka South",
+    address: "Dhanmondi Road 27",
+  },
+  "sadiar@streetwatch.demo": {
+    phone: "+8801711000003",
+    ward: "Ward 19",
+    location: "Dhaka North",
+    address: "Banani Road 11, Block C",
+  },
+  "nusrat@streetwatch.demo": {
+    phone: "+8801711000004",
+    ward: "Ward 11",
+    location: "Dhaka South",
+    address: "Khilgaon Taltola Market",
+  },
+  "mehedi@streetwatch.demo": {
+    phone: "+8801711000005",
+    ward: "Ward 9",
+    location: "Dhaka South",
+    address: "Motijheel Dilkusha Commercial Area",
+  },
   "admin@streetwatch.demo": {
     phone: "+8801711000099",
     ward: "DNCC HQ",
@@ -96,6 +120,18 @@ const DEMO_META_BY_EMAIL: Record<
     ward: "Ward 9",
     location: "Dhaka North",
     address: "Gulshan-Badda Maintenance Unit",
+  },
+  "worker3@streetwatch.demo": {
+    phone: "+8801711000103",
+    ward: "Ward 15",
+    location: "Dhaka South",
+    address: "Dhanmondi Drainage Sub-Station",
+  },
+  "worker4@streetwatch.demo": {
+    phone: "+8801711000104",
+    ward: "Ward 31",
+    location: "Dhaka North",
+    address: "Mohammadpur Sanitation Depot",
   },
 };
 
@@ -156,24 +192,37 @@ function buildInitialFallbackState(): FallbackAccountDatabase {
 }
 
 function readFallbackStore(): FallbackAccountDatabase {
+  const initial = buildInitialFallbackState();
   try {
     if (fs.existsSync(FALLBACK_STORE_PATH)) {
       const raw = fs.readFileSync(FALLBACK_STORE_PATH, "utf8");
       const parsed = JSON.parse(raw) as FallbackAccountDatabase;
       if (parsed && Array.isArray(parsed.users)) {
-        return {
+        // Merge any newly added demo accounts while preserving persisted edits/registrations
+        const existingEmails = new Set(parsed.users.map((u) => u.email.toLowerCase()));
+        let merged = false;
+        for (const seedUser of initial.users) {
+          if (!existingEmails.has(seedUser.email.toLowerCase())) {
+            parsed.users.push(seedUser);
+            merged = true;
+          }
+        }
+        const store = {
           users: parsed.users,
           resetTokens: Array.isArray(parsed.resetTokens) ? parsed.resetTokens : [],
           verificationTokens: Array.isArray(parsed.verificationTokens)
             ? parsed.verificationTokens
             : [],
         };
+        if (merged) {
+          writeFallbackStore(store);
+        }
+        return store;
       }
     }
   } catch {
     // Recreate clean state if corrupted
   }
-  const initial = buildInitialFallbackState();
   writeFallbackStore(initial);
   return initial;
 }

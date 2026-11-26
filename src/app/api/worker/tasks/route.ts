@@ -57,12 +57,18 @@ export async function GET() {
         },
       });
     } catch {
-      // Database offline fallback: provide 3 tasks for Worker 1
-      const assignedReports = [MOCK_REPORTS[0], MOCK_REPORTS[2], MOCK_REPORTS[3]];
+      // Database offline fallback: match assignments for logged-in worker or default 3 tasks for worker-1
+      const workerAssigned = MOCK_REPORTS.filter((r) =>
+        r.assignments?.some((a) => a.workerId === session.userId)
+      );
+      const assignedReports =
+        workerAssigned.length > 0
+          ? workerAssigned
+          : [MOCK_REPORTS[0], MOCK_REPORTS[2], MOCK_REPORTS[3]];
       const tasks = assignedReports.map((r, i) => ({
         assignmentId: `asgn-mock-${i + 1}`,
         assignedAt: new Date(Date.now() - (i + 1) * 3600000).toISOString(),
-        completedAt: null,
+        completedAt: r.assignments?.[0]?.completedAt || null,
         overrideReason: null,
         report: r,
       }));
@@ -73,8 +79,9 @@ export async function GET() {
           worker: {
             id: session.userId,
             name: session.name,
-            department: "Electrical & Lighting",
-            activeTaskCount: 3,
+            department:
+              assignedReports[0]?.category?.department?.name || "Electrical & Lighting",
+            activeTaskCount: tasks.filter((t) => !t.completedAt).length || tasks.length,
             workerCapacity: 3,
           },
           tasks,

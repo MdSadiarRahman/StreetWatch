@@ -294,6 +294,7 @@ export async function GET(req: NextRequest) {
         filtered = filtered.filter(
           (r) =>
             r.title.toLowerCase().includes(q) ||
+            r.description.toLowerCase().includes(q) ||
             r.address.toLowerCase().includes(q) ||
             r.wardZone.toLowerCase().includes(q)
         );
@@ -307,8 +308,15 @@ export async function GET(req: NextRequest) {
       if (wardZone && wardZone !== "ALL") {
         filtered = filtered.filter((r) => r.wardZone === wardZone);
       }
-      items = filtered;
+      if (sortBy === "priority") {
+        filtered.sort((a, b) => b.priorityScore - a.priorityScore);
+      } else if (sortBy === "verifications") {
+        filtered.sort((a, b) => b.verificationCount - a.verificationCount);
+      } else {
+        filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      }
       total = filtered.length;
+      items = filtered.slice(skip, skip + limit);
     }
 
     if (items.length === 0 && !search && category === "ALL" && status === "ALL") {

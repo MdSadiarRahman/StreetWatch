@@ -222,7 +222,60 @@ async function main() {
     },
   });
 
-  console.log("👥 Seeded 6 Demo Users across Citizen, Authority, and Field Worker roles.");
+  // Citizen 3 & 4 for richer realistic demo dataset
+  const citizen3 = await prisma.user.create({
+    data: {
+      name: "Md Sadiar Rahman",
+      email: "sadiar@streetwatch.demo",
+      passwordHash,
+      role: Role.CITIZEN,
+      phone: "+8801711000003",
+      ward: "Ward 19",
+      location: "Dhaka North",
+      address: "Banani Road 11, Block C",
+      emailVerified: true,
+      emailVerifiedAt: new Date(),
+      trustScore: 2.1,
+    },
+  });
+
+  const citizen4 = await prisma.user.create({
+    data: {
+      name: "Nusrat Jahan",
+      email: "nusrat@streetwatch.demo",
+      passwordHash,
+      role: Role.CITIZEN,
+      phone: "+8801711000004",
+      ward: "Ward 11",
+      location: "Dhaka South",
+      address: "Khilgaon Taltola Market",
+      emailVerified: true,
+      emailVerifiedAt: new Date(),
+      trustScore: 1.4,
+    },
+  });
+
+  // Field Worker 4 (Waste & Sanitation)
+  const worker4 = await prisma.user.create({
+    data: {
+      name: "Sumaiya Akter (Sanitation Unit)",
+      email: "worker4@streetwatch.demo",
+      passwordHash,
+      role: Role.FIELD_WORKER,
+      phone: "+8801711000104",
+      ward: "Ward 31",
+      location: "Dhaka North",
+      address: "Mohammadpur Sanitation Depot",
+      emailVerified: true,
+      emailVerifiedAt: new Date(),
+      departmentId: deptWaste.id,
+      workerCapacity: 3,
+      activeTaskCount: 1,
+      trustScore: 1.5,
+    },
+  });
+
+  console.log("👥 Seeded 9 Demo Users across Citizen, Authority, and Field Worker roles.");
 
   // 5. Seed 6 Realistic Reports Across Workflow Lifecycle
 
@@ -459,7 +512,95 @@ async function main() {
     },
   });
 
-  console.log("📝 Seeded 6 realistic civic reports across diverse statuses with AI analyses.");
+  // Report 7: Medical Gate Waterlogging
+  await prisma.report.create({
+    data: {
+      title: "Severe Rainwater Flooding Outside Medical College",
+      description: "Blocked storm drain grating causing 2-foot waterlogging across outpatient entrance road.",
+      imageUrl: "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=800&q=80",
+      latitude: 23.7261,
+      longitude: 90.3976,
+      address: "Bakshibazar Mor, Near Dhaka Medical Gate 2",
+      wardZone: "Ward 27",
+      categoryId: catWaterlogging.id,
+      reporterId: citizen3.id,
+      status: ReportStatus.PRIORITY_SCORED,
+      severityScore: 86.0,
+      priorityScore: 88.4,
+      verificationCount: 25,
+    },
+  });
+
+  // Report 8: Khilgaon Sagging Electrical Line
+  await prisma.report.create({
+    data: {
+      title: "Low-Hanging Distribution Cable Over Khilgaon Intersection",
+      description: "Storm wind loosened an insulated feeder bundle sagging down to 8 feet above traffic.",
+      imageUrl: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80",
+      latitude: 23.7492,
+      longitude: 90.4252,
+      address: "Khilgaon Flyover East Ramp, Ward 11",
+      wardZone: "Ward 11",
+      categoryId: catWire.id,
+      reporterId: citizen4.id,
+      status: ReportStatus.AI_TRIAGED,
+      severityScore: 89.0,
+      priorityScore: 90.2,
+      verificationCount: 13,
+    },
+  });
+
+  // Report 9: Waste Roll-off Cleanup Assigned to Worker 4
+  const report9 = await prisma.report.create({
+    data: {
+      title: "Market Waste Container Overflow at Town Hall",
+      description: "Two municipal roll-off bins overflowing onto the main sidewalk since Wednesday morning.",
+      imageUrl: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=800&q=80",
+      latitude: 23.7654,
+      longitude: 90.3621,
+      address: "Asad Avenue, Mohammadpur Town Hall Market",
+      wardZone: "Ward 31",
+      categoryId: catGarbage.id,
+      reporterId: citizen3.id,
+      status: ReportStatus.IN_PROGRESS,
+      severityScore: 68.0,
+      priorityScore: 72.5,
+      verificationCount: 11,
+      beforeProofUrl: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=800&q=80",
+    },
+  });
+
+  await prisma.assignment.create({
+    data: {
+      reportId: report9.id,
+      workerId: worker4.id,
+      assignedById: authorityAdmin.id,
+      isAutoAssigned: true,
+    },
+  });
+
+  // Report 10: Resolved Badda Repaving awaiting sign-off
+  await prisma.report.create({
+    data: {
+      title: "Badda Road Asphalt Rutting Repaired & Reopened",
+      description: "Crew resurfaced sunken bus-lane asphalt track with hot-mix compaction.",
+      imageUrl: "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80",
+      latitude: 23.7805,
+      longitude: 90.4259,
+      address: "Middle Badda Main Road, Near Post Office",
+      wardZone: "Ward 22",
+      categoryId: catPothole.id,
+      reporterId: citizen4.id,
+      status: ReportStatus.RESOLVED,
+      severityScore: 70.0,
+      priorityScore: 74.0,
+      verificationCount: 17,
+      beforeProofUrl: "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80",
+      afterProofUrl: "https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80",
+    },
+  });
+
+  console.log("📝 Seeded 10 realistic civic reports across diverse statuses with AI analyses.");
 
   // 6. Seed Audit Logs
   await prisma.auditLog.create({
