@@ -2,6 +2,7 @@
 
 <div align="center">
 
+[![Live Demo](https://img.shields.io/badge/Live%20Platform-street--watch--omega.vercel.app-10B981?style=for-the-badge&logo=vercel&logoColor=white)](https://street-watch-omega.vercel.app)
 [![Next.js](https://img.shields.io/badge/Next.js-14.2.23%20App%20Router-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6%20Strict-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react&logoColor=111827)](https://react.dev/)
@@ -11,6 +12,7 @@
 [![Leaflet](https://img.shields.io/badge/Leaflet-1.9%20GIS%20Maps-199900?style=for-the-badge&logo=leaflet&logoColor=white)](https://leafletjs.com/)
 [![Gemini AI](https://img.shields.io/badge/Google%20Gemini-2.5%20Flash%20Triage-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
 
+🌐 **Live Hosted Platform:** **[https://street-watch-omega.vercel.app](https://street-watch-omega.vercel.app)**  
 **Lead Architect & Developer:** [Md Sadiar Rahman](https://github.com/MdSadiarRahman)  
 **Target Domain:** Municipal Infrastructure Governance & Urban Hazard Resolution (Dhaka North / South City Wards)
 
