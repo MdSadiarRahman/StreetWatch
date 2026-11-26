@@ -20,6 +20,7 @@ import {
 } from "@/lib/workflow/rules";
 import { IssueCardSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState, ErrorState } from "@/components/ui/EmptyState";
+import { CivicTooltip, CivicHoverPreview } from "@/components/ui/CivicInteraction";
 
 export type CategoryFilterGroup =
   | "ALL"
@@ -58,6 +59,10 @@ export interface RecentCommunityReportsProps {
   availableWards: string[];
   onResetFilters: () => void;
   hasActiveFilters: boolean;
+  // Connected Map <-> Card Spatial Interaction
+  hoveredReportId?: string | null;
+  selectedReportId?: string | null;
+  onHoverReport?: (reportId: string | null) => void;
   // Card actions
   onViewDetails: (reportId: string) => void;
   onViewOnMap: (reportId: string) => void;
@@ -178,6 +183,9 @@ export function RecentCommunityReports({
   availableWards,
   onResetFilters,
   hasActiveFilters,
+  hoveredReportId = null,
+  selectedReportId = null,
+  onHoverReport,
   onViewDetails,
   onViewOnMap,
 }: RecentCommunityReportsProps) {
@@ -398,129 +406,150 @@ export function RecentCommunityReports({
               const aiConfidence = report.aiAnalysis?.confidenceScore
                 ? Math.round(report.aiAnalysis.confidenceScore * 100)
                 : null;
+              const isHighlighted = hoveredReportId === report.id || selectedReportId === report.id;
 
               return (
-                <motion.article
+                <CivicHoverPreview
                   key={report.id}
-                  initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="group rounded-2xl border border-[#E4E7EC] bg-white overflow-hidden shadow-xs hover:border-slate-300 hover:shadow-card transition-all flex flex-col justify-between"
+                  category={report.category?.name || "Civic Hazard"}
+                  status={statusDisplay.label}
+                  location={`${report.wardZone} • ${report.address}`}
+                  priorityLabel={`P-${Math.round(report.priorityScore)}`}
+                  onInspect={() => onViewDetails(report.id)}
                 >
-                  <div>
-                    {/* Issue Image */}
-                    <div
-                      onClick={() => onViewDetails(report.id)}
-                      className="relative h-44 w-full bg-slate-100 overflow-hidden cursor-pointer border-b border-[#E4E7EC]"
-                    >
-                      <img
-                        src={
-                          report.beforeProofUrl ||
-                          report.imageUrl ||
-                          "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80"
-                        }
-                        alt={report.title}
-                        className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
-                        loading="lazy"
-                      />
-                      {/* Category Pill over top-left */}
-                      <span className="absolute top-3 left-3 rounded-md bg-white/95 backdrop-blur-sm border border-[#E4E7EC] px-2.5 py-1 text-[10px] font-mono font-bold uppercase tracking-wider text-[#101828] shadow-xs">
-                        {report.category?.name || "Civic Hazard"}
-                      </span>
-
-                      {aiConfidence !== null && (
-                        <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-md bg-white/95 backdrop-blur-sm border border-purple-200 px-2 py-1 text-[10px] font-mono font-bold text-[#7C5CFC] shadow-xs">
-                          <Cpu className="h-3 w-3" />
-                          <span>{aiConfidence}% AI</span>
+                  <motion.article
+                    initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2 }}
+                    onMouseEnter={() => onHoverReport?.(report.id)}
+                    onMouseLeave={() => onHoverReport?.(null)}
+                    className={`civic-interactive-card group h-full rounded-2xl border bg-white overflow-hidden shadow-xs flex flex-col justify-between ${
+                      isHighlighted
+                        ? "border-[#2563EB] ring-2 ring-blue-500/20 shadow-civic-hover"
+                        : "border-[#E4E7EC]"
+                    }`}
+                  >
+                    <div>
+                      {/* Issue Image (Clipped zoom inside rounded frame) */}
+                      <div
+                        onClick={() => onViewDetails(report.id)}
+                        className="relative h-44 w-full bg-slate-100 overflow-hidden cursor-pointer border-b border-[#E4E7EC]"
+                      >
+                        <img
+                          src={
+                            report.beforeProofUrl ||
+                            report.imageUrl ||
+                            "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80"
+                          }
+                          alt={report.title}
+                          className="civic-card-image h-full w-full object-cover"
+                          loading="lazy"
+                        />
+                        {/* Category Pill over top-left */}
+                        <span className="civic-badge-interactive absolute top-3 left-3 rounded-md bg-white/95 backdrop-blur-sm border border-[#E4E7EC] px-2.5 py-1 text-[10px] font-mono font-bold uppercase tracking-wider text-[#101828] shadow-xs">
+                          {report.category?.name || "Civic Hazard"}
                         </span>
-                      )}
-                    </div>
 
-                    {/* Card Body */}
-                    <div className="p-4 sm:p-5 space-y-3">
-                      {/* Title & Location */}
-                      <div className="space-y-1">
-                        <h3 className="text-sm sm:text-base font-bold text-[#101828] line-clamp-1">
-                          {report.title}
-                        </h3>
-                        <p className="text-xs text-[#667085] flex items-center gap-1">
-                          <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                          <span className="truncate">
-                            {report.address} &bull; {report.wardZone}
+                        {aiConfidence !== null && (
+                          <div className="absolute top-3 right-3">
+                            <CivicTooltip content={`AI confidence: ${aiConfidence}%`} position="left">
+                              <span className="civic-badge-interactive inline-flex items-center gap-1 rounded-md bg-white/95 backdrop-blur-sm border border-purple-200 hover:border-purple-400 hover:shadow-civic-ai px-2 py-1 text-[10px] font-mono font-bold text-[#7C5CFC] shadow-xs">
+                                <Cpu className="h-3 w-3" />
+                                <span>{aiConfidence}% AI</span>
+                              </span>
+                            </CivicTooltip>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Card Body */}
+                      <div className="p-4 sm:p-5 space-y-3">
+                        {/* Title & Location */}
+                        <div className="space-y-1">
+                          <h3 className="text-sm sm:text-base font-bold text-[#101828] group-hover:text-[#2563EB] transition-colors line-clamp-1">
+                            {report.title}
+                          </h3>
+                          <p className="text-xs text-[#667085] flex items-center gap-1">
+                            <MapPin className="civic-pin-shift h-3.5 w-3.5 text-slate-400 shrink-0" />
+                            <span className="truncate">
+                              {report.address} &bull; {report.wardZone}
+                            </span>
+                          </p>
+                          <p className="text-[11px] text-[#667085] flex items-center gap-1">
+                            <Clock className="h-3 w-3 text-slate-400 shrink-0" />
+                            <span>{formatRelativeReportedTime(report.createdAt)}</span>
+                          </p>
+                        </div>
+
+                        {/* Priority & Status Row */}
+                        <div className="flex items-center justify-between gap-2 flex-wrap pt-1">
+                          <span
+                            className={`civic-badge-interactive rounded border px-2 py-0.5 font-mono text-[10px] font-bold uppercase ${priorityBadge.cls}`}
+                          >
+                            {priorityBadge.label}
                           </span>
-                        </p>
-                        <p className="text-[11px] text-[#667085] flex items-center gap-1">
-                          <Clock className="h-3 w-3 text-slate-400 shrink-0" />
-                          <span>{formatRelativeReportedTime(report.createdAt)}</span>
-                        </p>
-                      </div>
-
-                      {/* Priority & Status Row */}
-                      <div className="flex items-center justify-between gap-2 flex-wrap pt-1">
-                        <span
-                          className={`rounded border px-2 py-0.5 font-mono text-[10px] font-bold uppercase ${priorityBadge.cls}`}
-                        >
-                          {priorityBadge.label}
-                        </span>
-                        <span
-                          role="status"
-                          className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${statusDisplay.bgClass} ${statusDisplay.textColor}`}
-                        >
-                          <span className={`h-1.5 w-1.5 rounded-full ${statusDisplay.dotColor}`} />
-                          <span>{statusDisplay.label}</span>
-                        </span>
-                      </div>
-
-                      {/* Clean Progress Bar */}
-                      <div className="space-y-1 pt-1">
-                        <div className="flex items-center justify-between text-[11px] font-mono">
-                          <span className="text-[#667085]">Lifecycle Progress</span>
-                          <span className="font-bold text-[#101828]">{progressPct}%</span>
+                          <CivicTooltip content={`${statusDisplay.label} — Track municipal stages`} position="top">
+                            <span
+                              role="status"
+                              className={`civic-badge-interactive inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${statusDisplay.bgClass} ${statusDisplay.textColor}`}
+                            >
+                              <span className={`h-1.5 w-1.5 rounded-full ${statusDisplay.dotColor}`} />
+                              <span>{statusDisplay.label}</span>
+                            </span>
+                          </CivicTooltip>
                         </div>
-                        <div
-                          role="progressbar"
-                          aria-valuenow={progressPct}
-                          aria-valuemin={0}
-                          aria-valuemax={100}
-                          aria-label={`Issue progress ${progressPct}%`}
-                          className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden border border-[#E4E7EC]"
-                        >
+
+                        {/* Clean Progress Bar */}
+                        <div className="space-y-1 pt-1">
+                          <div className="flex items-center justify-between text-[11px] font-mono">
+                            <span className="text-[#667085]">Lifecycle Progress</span>
+                            <span className="font-bold text-[#101828]">{progressPct}%</span>
+                          </div>
                           <div
-                            className={`h-full rounded-full transition-all duration-300 ${
-                              report.status === "RESOLVED" || report.status === "CITIZEN_VERIFIED"
-                                ? "bg-[#12B76A]"
-                                : report.status === "IN_PROGRESS" || report.status === "ASSIGNED"
-                                ? "bg-[#2563EB]"
-                                : "bg-[#7C5CFC]"
-                            }`}
-                            style={{ width: `${progressPct}%` }}
-                          />
+                            role="progressbar"
+                            aria-valuenow={progressPct}
+                            aria-valuemin={0}
+                            aria-valuemax={100}
+                            aria-label={`Issue progress ${progressPct}%`}
+                            className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden border border-[#E4E7EC]"
+                          >
+                            <div
+                              className={`h-full rounded-full transition-all duration-300 ${
+                                report.status === "RESOLVED" || report.status === "CITIZEN_VERIFIED"
+                                  ? "bg-[#12B76A]"
+                                  : report.status === "IN_PROGRESS" || report.status === "ASSIGNED"
+                                  ? "bg-[#2563EB]"
+                                  : "bg-[#7C5CFC]"
+                              }`}
+                              style={{ width: `${progressPct}%` }}
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Card Action Footer */}
-                  <div className="px-4 py-3 border-t border-[#E4E7EC] bg-[#F7F9FC] flex items-center justify-between gap-2">
-                    <button
-                      type="button"
-                      onClick={() => onViewOnMap(report.id)}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-[#E4E7EC] bg-white hover:bg-slate-50 px-3 py-1.5 min-h-[36px] text-xs font-semibold text-[#344054] transition"
-                    >
-                      <MapPin className="h-3.5 w-3.5 text-[#2563EB]" />
-                      <span>View on Map</span>
-                    </button>
+                    {/* Card Action Footer */}
+                    <div className="px-4 py-3 border-t border-[#E4E7EC] bg-[#F7F9FC] flex items-center justify-between gap-2">
+                      <button
+                        type="button"
+                        onClick={() => onViewOnMap(report.id)}
+                        className="civic-btn-secondary inline-flex items-center gap-1.5 rounded-lg border border-[#E4E7EC] bg-white hover:bg-slate-50 hover:border-blue-300 px-3 py-1.5 min-h-[36px] text-xs font-semibold text-[#344054]"
+                      >
+                        <MapPin className="civic-pin-shift h-3.5 w-3.5 text-[#2563EB]" />
+                        <span>View on Map</span>
+                      </button>
 
-                    <button
-                      type="button"
-                      onClick={() => onViewDetails(report.id)}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-[#2563EB] hover:bg-blue-700 px-3.5 py-1.5 min-h-[36px] text-xs font-bold text-white shadow-xs transition"
-                    >
-                      <span>View Details</span>
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </motion.article>
+                      <button
+                        type="button"
+                        onClick={() => onViewDetails(report.id)}
+                        className="civic-btn-primary inline-flex items-center gap-1.5 rounded-lg bg-[#2563EB] hover:bg-blue-700 px-3.5 py-1.5 min-h-[36px] text-xs font-bold text-white shadow-xs"
+                      >
+                        <span>View Details</span>
+                        <ArrowRight className="civic-icon-shift h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </motion.article>
+                </CivicHoverPreview>
               );
             })}
           </div>

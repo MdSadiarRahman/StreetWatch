@@ -451,7 +451,7 @@ export default function AuthorityCommandCenter() {
             type="button"
             onClick={handleRecalculatePriorities}
             disabled={recalculating}
-            className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition-colors disabled:opacity-50 min-h-[36px]"
+            className="civic-btn-primary inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs disabled:opacity-50 min-h-[36px]"
             title="Trigger A02 Batch Dynamic Priority Recalculation"
             aria-label="Trigger A02 Dynamic Priority Recalculation"
           >
@@ -464,7 +464,7 @@ export default function AuthorityCommandCenter() {
             <button
               type="button"
               onClick={() => setShowNotifications(!showNotifications)}
-              className="relative p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg bg-[#0F172A] hover:bg-slate-800 border border-slate-800 text-slate-300 transition-colors"
+              className="civic-btn-secondary relative p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg bg-[#0F172A] hover:bg-slate-800 border border-slate-800 text-slate-300"
               aria-label="System notifications"
               aria-expanded={showNotifications}
             >
@@ -564,7 +564,7 @@ export default function AuthorityCommandCenter() {
                   onClick={() => setActiveSection(item.id as NavSection)}
                   aria-label={item.label}
                   aria-current={isActive ? "page" : undefined}
-                  className={`w-full min-h-[44px] flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                  className={`civic-btn-tertiary w-full min-h-[44px] flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                     isActive
                       ? "bg-blue-600 text-white shadow-xs"
                       : "text-slate-400 hover:text-white hover:bg-slate-800/60"
@@ -682,10 +682,10 @@ export default function AuthorityCommandCenter() {
           {(activeSection === "overview" || activeSection === "issues" || activeSection === "analytics") && (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {/* KPI 1: Open Issues */}
-            <div className="p-3.5 rounded-xl bg-[#0F172A] border border-slate-800 shadow-sm flex flex-col justify-between">
+            <div className="civic-interactive-card-dark group p-3.5 rounded-xl bg-[#0F172A] border border-slate-800 shadow-sm flex flex-col justify-between">
               <div className="flex items-center justify-between text-slate-400 text-[11px] font-mono uppercase tracking-wider">
                 <span>Open Issues</span>
-                <AlertTriangle className="h-3.5 w-3.5 text-blue-400" />
+                <AlertTriangle className="h-3.5 w-3.5 text-blue-400 civic-kpi-icon" />
               </div>
               <div className="mt-2 flex items-baseline justify-between">
                 <span className="font-mono text-2xl font-black text-white">{kpis.open}</span>
@@ -694,10 +694,10 @@ export default function AuthorityCommandCenter() {
             </div>
 
             {/* KPI 2: Critical Issues */}
-            <div className="p-3.5 rounded-xl bg-[#1A1016] border border-red-900/60 shadow-sm flex flex-col justify-between">
+            <div className="civic-interactive-card-dark hover:border-red-500/70 hover:shadow-civic-critical group p-3.5 rounded-xl bg-[#1A1016] border border-red-900/60 shadow-sm flex flex-col justify-between">
               <div className="flex items-center justify-between text-red-400 text-[11px] font-mono uppercase tracking-wider">
                 <span>Critical Issues</span>
-                <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+                <span className="h-2 w-2 rounded-full bg-red-500" aria-hidden="true" />
               </div>
               <div className="mt-2 flex items-baseline justify-between">
                 <span className="font-mono text-2xl font-black text-red-400">{kpis.critical}</span>
@@ -706,10 +706,10 @@ export default function AuthorityCommandCenter() {
             </div>
 
             {/* KPI 3: In Progress */}
-            <div className="p-3.5 rounded-xl bg-[#16130B] border border-amber-900/60 shadow-sm flex flex-col justify-between">
+            <div className="civic-interactive-card-dark hover:border-amber-500/60 hover:shadow-civic-warning group p-3.5 rounded-xl bg-[#16130B] border border-amber-900/60 shadow-sm flex flex-col justify-between">
               <div className="flex items-center justify-between text-amber-400 text-[11px] font-mono uppercase tracking-wider">
                 <span>In Progress</span>
-                <HardHat className="h-3.5 w-3.5 text-amber-500" />
+                <HardHat className="h-3.5 w-3.5 text-amber-500 civic-kpi-icon" />
               </div>
               <div className="mt-2 flex items-baseline justify-between">
                 <span className="font-mono text-2xl font-black text-amber-400">{kpis.inProgress}</span>
@@ -718,10 +718,10 @@ export default function AuthorityCommandCenter() {
             </div>
 
             {/* KPI 4: Resolved Today */}
-            <div className="p-3.5 rounded-xl bg-[#0A1612] border border-emerald-900/60 shadow-sm flex flex-col justify-between">
+            <div className="civic-interactive-card-dark hover:border-emerald-500/60 hover:shadow-civic-success group p-3.5 rounded-xl bg-[#0A1612] border border-emerald-900/60 shadow-sm flex flex-col justify-between">
               <div className="flex items-center justify-between text-emerald-400 text-[11px] font-mono uppercase tracking-wider">
                 <span>Resolved Today</span>
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 civic-kpi-icon" />
               </div>
               <div className="mt-2 flex items-baseline justify-between">
                 <span className="font-mono text-2xl font-black text-emerald-400">{kpis.resolved}</span>
@@ -730,10 +730,10 @@ export default function AuthorityCommandCenter() {
             </div>
 
             {/* KPI 5: SLA Breaches */}
-            <div className="p-3.5 rounded-xl bg-[#1A0E11] border border-rose-900/60 shadow-sm flex flex-col justify-between">
+            <div className="civic-interactive-card-dark hover:border-rose-500/70 hover:shadow-civic-critical group p-3.5 rounded-xl bg-[#1A0E11] border border-rose-900/60 shadow-sm flex flex-col justify-between">
               <div className="flex items-center justify-between text-rose-400 text-[11px] font-mono uppercase tracking-wider">
                 <span>SLA Breaches</span>
-                <Clock className="h-3.5 w-3.5 text-rose-500" />
+                <Clock className="h-3.5 w-3.5 text-rose-500 civic-kpi-icon" />
               </div>
               <div className="mt-2 flex items-baseline justify-between">
                 <span className="font-mono text-2xl font-black text-rose-400">{kpis.slaBreaches}</span>
@@ -742,10 +742,10 @@ export default function AuthorityCommandCenter() {
             </div>
 
             {/* KPI 6: Available Crews */}
-            <div className="p-3.5 rounded-xl bg-[#0B1322] border border-blue-900/60 shadow-sm flex flex-col justify-between">
+            <div className="civic-interactive-card-dark group p-3.5 rounded-xl bg-[#0B1322] border border-blue-900/60 shadow-sm flex flex-col justify-between">
               <div className="flex items-center justify-between text-blue-400 text-[11px] font-mono uppercase tracking-wider">
                 <span>Available Crews</span>
-                <Users className="h-3.5 w-3.5 text-blue-500" />
+                <Users className="h-3.5 w-3.5 text-blue-500 civic-kpi-icon" />
               </div>
               <div className="mt-2 flex items-baseline justify-between">
                 <span className="font-mono text-2xl font-black text-blue-400">{kpis.availableCrews}</span>
@@ -757,17 +757,17 @@ export default function AuthorityCommandCenter() {
 
           {/* 4. CRITICAL ISSUE TICKER PANEL (Visible on Overview) */}
           {activeSection === "overview" && criticalAlerts.length > 0 && (
-            <div className="p-3 rounded-xl bg-[#1A0C10] border border-red-900/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+            <div className="civic-interactive-card-dark hover:border-red-500/70 hover:shadow-civic-critical p-3 rounded-xl bg-[#1A0C10] border border-red-900/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
               <div className="flex items-center gap-2.5">
                 <div className="h-8 w-8 rounded-lg bg-red-600/30 border border-red-500 flex items-center justify-center text-red-400 shrink-0">
-                  <ShieldAlert className="h-4 w-4 text-red-400 animate-pulse" />
+                  <ShieldAlert className="h-4 w-4 text-red-400" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-mono font-bold text-xs text-red-400 tracking-wider">
                       CRITICAL PRIORITY HAZARD ESCALATION
                     </span>
-                    <span className="px-1.5 py-0.2 rounded bg-red-900/80 text-white font-mono text-[9px] font-bold">
+                    <span className="civic-badge-interactive px-1.5 py-0.2 rounded bg-red-900/80 text-white font-mono text-[9px] font-bold">
                       ACTION REQUIRED
                     </span>
                   </div>
@@ -782,7 +782,7 @@ export default function AuthorityCommandCenter() {
                 <button
                   type="button"
                   onClick={() => setSelectedReportId(criticalAlerts[0].id)}
-                  className="px-3 py-1.5 rounded-md border border-red-800/80 bg-red-950/60 hover:bg-red-900/60 text-red-200 text-xs font-bold transition-colors"
+                  className="civic-btn-secondary px-3 py-1.5 rounded-md border border-red-800/80 bg-red-950/60 hover:bg-red-900/60 text-red-200 text-xs font-bold"
                 >
                   Locate on Map
                 </button>
@@ -790,7 +790,7 @@ export default function AuthorityCommandCenter() {
                   type="button"
                   onClick={() => handleAutoAssign(criticalAlerts[0].id, criticalAlerts[0].title)}
                   disabled={assigningId === criticalAlerts[0].id}
-                  className="px-3.5 py-1.5 rounded-md bg-red-600 hover:bg-red-700 text-white font-bold text-xs transition-colors flex items-center gap-1.5 shadow-sm disabled:opacity-50"
+                  className="civic-btn-primary px-3.5 py-1.5 rounded-md bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm disabled:opacity-50"
                 >
                   <Zap className="h-3.5 w-3.5" />
                   <span>{assigningId === criticalAlerts[0].id ? "Dispatching..." : "1-Click A02 Dispatch"}</span>
@@ -1020,7 +1020,7 @@ export default function AuthorityCommandCenter() {
                 {(analytics?.departmentStats || []).map((dept) => {
                   const pct = dept.totalCapacity > 0 ? Math.round((dept.activeLoad / dept.totalCapacity) * 100) : 0;
                   return (
-                    <div key={dept.id} className="p-4 rounded-xl bg-[#0F172A] border border-slate-800 space-y-3 shadow-sm">
+                    <div key={dept.id} className="civic-interactive-card-dark p-4 rounded-xl bg-[#0F172A] border border-slate-800 space-y-3 shadow-sm">
                       <div className="flex items-start justify-between gap-2 border-b border-slate-800 pb-3">
                         <div>
                           <h2 className="text-sm font-bold text-white flex items-center gap-2">
@@ -1089,7 +1089,7 @@ export default function AuthorityCommandCenter() {
           {activeSection === "analytics" && (
             <section aria-label="SLA Monitoring and Ward Vulnerability Analytics" className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 rounded-xl bg-[#0F172A] border border-slate-800 space-y-1">
+                <div className="civic-interactive-card-dark hover:shadow-civic-success p-4 rounded-xl bg-[#0F172A] border border-slate-800 space-y-1">
                   <span className="text-[10px] font-mono uppercase text-slate-400">City Resolution Rate</span>
                   <div className="font-mono text-3xl font-black text-emerald-400">
                     {analytics?.resolutionRatePercent ?? 0}%
@@ -1099,7 +1099,7 @@ export default function AuthorityCommandCenter() {
                   </p>
                 </div>
 
-                <div className="p-4 rounded-xl bg-[#0F172A] border border-slate-800 space-y-1">
+                <div className="civic-interactive-card-dark p-4 rounded-xl bg-[#0F172A] border border-slate-800 space-y-1">
                   <span className="text-[10px] font-mono uppercase text-slate-400">Average AI Priority Index</span>
                   <div className="font-mono text-3xl font-black text-blue-400">
                     P-{analytics?.avgPriorityScore ?? 0}
@@ -1107,7 +1107,7 @@ export default function AuthorityCommandCenter() {
                   <p className="text-xs text-slate-400">Mean deterministic risk weighting across active registry</p>
                 </div>
 
-                <div className="p-4 rounded-xl bg-[#0F172A] border border-slate-800 space-y-1">
+                <div className="civic-interactive-card-dark hover:shadow-civic-warning p-4 rounded-xl bg-[#0F172A] border border-slate-800 space-y-1">
                   <span className="text-[10px] font-mono uppercase text-slate-400">Workforce Utilization</span>
                   <div className="font-mono text-3xl font-black text-amber-400">
                     {analytics?.workforceCapacity.utilizationPercent ?? 0}%
@@ -1138,7 +1138,7 @@ export default function AuthorityCommandCenter() {
                     {(analytics?.wardHotspots || []).map((ward) => (
                       <div
                         key={ward.wardZone}
-                        className="p-3.5 rounded-lg bg-slate-900/90 border border-slate-800 flex items-center justify-between"
+                        className="civic-interactive-card-dark p-3.5 rounded-lg bg-slate-900/90 border border-slate-800 flex items-center justify-between"
                       >
                         <div>
                           <div className="font-bold text-white text-sm">{ward.wardZone}</div>
@@ -1228,7 +1228,7 @@ export default function AuthorityCommandCenter() {
 
           {activeSection === "settings" && (
             <section aria-label="Dispatch Policies and Decision Governance" className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 rounded-xl bg-[#0F172A] border border-slate-800 space-y-3">
+              <div className="civic-interactive-card-dark p-4 rounded-xl bg-[#0F172A] border border-slate-800 space-y-3">
                 <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
                   <ShieldCheck className="h-4 w-4 text-blue-400" />
                   <h2 className="font-mono font-bold text-xs text-white uppercase tracking-wider">
@@ -1251,7 +1251,7 @@ export default function AuthorityCommandCenter() {
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-[#0F172A] border border-slate-800 space-y-3">
+              <div className="civic-interactive-card-dark p-4 rounded-xl bg-[#0F172A] border border-slate-800 space-y-3">
                 <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
                   <Clock className="h-4 w-4 text-amber-400" />
                   <h2 className="font-mono font-bold text-xs text-white uppercase tracking-wider">
@@ -1382,7 +1382,7 @@ export default function AuthorityCommandCenter() {
                       <tr
                         key={report.id}
                         onClick={() => setSelectedReportId(report.id)}
-                        className={`cursor-pointer transition-colors relative ${
+                        className={`civic-table-row cursor-pointer relative ${
                           isSelected
                             ? "bg-blue-950/60 text-white font-medium"
                             : "hover:bg-slate-900/60 text-slate-300"
@@ -1498,7 +1498,7 @@ export default function AuthorityCommandCenter() {
                                 type="button"
                                 onClick={() => handleAutoAssign(report.id, report.title)}
                                 disabled={assigningId === report.id}
-                                className="px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] transition-colors shadow-xs disabled:opacity-50"
+                                className="civic-btn-primary px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] shadow-xs disabled:opacity-50"
                                 title="Auto-Assign Crew with A02 Optimizer"
                               >
                                 {assigningId === report.id ? "Assigning..." : "Assign"}
@@ -1511,7 +1511,7 @@ export default function AuthorityCommandCenter() {
                                 type="button"
                                 onClick={() => handleSimulateFailure(report.id)}
                                 disabled={simulatingId === report.id}
-                                className="p-1 rounded hover:bg-red-950 border border-red-900 text-red-400"
+                                className="civic-btn-secondary p-1 rounded hover:bg-red-950 border border-red-900 text-red-400"
                                 title="Simulate Step Failure (A07 test)"
                               >
                                 <Bug className="h-3.5 w-3.5" />
@@ -1524,7 +1524,7 @@ export default function AuthorityCommandCenter() {
                                 type="button"
                                 onClick={() => handleRecoverWorkflow(report.id)}
                                 disabled={recoveringId === report.id}
-                                className="px-2 py-1 rounded bg-purple-600 hover:bg-purple-700 text-white font-bold text-[11px]"
+                                className="civic-btn-primary px-2 py-1 rounded bg-purple-600 hover:bg-purple-700 text-white font-bold text-[11px]"
                                 title="A07 Automated Workflow Recovery"
                               >
                                 {recoveringId === report.id ? "Recovering..." : "Recover"}
@@ -1534,10 +1534,10 @@ export default function AuthorityCommandCenter() {
                             {/* Inspect Link */}
                             <Link
                               href={`/reports/${report.id}`}
-                              className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white"
+                              className="civic-btn-tertiary group/link p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white"
                               title="Open Operational Dossier"
                             >
-                              <ArrowRight className="h-3.5 w-3.5" />
+                              <ArrowRight className="h-3.5 w-3.5 civic-icon-shift" />
                             </Link>
                           </div>
                         </td>

@@ -68,6 +68,11 @@ const config: Config = {
         glow: "0 0 16px -2px rgba(29, 78, 216, 0.25)",
         overlay: "0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.03)",
         focus: "0 0 0 3px rgba(29, 78, 216, 0.2)",
+        "civic-hover": "0 10px 28px -6px rgba(15, 23, 42, 0.10), 0 8px 30px rgba(37, 99, 235, 0.12)",
+        "civic-ai": "0 8px 26px -4px rgba(124, 92, 252, 0.14)",
+        "civic-success": "0 8px 24px -4px rgba(18, 183, 106, 0.14)",
+        "civic-warning": "0 8px 24px -4px rgba(247, 144, 9, 0.14)",
+        "civic-critical": "0 8px 24px -4px rgba(217, 45, 32, 0.14)",
       },
       backdropBlur: {
         xs: "2px",

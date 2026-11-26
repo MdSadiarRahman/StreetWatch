@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { motion, useReducedMotion } from "framer-motion";
 
 export interface CardProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "onAnimationStart" | "onDragStart" | "onDragEnd" | "onDrag"> {
@@ -16,25 +15,16 @@ export function Card({
   className = "",
   ...props
 }: CardProps) {
-  const shouldReduceMotion = useReducedMotion();
-
-  const hoverClasses = hoverable
-    ? "hover:border-slate-300 hover:shadow-md transition-shadow"
-    : "";
+  const hoverClasses = hoverable ? "civic-interactive-card" : "";
   const paddingClasses = padded ? "p-5 sm:p-6" : "";
 
   return (
-    <motion.div
-      whileHover={
-        shouldReduceMotion || !hoverable
-          ? undefined
-          : { y: -2, transition: { duration: 0.15, ease: "easeOut" } }
-      }
+    <div
       className={`civic-card ${hoverClasses} ${paddingClasses} ${className}`}
-      {...(props as any)}
+      {...props}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -72,26 +62,18 @@ export function MetricCard({
   subtext,
   icon,
   trend,
-  indicatorColor,
   className = "",
 }: MetricCardProps) {
-  const shouldReduceMotion = useReducedMotion();
-
   return (
-    <motion.div
-      whileHover={
-        shouldReduceMotion
-          ? undefined
-          : { y: -1.5, transition: { duration: 0.15, ease: "easeOut" } }
-      }
-      className={`civic-card p-5 space-y-2 hover:border-slate-300 transition-colors ${className}`}
+    <div
+      className={`civic-card civic-interactive-card p-5 space-y-2 ${className}`}
     >
       <div className="flex items-center justify-between">
         <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
           {label}
         </span>
         {icon && (
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-slate-100 text-slate-700">
+          <div className="civic-kpi-icon flex h-8 w-8 items-center justify-center rounded-md border border-transparent bg-slate-100 text-slate-700">
             {icon}
           </div>
         )}
@@ -113,6 +95,6 @@ export function MetricCard({
           </span>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }

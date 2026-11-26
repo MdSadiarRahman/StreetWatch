@@ -77,12 +77,18 @@ export const IssuePriorityIndicator: React.FC<IssuePriorityIndicatorProps> = ({
   return (
     <div className={`inline-flex flex-col gap-1 ${className}`}>
       <div
-        className={`inline-flex items-center gap-1.5 font-mono font-bold rounded-md border ${tier.badgeClass} ${sizeClasses[size]}`}
+        className={`civic-badge-interactive inline-flex items-center gap-1.5 font-mono font-bold rounded-md border ${
+          normalizedScore >= 80
+            ? "hover:shadow-civic-critical"
+            : normalizedScore >= 60
+            ? "hover:shadow-civic-warning"
+            : ""
+        } ${tier.badgeClass} ${sizeClasses[size]}`}
         title={`Priority Score: ${normalizedScore}/100 (${tier.label})`}
         aria-label={`Priority ${normalizedScore} out of 100, ${tier.label}`}
       >
         <span
-          className={`h-2 w-2 rounded-full ${tier.dotClass} ${normalizedScore >= 80 ? "animate-pulse" : ""}`}
+          className={`h-2 w-2 rounded-full ${tier.dotClass}`}
           aria-hidden="true"
         />
         <span>P-{normalizedScore}</span>

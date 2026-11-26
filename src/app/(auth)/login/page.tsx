@@ -125,10 +125,10 @@ function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="btn-tactile mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-civic hover:bg-civic-hover py-3 px-4 text-sm font-bold text-white shadow-sm border border-blue-800/20 disabled:opacity-50"
+            className="civic-btn-primary group mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-civic hover:bg-civic-hover py-3 px-4 text-sm font-bold text-white shadow-sm border border-blue-800/20 disabled:opacity-50"
           >
             {loading ? "Authenticating..." : "Sign In to Grid"}
-            {!loading && <ArrowRight className="h-4 w-4" />}
+            {!loading && <ArrowRight className="h-4 w-4 civic-icon-shift" />}
           </button>
         </form>
 
@@ -147,10 +147,10 @@ function LoginForm() {
               type="button"
               onClick={() => handleDemoLogin("citizen@streetwatch.demo")}
               disabled={loading}
-              className="btn-tactile flex items-center justify-between rounded-xl border border-blue-200/90 bg-blue-50/40 p-3 hover:border-blue-300 hover:bg-blue-50/80 hover:shadow-2xs text-left transition-colors"
+              className="civic-interactive-card group flex items-center justify-between rounded-xl border border-blue-200/90 bg-blue-50/40 p-3 hover:border-blue-300 hover:bg-blue-50/80 text-left"
             >
               <div className="flex items-center gap-2.5">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-2xs">
+                <span className="civic-kpi-icon flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-2xs">
                   <User className="h-4 w-4" />
                 </span>
                 <div>
@@ -168,10 +168,10 @@ function LoginForm() {
               type="button"
               onClick={() => handleDemoLogin("admin@streetwatch.demo")}
               disabled={loading}
-              className="btn-tactile flex items-center justify-between rounded-xl border border-rose-200/90 bg-rose-50/40 p-3 hover:border-rose-300 hover:bg-rose-50/80 hover:shadow-2xs text-left transition-colors"
+              className="civic-interactive-card hover:shadow-civic-critical group flex items-center justify-between rounded-xl border border-rose-200/90 bg-rose-50/40 p-3 hover:border-rose-300 hover:bg-rose-50/80 text-left"
             >
               <div className="flex items-center gap-2.5">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-600 text-white shadow-2xs">
+                <span className="civic-kpi-icon flex h-8 w-8 items-center justify-center rounded-lg bg-rose-600 text-white shadow-2xs">
                   <Building2 className="h-4 w-4" />
                 </span>
                 <div>
@@ -189,10 +189,10 @@ function LoginForm() {
               type="button"
               onClick={() => handleDemoLogin("worker1@streetwatch.demo")}
               disabled={loading}
-              className="btn-tactile flex items-center justify-between rounded-xl border border-amber-200/90 bg-amber-50/40 p-3 hover:border-amber-300 hover:bg-amber-50/80 hover:shadow-2xs text-left transition-colors"
+              className="civic-interactive-card hover:shadow-civic-warning group flex items-center justify-between rounded-xl border border-amber-200/90 bg-amber-50/40 p-3 hover:border-amber-300 hover:bg-amber-50/80 text-left"
             >
               <div className="flex items-center gap-2.5">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500 text-white shadow-2xs">
+                <span className="civic-kpi-icon flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500 text-white shadow-2xs">
                   <HardHat className="h-4 w-4" />
                 </span>
                 <div>

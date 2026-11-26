@@ -30,7 +30,9 @@ const CityMapCanvas = dynamic(() => import("@/components/map/CityMapCanvas"), {
 export interface PublicMapSectionProps {
   reports: MapReportPin[];
   selectedReportId: string | null;
+  hoveredReportId?: string | null;
   onSelectReport: (id: string | null) => void;
+  onHoverReport?: (id: string | null) => void;
   onOpenDetails: (reportId: string) => void;
   onVerifyReport: (reportId: string) => void;
   loading?: boolean;
@@ -39,7 +41,9 @@ export interface PublicMapSectionProps {
 export function PublicMapSection({
   reports,
   selectedReportId,
+  hoveredReportId = null,
   onSelectReport,
+  onHoverReport,
   onOpenDetails,
   onVerifyReport,
   loading = false,
@@ -71,10 +75,10 @@ export function PublicMapSection({
           </div>
           <Link
             href="#recent-reports"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2563EB] hover:underline self-start sm:self-auto"
+            className="civic-link-interactive inline-flex items-center gap-1.5 text-xs font-bold text-[#2563EB] hover:text-blue-800 hover:underline self-start sm:self-auto"
           >
             <span>Filter &amp; search all reports</span>
-            <ArrowRight className="h-3.5 w-3.5" />
+            <ArrowRight className="civic-icon-shift h-3.5 w-3.5" />
           </Link>
         </div>
 
@@ -85,7 +89,9 @@ export function PublicMapSection({
             <CityMapCanvas
               reports={reports}
               selectedReportId={selectedReportId}
+              hoveredReportId={hoveredReportId}
               onSelectReport={(id) => onSelectReport(id)}
+              onHoverReport={onHoverReport}
               onVerifyReport={onVerifyReport}
               disableOverlayDrawer={true}
               containedMode={true}
@@ -184,7 +190,7 @@ export function PublicMapSection({
                   <button
                     type="button"
                     onClick={() => onVerifyReport(selectedReport.id)}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#E4E7EC] bg-white hover:bg-slate-50 px-3 py-2 min-h-[40px] text-xs font-bold text-[#101828] transition"
+                    className="civic-btn-secondary inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#E4E7EC] bg-white hover:bg-slate-50 hover:border-blue-300 px-3 py-2 min-h-[40px] text-xs font-bold text-[#101828]"
                   >
                     <ThumbsUp className="h-3.5 w-3.5 text-[#2563EB]" />
                     <span>Verify ({selectedReport.verificationCount})</span>
@@ -193,17 +199,17 @@ export function PublicMapSection({
                   <button
                     type="button"
                     onClick={() => onOpenDetails(selectedReport.id)}
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#2563EB] hover:bg-blue-700 px-3 py-2 min-h-[40px] text-xs font-bold text-white shadow-sm transition"
+                    className="civic-btn-primary flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#2563EB] hover:bg-blue-700 px-3 py-2 min-h-[40px] text-xs font-bold text-white shadow-sm"
                   >
                     <span>View Details</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
+                    <ArrowRight className="civic-icon-shift h-3.5 w-3.5" />
                   </button>
 
                   <Link
                     href={`/reports/${selectedReport.id}`}
                     aria-label="Open full issue permalink page"
                     title="Open full page record"
-                    className="p-2 min-h-[40px] min-w-[40px] rounded-lg border border-[#E4E7EC] bg-white hover:bg-slate-50 text-[#667085] hover:text-[#101828] flex items-center justify-center"
+                    className="civic-btn-secondary p-2 min-h-[40px] min-w-[40px] rounded-lg border border-[#E4E7EC] bg-white hover:bg-slate-50 text-[#667085] hover:text-[#101828] flex items-center justify-center"
                   >
                     <ExternalLink className="h-4 w-4" />
                   </Link>
@@ -238,41 +244,50 @@ export function PublicMapSection({
                       No reported issues match your current filters.
                     </div>
                   ) : (
-                    reports.slice(0, 12).map((rep) => (
-                      <button
-                        key={rep.id}
-                        type="button"
-                        onClick={() => onSelectReport(rep.id)}
-                        className="w-full text-left p-3 rounded-xl hover:bg-[#F7F9FC] transition flex flex-col gap-1.5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]"
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-[10px] font-mono font-bold uppercase text-[#667085] truncate">
-                            {rep.category?.name || "Hazard"} &bull; {rep.wardZone}
-                          </span>
-                          <span
-                            className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded border shrink-0 ${
-                              rep.status === "RESOLVED" || rep.status === "CITIZEN_VERIFIED"
-                                ? "bg-emerald-50 text-[#12B76A] border-emerald-200"
-                                : rep.priorityScore >= 80
-                                ? "bg-rose-50 text-[#D92D20] border-rose-200"
-                                : "bg-amber-50 text-[#B45309] border-amber-200"
-                            }`}
-                          >
-                            P-{Math.round(rep.priorityScore)}
-                          </span>
-                        </div>
-                        <div className="text-xs font-bold text-[#101828] group-hover:text-[#2563EB] transition line-clamp-1">
-                          {rep.title}
-                        </div>
-                        <div className="flex items-center justify-between text-[11px] text-[#667085]">
-                          <span className="truncate flex items-center gap-1 pr-2">
-                            <MapPin className="h-3 w-3 shrink-0 text-slate-400" />
-                            <span className="truncate">{rep.address}</span>
-                          </span>
-                          <StatusBadge status={rep.status} size="sm" />
-                        </div>
-                      </button>
-                    ))
+                    reports.slice(0, 12).map((rep) => {
+                      const isMarkerHovered = hoveredReportId === rep.id;
+                      return (
+                        <button
+                          key={rep.id}
+                          type="button"
+                          onClick={() => onSelectReport(rep.id)}
+                          onMouseEnter={() => onHoverReport?.(rep.id)}
+                          onMouseLeave={() => onHoverReport?.(null)}
+                          className={`civic-interactive-card w-full text-left p-3 rounded-xl transition flex flex-col gap-1.5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] border ${
+                            isMarkerHovered
+                              ? "bg-blue-50/70 border-[#2563EB] ring-1 ring-blue-500/20 shadow-civic-hover"
+                              : "border-transparent hover:bg-[#F7F9FC]"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-[10px] font-mono font-bold uppercase text-[#667085] truncate">
+                              {rep.category?.name || "Hazard"} &bull; {rep.wardZone}
+                            </span>
+                            <span
+                              className={`font-mono text-[10px] font-bold px-1.5 py-0.5 rounded border shrink-0 ${
+                                rep.status === "RESOLVED" || rep.status === "CITIZEN_VERIFIED"
+                                  ? "bg-emerald-50 text-[#12B76A] border-emerald-200"
+                                  : rep.priorityScore >= 80
+                                  ? "bg-rose-50 text-[#D92D20] border-rose-200"
+                                  : "bg-amber-50 text-[#B45309] border-amber-200"
+                              }`}
+                            >
+                              P-{Math.round(rep.priorityScore)}
+                            </span>
+                          </div>
+                          <div className="text-xs font-bold text-[#101828] group-hover:text-[#2563EB] transition line-clamp-1">
+                            {rep.title}
+                          </div>
+                          <div className="flex items-center justify-between text-[11px] text-[#667085]">
+                            <span className="truncate flex items-center gap-1 pr-2">
+                              <MapPin className="civic-pin-shift h-3 w-3 shrink-0 text-slate-400" />
+                              <span className="truncate">{rep.address}</span>
+                            </span>
+                            <StatusBadge status={rep.status} size="sm" />
+                          </div>
+                        </button>
+                      );
+                    })
                   )}
                 </div>
               </div>

@@ -250,7 +250,7 @@ export default function ReportDetailsPage({
           <div className="mt-4">
             <Link
               href="/"
-              className="btn-tactile inline-flex items-center gap-1.5 rounded-lg bg-civic px-4 py-2 text-xs font-bold text-white shadow-2xs"
+              className="civic-btn-primary inline-flex items-center gap-1.5 rounded-lg bg-civic px-4 py-2 text-xs font-bold text-white shadow-2xs"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               Return to City Map
@@ -271,7 +271,7 @@ export default function ReportDetailsPage({
         <div className="flex items-center justify-between border-b border-[#E4E7EC] pb-4">
           <Link
             href="/"
-            className="btn-tactile inline-flex items-center gap-1.5 rounded-lg border border-[#E4E7EC] bg-white px-3 py-1.5 text-xs font-bold text-[#101828] shadow-2xs hover:bg-slate-50 transition"
+            className="civic-btn-secondary inline-flex items-center gap-1.5 rounded-lg border border-[#E4E7EC] bg-white px-3 py-1.5 text-xs font-bold text-[#101828] shadow-2xs hover:bg-slate-50"
           >
             <ArrowLeft className="h-3.5 w-3.5 text-[#667085]" />
             <span>Back to Public Portal</span>
@@ -390,7 +390,7 @@ export default function ReportDetailsPage({
 
           {/* Citizen Final Sign-Off Action Card (When in RESOLVED status) */}
           {isResolved && report.isReporter && (
-            <div className="civic-card p-6 bg-emerald-50/60 border border-emerald-300 space-y-4">
+            <div className="civic-card civic-interactive-card hover:shadow-civic-success p-6 bg-emerald-50/60 border border-emerald-300 space-y-4">
               <div className="flex items-center gap-2.5 text-emerald-950">
                 <ShieldCheck className="h-5 w-5 text-emerald-700 shrink-0" />
                 <div>
@@ -422,7 +422,7 @@ export default function ReportDetailsPage({
                     <button
                       onClick={() => handleSignOff(false)}
                       disabled={signingOff}
-                      className="btn-tactile flex items-center gap-1.5 rounded-lg bg-red-700 hover:bg-red-800 px-4 py-2 text-xs font-bold text-white disabled:opacity-50"
+                      className="civic-btn-primary flex items-center gap-1.5 rounded-lg bg-red-700 hover:bg-red-800 px-4 py-2 text-xs font-bold text-white disabled:opacity-50"
                     >
                       <RotateCcw className="h-3.5 w-3.5" />
                       {signingOff ? "Reopening..." : "Dispute Repair & Reopen"}
@@ -434,7 +434,7 @@ export default function ReportDetailsPage({
                   <button
                     onClick={() => handleSignOff(true)}
                     disabled={signingOff}
-                    className="btn-tactile flex-1 flex items-center justify-center gap-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 py-3 px-4 text-xs font-bold text-white shadow-2xs disabled:opacity-50"
+                    className="civic-btn-primary flex-1 flex items-center justify-center gap-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 py-3 px-4 text-xs font-bold text-white shadow-2xs disabled:opacity-50"
                   >
                     <Check className="h-4 w-4" />
                     {signingOff ? "Confirming..." : "Approve Repair & Close Incident (+0.1 Trust Score)"}
@@ -443,7 +443,7 @@ export default function ReportDetailsPage({
                   <button
                     onClick={() => setShowDisputeInput(true)}
                     disabled={signingOff}
-                    className="btn-tactile rounded-lg border border-rose-300 bg-white hover:bg-rose-50 px-4 py-3 text-xs font-bold text-rose-700 disabled:opacity-50"
+                    className="civic-btn-secondary rounded-lg border border-rose-300 bg-white hover:bg-rose-50 px-4 py-3 text-xs font-bold text-rose-700 disabled:opacity-50"
                   >
                     Dispute &amp; Reopen
                   </button>
@@ -510,7 +510,7 @@ export default function ReportDetailsPage({
                   type="button"
                   onClick={() => handleVerifyVote("CONFIRM")}
                   disabled={voting}
-                  className="btn-tactile flex-1 flex items-center justify-center gap-2 rounded-lg bg-civic hover:bg-civic-hover py-2.5 px-4 text-xs font-bold text-white shadow-2xs disabled:opacity-50"
+                  className="civic-btn-primary flex-1 flex items-center justify-center gap-2 rounded-lg bg-civic hover:bg-civic-hover py-2.5 px-4 text-xs font-bold text-white shadow-2xs disabled:opacity-50"
                 >
                   <ThumbsUp className="h-4 w-4" />
                   {voting ? "Recording..." : "Verify Hazard Exists (+1 Vote)"}
@@ -520,7 +520,7 @@ export default function ReportDetailsPage({
                   type="button"
                   onClick={() => handleVerifyVote("FLAG_FALSE")}
                   disabled={voting}
-                  className="btn-tactile flex items-center justify-center gap-1.5 rounded-lg border border-rose-300 bg-white hover:bg-rose-50 py-2.5 px-4 text-xs font-bold text-rose-700 disabled:opacity-50"
+                  className="civic-btn-secondary flex items-center justify-center gap-1.5 rounded-lg border border-rose-300 bg-white hover:bg-rose-50 py-2.5 px-4 text-xs font-bold text-rose-700 disabled:opacity-50"
                 >
                   <Flag className="h-3.5 w-3.5 text-rose-600" />
                   Flag Inaccurate
@@ -533,7 +533,7 @@ export default function ReportDetailsPage({
         {/* Right Column (4 cols): Focused Issue Location, Municipal Action, Explainable AI & Workflow */}
         <div className="space-y-6 lg:col-span-4">
           {/* Focused Location Map (ONLY this specific issue — NOT full city map) */}
-          <div className="civic-card p-5 space-y-3 border-[#E4E7EC]">
+          <div className="civic-card civic-interactive-card p-5 space-y-3 border-[#E4E7EC]">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold uppercase tracking-wider text-[#101828] flex items-center gap-1.5">
                 <MapPin className="h-4 w-4 text-[#2563EB]" />
@@ -553,7 +553,7 @@ export default function ReportDetailsPage({
           </div>
 
           {/* Municipal Action Summary Card */}
-          <div className="civic-card p-5 space-y-3 border-[#E4E7EC]">
+          <div className="civic-card civic-interactive-card p-5 space-y-3 border-[#E4E7EC]">
             <h3 className="text-xs font-bold uppercase tracking-wider text-[#101828] flex items-center gap-1.5">
               <Wrench className="h-4 w-4 text-[#2563EB]" />
               <span>Municipal Action</span>

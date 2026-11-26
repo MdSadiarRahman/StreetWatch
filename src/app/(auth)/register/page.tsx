@@ -159,10 +159,10 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-tactile mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-civic hover:bg-civic-hover py-3 px-4 text-sm font-bold text-white shadow-sm border border-blue-800/20 disabled:opacity-50"
+              className="civic-btn-primary group mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-civic hover:bg-civic-hover py-3 px-4 text-sm font-bold text-white shadow-sm border border-blue-800/20 disabled:opacity-50"
             >
               {loading ? "Creating Citizen Profile..." : "Complete Registration"}
-              {!loading && <ArrowRight className="h-4 w-4" />}
+              {!loading && <ArrowRight className="h-4 w-4 civic-icon-shift" />}
             </button>
           </form>
         </div>

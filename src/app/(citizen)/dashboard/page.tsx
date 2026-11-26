@@ -133,7 +133,7 @@ export default async function CitizenDashboardPage() {
 
         <Link
           href="/report"
-          className="btn-tactile inline-flex items-center justify-center gap-2 rounded-lg bg-civic hover:bg-civic-hover px-4 py-2.5 text-xs font-bold text-white shadow-2xs transition"
+          className="civic-btn-primary inline-flex items-center justify-center gap-2 rounded-lg bg-civic hover:bg-civic-hover px-4 py-2.5 text-xs font-bold text-white shadow-2xs"
         >
           <PlusCircle className="h-4 w-4" />
           <span>Report New Hazard</span>
@@ -143,7 +143,7 @@ export default async function CitizenDashboardPage() {
       {/* 3 Precision Swiss Metric Tiles */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {/* Metric 1 */}
-        <div className="civic-card p-5 flex items-center justify-between">
+        <div className="civic-card civic-interactive-card group p-5 flex items-center justify-between">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
               Reports Submitted
@@ -153,13 +153,13 @@ export default async function CitizenDashboardPage() {
             </div>
             <span className="text-[11px] text-slate-400 font-medium">Logged in municipal ledger</span>
           </div>
-          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-blue-50 text-civic border border-blue-200">
+          <div className="civic-kpi-icon flex h-11 w-11 items-center justify-center rounded-lg bg-blue-50 text-civic border border-blue-200">
             <FileText className="h-5 w-5" />
           </div>
         </div>
 
         {/* Metric 2 */}
-        <div className="civic-card p-5 flex items-center justify-between">
+        <div className="civic-card civic-interactive-card hover:shadow-civic-warning group p-5 flex items-center justify-between">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
               Community Votes Cast
@@ -169,13 +169,13 @@ export default async function CitizenDashboardPage() {
             </div>
             <span className="text-[11px] text-slate-400 font-medium">Consensus verifications</span>
           </div>
-          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-amber-50 text-amber-700 border border-amber-200">
+          <div className="civic-kpi-icon flex h-11 w-11 items-center justify-center rounded-lg bg-amber-50 text-amber-700 border border-amber-200">
             <ThumbsUp className="h-5 w-5" />
           </div>
         </div>
 
         {/* Metric 3 */}
-        <div className="civic-card p-5 flex items-center justify-between">
+        <div className="civic-card civic-interactive-card hover:shadow-civic-success group p-5 flex items-center justify-between">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
               Repairs Verified Fixed
@@ -185,7 +185,7 @@ export default async function CitizenDashboardPage() {
             </div>
             <span className="text-[11px] text-slate-400 font-medium">Citizen sign-off confirmed</span>
           </div>
-          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <div className="civic-kpi-icon flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200">
             <CheckCircle className="h-5 w-5" />
           </div>
         </div>
@@ -204,7 +204,7 @@ export default async function CitizenDashboardPage() {
           </div>
           <Link
             href="/"
-            className="inline-flex items-center gap-1 text-xs font-bold text-civic hover:underline"
+            className="civic-link-interactive inline-flex items-center gap-1 text-xs font-bold text-civic hover:underline"
           >
             <span>City Spatial Map</span>
             <ExternalLink className="h-3 w-3" />
@@ -225,7 +225,7 @@ export default async function CitizenDashboardPage() {
             <div className="mt-4">
               <Link
                 href="/report"
-                className="btn-tactile inline-flex items-center gap-1.5 rounded-lg bg-civic px-3.5 py-2 text-xs font-bold text-white shadow-2xs"
+                className="civic-btn-primary inline-flex items-center gap-1.5 rounded-lg bg-civic px-3.5 py-2 text-xs font-bold text-white shadow-2xs"
               >
                 <PlusCircle className="h-3.5 w-3.5" />
                 Submit Incident Report
@@ -239,7 +239,7 @@ export default async function CitizenDashboardPage() {
               return (
                 <div
                   key={report.id}
-                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-5 gap-4 hover:bg-slate-50/70 transition"
+                  className="civic-table-row group flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-5 gap-4 hover:bg-slate-50/70 transition-colors"
                 >
                   <div className="flex items-start gap-3.5">
                     <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md border border-slate-200 bg-slate-100">
@@ -247,7 +247,7 @@ export default async function CitizenDashboardPage() {
                         src={report.imageUrl || "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=400&auto=format&fit=crop"}
                         alt={report.title}
                         fill
-                        className="object-cover"
+                        className="object-cover civic-card-image"
                         sizes="56px"
                       />
                     </div>
@@ -297,11 +297,11 @@ export default async function CitizenDashboardPage() {
 
                     <Link
                       href={`/reports/${report.id}`}
-                      className="btn-tactile inline-flex items-center gap-1 rounded bg-slate-900 hover:bg-civic text-white px-3 py-1.5 text-xs font-bold transition-colors"
+                      className="civic-btn-secondary group inline-flex items-center gap-1 rounded bg-slate-900 hover:bg-civic text-white px-3 py-1.5 text-xs font-bold"
                       aria-label="View report details"
                     >
                       <span>Track Lifecycle</span>
-                      <ChevronRight className="h-3.5 w-3.5" />
+                      <ChevronRight className="h-3.5 w-3.5 civic-icon-shift" />
                     </Link>
                   </div>
                 </div>

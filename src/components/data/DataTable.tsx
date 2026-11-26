@@ -128,10 +128,10 @@ export function DataTable<T>({
                 <tr
                   key={rowId}
                   onClick={() => onRowClick && onRowClick(row)}
-                  className={`transition-colors ${
+                  className={`civic-table-row group ${
                     isSelected
-                      ? "bg-blue-50/80 font-medium"
-                      : "hover:bg-slate-50/80"
+                      ? "bg-blue-50/85 font-medium"
+                      : "hover:bg-blue-50/35"
                   } ${onRowClick ? "cursor-pointer" : ""}`}
                 >
                   {columns.map((col, colIdx) => (

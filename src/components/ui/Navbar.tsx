@@ -190,7 +190,7 @@ export default function Navbar() {
 
           <Link
             href="/report"
-            className="btn-tactile flex items-center gap-1.5 rounded-lg bg-[#2563EB] hover:bg-blue-700 px-3.5 py-2 text-xs font-bold text-white shadow-sm border border-blue-700/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2"
+            className="civic-btn-primary flex items-center gap-1.5 rounded-lg bg-[#2563EB] hover:bg-blue-700 px-3.5 py-2 text-xs font-bold text-white shadow-sm border border-blue-700/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2"
           >
             <PlusCircle className="h-3.5 w-3.5 text-blue-100" />
             <span>Report an Issue</span>

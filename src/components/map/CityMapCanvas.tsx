@@ -6,6 +6,7 @@ import {
   TileLayer,
   Marker,
   Popup,
+  Tooltip as LeafletTooltip,
   Polyline,
   Circle,
   useMap,
@@ -48,7 +49,9 @@ export interface MapReportPin extends MapDrawerReport {}
 export interface CityMapCanvasProps {
   reports: MapReportPin[];
   selectedReportId: string | null;
+  hoveredReportId?: string | null;
   onSelectReport?: (id: string | null) => void;
+  onHoverReport?: (id: string | null) => void;
   onVerifyReport?: (id: string) => void;
   initialStyle?: MapStyleKey;
   disableOverlayDrawer?: boolean;
@@ -125,7 +128,9 @@ function MapController({
 export default function CityMapCanvas({
   reports,
   selectedReportId,
+  hoveredReportId = null,
   onSelectReport,
+  onHoverReport,
   onVerifyReport,
   initialStyle = "positron",
   disableOverlayDrawer = false,
@@ -197,11 +202,12 @@ export default function CityMapCanvas({
     return { bg: "#2563EB", border: "#1D4ED8", text: `P-${Math.round(priorityScore)}`, name: "Low" }; // blue
   };
 
-  // Create Swiss Municipal Pin
-  const createIssueIcon = (report: MapReportPin, isSelected: boolean) => {
+  // Create Swiss Municipal Pin (Reacts ONLY when hovered or selected)
+  const createIssueIcon = (report: MapReportPin, isSelected: boolean, isHovered: boolean) => {
     const color = getMarkerColor(report.priorityScore, report.status);
-    const isCritical = report.priorityScore >= 80 && report.status !== "RESOLVED";
-    const size = isSelected ? 38 : 30;
+    const isCritical = report.priorityScore >= 80 && report.status !== "RESOLVED" && report.status !== "CITIZEN_VERIFIED";
+    const size = isSelected ? 40 : isHovered ? 35 : 30;
+    const scaleVal = isSelected ? "scale(1.16)" : isHovered ? "scale(1.1)" : "scale(1)";
 
     return L.divIcon({
       className: "streetwatch-issue-pin",
@@ -219,44 +225,30 @@ export default function CityMapCanvas({
           font-weight: 800;
           font-size: ${isSelected ? "11px" : "10px"};
           border-radius: 9999px;
-          border: ${isSelected ? "3px solid #1D4ED8" : "2px solid #ffffff"};
+          border: ${isSelected ? "3px solid #2563EB" : isHovered ? "2.5px solid #2563EB" : "2px solid #ffffff"};
           box-shadow: ${
             isSelected
-              ? "0 0 0 4px rgba(29, 78, 216, 0.35), 0 8px 16px rgba(15, 23, 42, 0.4)"
-              : "0 2px 6px rgba(15, 23, 42, 0.3)"
+              ? "0 0 0 6px rgba(37, 99, 235, 0.32), 0 10px 22px rgba(15, 23, 42, 0.35)"
+              : isHovered
+              ? "0 0 0 5px rgba(37, 99, 235, 0.22), 0 8px 16px rgba(15, 23, 42, 0.28)"
+              : "0 2px 6px rgba(15, 23, 42, 0.25)"
           };
-          transform: ${isSelected ? "scale(1.15)" : "scale(1)"};
-          transition: transform 0.15s ease-out;
+          transform: ${scaleVal};
+          transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease-out;
         ">
           ${color.text}
           ${
             isCritical
               ? `<span style="
                   position: absolute;
-                  top: -3px;
-                  right: -3px;
-                  display: flex;
-                  height: 10px;
-                  width: 10px;
-                ">
-                  <span style="
-                    position: absolute;
-                    height: 100%;
-                    width: 100%;
-                    border-radius: 9999px;
-                    background-color: #EF4444;
-                    opacity: 0.75;
-                    animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
-                  "></span>
-                  <span style="
-                    position: relative;
-                    height: 10px;
-                    width: 10px;
-                    border-radius: 9999px;
-                    background-color: #DC2626;
-                    border: 1.5px solid #ffffff;
-                  "></span>
-                </span>`
+                  top: -2px;
+                  right: -2px;
+                  height: 9px;
+                  width: 9px;
+                  border-radius: 9999px;
+                  background-color: #D92D20;
+                  border: 1.5px solid #ffffff;
+                "></span>`
               : ""
           }
         </div>
@@ -555,16 +547,33 @@ export default function CityMapCanvas({
 
             const report = entity.item as MapReportPin;
             const isSelected = selectedReportId === report.id;
+            const isHovered = hoveredReportId === report.id;
+            const tierMeta = getMarkerColor(report.priorityScore, report.status);
 
             return (
               <Marker
                 key={report.id}
                 position={[report.latitude, report.longitude]}
-                icon={createIssueIcon(report, isSelected)}
+                icon={createIssueIcon(report, isSelected, isHovered)}
+                zIndexOffset={isSelected ? 1000 : isHovered ? 500 : 0}
                 eventHandlers={{
                   click: () => onSelectReport?.(report.id),
+                  mouseover: () => onHoverReport?.(report.id),
+                  mouseout: () => onHoverReport?.(null),
                 }}
-              />
+              >
+                <LeafletTooltip direction="top" offset={[0, -16]} opacity={0.97}>
+                  <div className="px-1.5 py-0.5 text-[11px] font-sans leading-snug">
+                    <span className="font-bold text-slate-900">
+                      {report.category?.name || "Civic Hazard"}
+                    </span>
+                    <span className="text-slate-500">
+                      {" "}
+                      &middot; {tierMeta.name} &middot; {report.wardZone}
+                    </span>
+                  </div>
+                </LeafletTooltip>
+              </Marker>
             );
           })}
       </MapContainer>

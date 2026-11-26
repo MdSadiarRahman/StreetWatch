@@ -25,7 +25,7 @@ export const AIExplanationPanel: React.FC<AIExplanationPanelProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className={`civic-card bg-slate-50/80 border border-slate-200/90 rounded-lg p-3.5 ${className}`}>
+    <div className={`civic-card civic-interactive-ai bg-slate-50/80 border border-slate-200/90 rounded-lg p-3.5 ${className}`}>
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <div className="h-6 w-6 rounded bg-blue-100 flex items-center justify-center text-blue-700">
@@ -47,7 +47,7 @@ export const AIExplanationPanel: React.FC<AIExplanationPanelProps> = ({
           <button
             type="button"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors"
+            className="civic-btn-tertiary p-1.5 text-slate-500 hover:text-purple-700 hover:bg-purple-50/80 rounded-md"
             aria-expanded={isExpanded}
             aria-label={isExpanded ? "Collapse AI explanation" : "Expand AI explanation"}
           >

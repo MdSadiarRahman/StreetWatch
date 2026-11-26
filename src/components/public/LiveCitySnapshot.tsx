@@ -143,11 +143,12 @@ export function LiveCitySnapshot({
             return (
               <div
                 key={m.label}
-                className="rounded-xl border border-[#E4E7EC] bg-[#F7F9FC]/60 p-4 flex flex-col justify-between space-y-2.5"
+                title={`${m.label}: ${m.value} — ${m.context}`}
+                className="civic-interactive-card rounded-xl border border-[#E4E7EC] bg-[#F7F9FC]/70 hover:bg-white p-4 flex flex-col justify-between space-y-2.5"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-semibold text-[#667085]">{m.label}</span>
-                  <span className={`h-7 w-7 rounded-lg border flex items-center justify-center shrink-0 ${m.tone}`}>
+                  <span className={`civic-kpi-icon h-7 w-7 rounded-lg border flex items-center justify-center shrink-0 ${m.tone}`}>
                     <Icon className="h-3.5 w-3.5" />
                   </span>
                 </div>

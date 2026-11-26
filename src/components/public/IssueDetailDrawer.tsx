@@ -155,7 +155,7 @@ export function IssueDetailDrawer({
               <div className="flex items-center gap-2">
                 <Link
                   href={`/reports/${activeIssue.id}`}
-                  className="inline-flex items-center gap-1 rounded-lg border border-[#E4E7EC] bg-[#F7F9FC] hover:bg-slate-100 px-2.5 py-1.5 text-xs font-semibold text-[#101828] transition"
+                  className="civic-btn-secondary inline-flex items-center gap-1 rounded-lg border border-[#E4E7EC] bg-[#F7F9FC] hover:bg-slate-100 px-2.5 py-1.5 text-xs font-semibold text-[#101828]"
                 >
                   <span>Full Page</span>
                   <ExternalLink className="h-3.5 w-3.5 text-[#667085]" />
@@ -164,7 +164,7 @@ export function IssueDetailDrawer({
                   type="button"
                   onClick={onClose}
                   aria-label="Close issue details"
-                  className="p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg border border-[#E4E7EC] text-[#667085] hover:bg-slate-100 hover:text-[#101828] transition"
+                  className="civic-btn-tertiary p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg border border-[#E4E7EC] text-[#667085] hover:bg-slate-100 hover:text-[#101828]"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -174,8 +174,8 @@ export function IssueDetailDrawer({
             {/* Scrollable Body */}
             <div className="flex-1 overflow-y-auto p-5 space-y-5 scrollbar-thin">
               {/* 1. TOP SUMMARY CARD + IMAGE */}
-              <div className="rounded-2xl border border-[#E4E7EC] bg-white overflow-hidden shadow-xs">
-                <div className="relative h-56 w-full bg-slate-100 border-b border-[#E4E7EC]">
+              <div className="civic-interactive-card group rounded-2xl border border-[#E4E7EC] bg-white overflow-hidden shadow-xs">
+                <div className="relative h-56 w-full bg-slate-100 border-b border-[#E4E7EC] overflow-hidden">
                   <img
                     src={
                       activeIssue.beforeProofUrl ||
@@ -183,7 +183,7 @@ export function IssueDetailDrawer({
                       "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80"
                     }
                     alt={activeIssue.title}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-cover civic-card-image"
                   />
                 </div>
 
@@ -237,7 +237,7 @@ export function IssueDetailDrawer({
               </div>
 
               {/* 2. AI ASSESSMENT CARD */}
-              <div className="rounded-2xl border border-purple-200/80 bg-white p-4 space-y-3 shadow-xs">
+              <div className="civic-interactive-ai rounded-2xl border border-purple-200/80 bg-white p-4 space-y-3 shadow-xs">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#7C5CFC] flex items-center gap-1.5">
                     <Cpu className="h-4 w-4" />
@@ -283,7 +283,7 @@ export function IssueDetailDrawer({
               </div>
 
               {/* 3. PROGRESS TIMELINE (Vertical Public Story) */}
-              <div className="rounded-2xl border border-[#E4E7EC] bg-white p-4 space-y-3 shadow-xs">
+              <div className="civic-interactive-card rounded-2xl border border-[#E4E7EC] bg-white p-4 space-y-3 shadow-xs">
                 <div className="flex items-center justify-between">
                   <h4 className="font-mono text-xs font-bold uppercase tracking-wider text-[#101828]">
                     Progress
@@ -356,7 +356,7 @@ export function IssueDetailDrawer({
               </div>
 
               {/* 4. LOCATION (SMALL FOCUSED MAP OF ONLY THIS ISSUE) */}
-              <div className="rounded-2xl border border-[#E4E7EC] bg-white p-4 space-y-2.5 shadow-xs">
+              <div className="civic-interactive-card rounded-2xl border border-[#E4E7EC] bg-white p-4 space-y-2.5 shadow-xs">
                 <div className="flex items-center justify-between">
                   <h4 className="font-mono text-xs font-bold uppercase tracking-wider text-[#101828]">
                     Location
@@ -379,7 +379,7 @@ export function IssueDetailDrawer({
               </div>
 
               {/* 5. MUNICIPAL ACTION */}
-              <div className="rounded-2xl border border-[#E4E7EC] bg-white p-4 space-y-2.5 shadow-xs">
+              <div className="civic-interactive-card rounded-2xl border border-[#E4E7EC] bg-white p-4 space-y-2.5 shadow-xs">
                 <h4 className="font-mono text-xs font-bold uppercase tracking-wider text-[#101828] flex items-center gap-1.5">
                   <Wrench className="h-3.5 w-3.5 text-[#2563EB]" />
                   <span>Municipal Action</span>
@@ -432,7 +432,7 @@ export function IssueDetailDrawer({
                     await onVerify(activeIssue.id);
                     setVerifying(false);
                   }}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#E4E7EC] bg-white hover:bg-[#F7F9FC] px-3.5 py-2.5 min-h-[42px] text-xs font-bold text-[#101828] transition disabled:opacity-50"
+                  className="civic-btn-secondary inline-flex items-center gap-1.5 rounded-lg border border-[#E4E7EC] bg-white hover:bg-[#F7F9FC] px-3.5 py-2.5 min-h-[42px] text-xs font-bold text-[#101828] disabled:opacity-50"
                 >
                   <ThumbsUp className="h-3.5 w-3.5 text-[#2563EB]" />
                   <span>Confirm ({activeIssue.verificationCount})</span>
@@ -441,9 +441,9 @@ export function IssueDetailDrawer({
 
               <Link
                 href={`/reports/${activeIssue.id}`}
-                className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#2563EB] hover:bg-blue-700 px-4 py-2.5 min-h-[42px] text-xs font-bold text-white shadow-sm transition"
+                className="civic-btn-primary group flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#2563EB] hover:bg-blue-700 px-4 py-2.5 min-h-[42px] text-xs font-bold text-white shadow-sm"
               >
-                <ShieldCheck className="h-4 w-4" />
+                <ShieldCheck className="h-4 w-4 civic-icon-shift" />
                 <span>Open Full Public Record</span>
               </Link>
             </div>

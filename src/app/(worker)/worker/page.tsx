@@ -273,7 +273,7 @@ export default function WorkerWorkspacePage() {
             type="button"
             onClick={handle1ClickWorkerDemo}
             disabled={isDemoLoggingIn}
-            className="w-full min-h-[52px] py-3.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-[0.99] text-slate-950 font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-xl disabled:opacity-50"
+            className="civic-btn-primary hover:shadow-civic-warning w-full min-h-[52px] py-3.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl disabled:opacity-50"
           >
             {isDemoLoggingIn ? (
               <span>Activating Field Session...</span>
@@ -344,7 +344,7 @@ export default function WorkerWorkspacePage() {
                     setActiveTaskIndex(idx);
                     setActionFeedback(null);
                   }}
-                  className={`min-h-[36px] px-3 rounded-lg font-mono text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 border ${
+                  className={`civic-badge-interactive min-h-[36px] px-3 rounded-lg font-mono text-xs font-bold shrink-0 flex items-center gap-1.5 border ${
                     isActive
                       ? "bg-amber-500 text-slate-950 border-amber-400 shadow-sm"
                       : "bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800"
@@ -408,7 +408,7 @@ export default function WorkerWorkspacePage() {
         ) : (
           <div className="space-y-4">
             {/* A. WORKFLOW PROGRESS STEPPER (Assigned -> Navigate -> Start -> Resolve) */}
-            <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs font-mono font-bold">
+            <div className="civic-interactive-card-dark p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs font-mono font-bold">
               <div className="flex items-center gap-1.5 text-blue-400">
                 <span className="h-5 w-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px]">
                   ✓
@@ -424,9 +424,9 @@ export default function WorkerWorkspacePage() {
                 }`}
               >
                 <span
-                  className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] ${
+                  className={`civic-timeline-dot h-5 w-5 rounded-full flex items-center justify-center text-[10px] ${
                     isInProgress
-                      ? "bg-amber-500 text-slate-950 animate-pulse"
+                      ? "bg-amber-500 text-slate-950 ring-2 ring-amber-400/50"
                       : isResolved
                       ? "bg-amber-600 text-white"
                       : "bg-slate-800 text-slate-500"
@@ -456,7 +456,7 @@ export default function WorkerWorkspacePage() {
             </div>
 
             {/* B. LARGE PRIORITY & LOCATION CARD */}
-            <section className="rounded-2xl border border-slate-700/80 bg-[#0F172A] p-4 space-y-3.5 shadow-xl">
+            <section className="civic-interactive-card-dark rounded-2xl border border-slate-700/80 bg-[#0F172A] p-4 space-y-3.5 shadow-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span
@@ -500,7 +500,7 @@ export default function WorkerWorkspacePage() {
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full min-h-[50px] py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-[0.99] text-white font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg"
+                className="civic-btn-primary w-full min-h-[50px] py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg"
               >
                 <Navigation className="h-4 w-4" />
                 <span>NAVIGATE TO SITE (GOOGLE MAPS)</span>
@@ -508,7 +508,7 @@ export default function WorkerWorkspacePage() {
             </section>
 
             {/* D. BEFORE & AFTER EVIDENCE COMPARISON (The Core Worker Evidence Surface) */}
-            <section className="rounded-2xl border border-slate-700/80 bg-[#0F172A] p-4 space-y-3 shadow-xl">
+            <section className="civic-interactive-card-dark rounded-2xl border border-slate-700/80 bg-[#0F172A] p-4 space-y-3 shadow-xl">
               <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                 <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
                   <Camera className="h-4 w-4 text-emerald-400" />
@@ -529,7 +529,7 @@ export default function WorkerWorkspacePage() {
                           "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800&auto=format&fit=crop"
                       )
                     }
-                    className="relative h-36 rounded-xl overflow-hidden bg-slate-800 border-2 border-slate-700 cursor-pointer group"
+                    className="civic-interactive-card-dark relative h-36 rounded-xl overflow-hidden bg-slate-800 border-2 border-slate-700 cursor-pointer group"
                   >
                     <Image
                       src={
@@ -539,7 +539,7 @@ export default function WorkerWorkspacePage() {
                       }
                       alt="Before Repair"
                       fill
-                      className="object-cover group-hover:scale-105 transition-transform"
+                      className="object-cover civic-card-image"
                     />
                     <div className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded bg-black/80 text-white font-mono text-[9px] font-black">
                       BEFORE
@@ -557,13 +557,13 @@ export default function WorkerWorkspacePage() {
                 <div className="space-y-1.5">
                   <div
                     onClick={() => setZoomedImageUrl(selectedProofUrl)}
-                    className="relative h-36 rounded-xl overflow-hidden bg-slate-800 border-2 border-emerald-500/80 cursor-pointer group"
+                    className="civic-interactive-card-dark hover:shadow-civic-success relative h-36 rounded-xl overflow-hidden bg-slate-800 border-2 border-emerald-500/80 cursor-pointer group"
                   >
                     <Image
                       src={selectedProofUrl}
                       alt="After Repair Proof"
                       fill
-                      className="object-cover group-hover:scale-105 transition-transform"
+                      className="object-cover civic-card-image"
                     />
                     <div className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded bg-emerald-600 text-white font-mono text-[9px] font-black">
                       AFTER
@@ -609,14 +609,14 @@ export default function WorkerWorkspacePage() {
                         key={sample.id}
                         type="button"
                         onClick={() => setSelectedProofUrl(sample.url)}
-                        className={`p-1.5 rounded-xl border-2 text-left transition-all relative overflow-hidden ${
+                        className={`civic-interactive-card-dark group p-1.5 rounded-xl border-2 text-left relative overflow-hidden ${
                           isSelected
                             ? "border-emerald-500 bg-emerald-950/40 ring-2 ring-emerald-500/30"
                             : "border-slate-800 bg-slate-900 opacity-60 hover:opacity-100"
                         }`}
                       >
                         <div className="relative h-12 w-full rounded-lg overflow-hidden bg-slate-800">
-                          <Image src={sample.url} alt={sample.label} fill className="object-cover" />
+                          <Image src={sample.url} alt={sample.label} fill className="object-cover civic-card-image" />
                         </div>
                         <span className="text-[10px] font-mono font-bold text-white block truncate mt-1">
                           Proof #{sIdx + 1}
@@ -629,7 +629,7 @@ export default function WorkerWorkspacePage() {
             </section>
 
             {/* E. MINIMAL TYPING (1-Tap Work Completed Quick Chips) */}
-            <section className="rounded-2xl border border-slate-700/80 bg-[#0F172A] p-4 space-y-2.5 shadow-xl">
+            <section className="civic-interactive-card-dark rounded-2xl border border-slate-700/80 bg-[#0F172A] p-4 space-y-2.5 shadow-xl">
               <div className="flex items-center justify-between">
                 <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
                   <CheckCheck className="h-4 w-4 text-blue-400" />
@@ -646,7 +646,7 @@ export default function WorkerWorkspacePage() {
                       key={chip}
                       type="button"
                       onClick={() => toggleChip(chip)}
-                      className={`min-h-[36px] py-1.5 px-3 rounded-lg border text-xs font-medium transition-all flex items-center gap-1.5 ${
+                      className={`civic-badge-interactive min-h-[36px] py-1.5 px-3 rounded-lg border text-xs font-medium flex items-center gap-1.5 ${
                         isChecked
                           ? "bg-emerald-950/70 border-emerald-600 text-emerald-200 font-bold"
                           : "bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200"
@@ -709,7 +709,7 @@ export default function WorkerWorkspacePage() {
           <div className="mx-auto max-w-lg space-y-2">
             {/* Secondary Action Toolbar: ADD PHOTO | ADD NOTE */}
             <div className="grid grid-cols-2 gap-2 text-xs font-bold font-mono">
-              <label className="min-h-[42px] cursor-pointer py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition-colors flex items-center justify-center gap-1.5 active:scale-[0.99]">
+              <label className="civic-btn-secondary min-h-[42px] cursor-pointer py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 flex items-center justify-center gap-1.5">
                 <Camera className="h-4 w-4 text-emerald-400" />
                 <span>ADD PHOTO</span>
                 <input
@@ -733,7 +733,7 @@ export default function WorkerWorkspacePage() {
               <button
                 type="button"
                 onClick={() => setShowNoteInput(!showNoteInput)}
-                className="min-h-[42px] py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition-colors flex items-center justify-center gap-1.5 active:scale-[0.99]"
+                className="civic-btn-secondary min-h-[42px] py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 flex items-center justify-center gap-1.5"
               >
                 <FileText className="h-4 w-4 text-blue-400" />
                 <span>{showNoteInput ? "HIDE NOTE" : "ADD NOTE"}</span>
@@ -746,7 +746,7 @@ export default function WorkerWorkspacePage() {
                 type="button"
                 onClick={() => handleStartWork(currentTask.report.id)}
                 disabled={submittingAction}
-                className="w-full min-h-[56px] py-4 px-6 rounded-2xl bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-black text-base tracking-wide transition-all flex items-center justify-center gap-2 shadow-xl disabled:opacity-50"
+                className="civic-btn-primary w-full min-h-[56px] py-4 px-6 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-base tracking-wide flex items-center justify-center gap-2 shadow-xl disabled:opacity-50"
               >
                 {submittingAction ? (
                   <span>COMMITTING TRANSITION...</span>
@@ -764,7 +764,7 @@ export default function WorkerWorkspacePage() {
                 type="button"
                 onClick={() => handleMarkResolved(currentTask.report.id)}
                 disabled={submittingAction}
-                className="w-full min-h-[56px] py-4 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white font-black text-base tracking-wide transition-all flex items-center justify-center gap-2 shadow-xl disabled:opacity-50"
+                className="civic-btn-primary hover:shadow-civic-success w-full min-h-[56px] py-4 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-base tracking-wide flex items-center justify-center gap-2 shadow-xl disabled:opacity-50"
               >
                 {submittingAction ? (
                   <span>SUBMITTING EVIDENCE...</span>

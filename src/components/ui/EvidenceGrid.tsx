@@ -40,12 +40,12 @@ export default function EvidenceGrid({
             <span className="text-xs font-bold text-slate-700 block">
               Before Repair (Citizen Evidence)
             </span>
-            <div className="relative h-60 w-full overflow-hidden rounded-lg border border-slate-300 bg-slate-100">
+            <div className="civic-interactive-card relative h-60 w-full overflow-hidden rounded-lg border border-slate-300 bg-slate-100">
               <Image
                 src={beforeUrl || fallbackBefore}
                 alt={title}
                 fill
-                className="object-cover"
+                className="civic-card-image object-cover"
                 sizes="(max-width: 640px) 100vw, 35vw"
               />
               <div className="absolute top-2.5 left-2.5 bg-slate-900/80 px-2 py-0.5 rounded text-[10px] font-bold text-white shadow-2xs">
@@ -59,12 +59,12 @@ export default function EvidenceGrid({
             <span className="text-xs font-bold text-emerald-800 block">
               After Repair (Field Worker Evidence)
             </span>
-            <div className="relative h-60 w-full overflow-hidden rounded-lg border-2 border-emerald-400 bg-emerald-50/50">
+            <div className="civic-interactive-card relative h-60 w-full overflow-hidden rounded-lg border-2 border-emerald-400 bg-emerald-50/50">
               <Image
                 src={afterUrl || fallbackAfter}
                 alt="Repaired proof evidence"
                 fill
-                className="object-cover"
+                className="civic-card-image object-cover"
                 sizes="(max-width: 640px) 100vw, 35vw"
               />
               <div className="absolute top-2.5 left-2.5 bg-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold text-white shadow-2xs">
@@ -78,13 +78,13 @@ export default function EvidenceGrid({
   }
 
   return (
-    <div className="relative h-64 sm:h-80 w-full overflow-hidden rounded-lg border border-slate-300 bg-slate-100">
+    <div className="civic-interactive-card relative h-64 sm:h-80 w-full overflow-hidden rounded-lg border border-slate-300 bg-slate-100">
       <Image
         src={beforeUrl || fallbackBefore}
         alt={title}
         fill
         priority
-        className="object-cover"
+        className="civic-card-image object-cover"
         sizes="(max-width: 1024px) 100vw, 65vw"
       />
       <div className="absolute top-3 left-3 bg-slate-900/80 px-2.5 py-1 rounded text-[11px] font-bold text-white shadow-2xs">

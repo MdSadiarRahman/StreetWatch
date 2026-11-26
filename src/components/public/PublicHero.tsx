@@ -92,7 +92,7 @@ export function PublicHero({ reports, loading = false, onSelectIssue }: PublicHe
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
               <Link
                 href="/report"
-                className="btn-tactile inline-flex items-center justify-center gap-2 rounded-lg bg-[#2563EB] hover:bg-blue-700 px-5 py-3 min-h-[46px] text-sm font-bold text-white shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2"
+                className="civic-btn-primary inline-flex items-center justify-center gap-2 rounded-lg bg-[#2563EB] hover:bg-blue-700 px-5 py-3 min-h-[46px] text-sm font-bold text-white shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2"
               >
                 <PlusCircle className="h-4 w-4 text-blue-100" />
                 <span>Report an Issue</span>
@@ -100,10 +100,10 @@ export function PublicHero({ reports, loading = false, onSelectIssue }: PublicHe
 
               <Link
                 href="#recent-reports"
-                className="btn-tactile inline-flex items-center justify-center gap-2 rounded-lg border border-[#E4E7EC] bg-white hover:bg-[#F7F9FC] px-5 py-3 min-h-[46px] text-sm font-semibold text-[#101828] shadow-xs transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2"
+                className="civic-btn-secondary inline-flex items-center justify-center gap-2 rounded-lg border border-[#E4E7EC] bg-white hover:bg-[#F7F9FC] hover:border-blue-300 px-5 py-3 min-h-[46px] text-sm font-semibold text-[#101828] shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2"
               >
                 <span>Explore City Reports</span>
-                <ArrowRight className="h-4 w-4 text-[#667085]" />
+                <ArrowRight className="civic-icon-shift h-4 w-4 text-[#667085]" />
               </Link>
             </div>
 
@@ -145,10 +145,10 @@ export function PublicHero({ reports, loading = false, onSelectIssue }: PublicHe
                 </div>
                 <Link
                   href="#live-map"
-                  className="text-[11px] font-semibold text-[#2563EB] hover:underline flex items-center gap-1"
+                  className="civic-link-interactive text-[11px] font-semibold text-[#2563EB] hover:text-blue-800 hover:underline flex items-center gap-1"
                 >
                   <span>Full Map</span>
-                  <ArrowRight className="h-3 w-3" />
+                  <ArrowRight className="civic-icon-shift h-3 w-3" />
                 </Link>
               </div>
 
@@ -191,11 +191,8 @@ export function PublicHero({ reports, loading = false, onSelectIssue }: PublicHe
                         aria-label={`Inspect ${pin.title} in ${pin.wardZone}`}
                         className="group absolute -translate-x-1/2 -translate-y-1/2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] rounded-full"
                       >
-                        {pin.isCritical && (
-                          <span className="absolute -inset-1.5 rounded-full bg-red-400/30 animate-ping motion-reduce:animate-none" />
-                        )}
                         <span
-                          className={`relative flex h-6 w-6 items-center justify-center rounded-full border-2 border-white text-[9px] font-mono font-bold text-white shadow-sm transition-transform group-hover:scale-110 ${pinBg}`}
+                          className={`relative flex h-6 w-6 items-center justify-center rounded-full border-2 border-white text-[9px] font-mono font-bold text-white shadow-sm transition-all duration-150 group-hover:scale-110 group-hover:ring-4 group-hover:ring-blue-500/25 ${pinBg}`}
                         >
                           {pin.isResolved ? "✓" : Math.round(pin.priorityScore)}
                         </span>
@@ -220,7 +217,7 @@ export function PublicHero({ reports, loading = false, onSelectIssue }: PublicHe
                   <button
                     type="button"
                     onClick={() => onSelectIssue?.(featuredCluster.id)}
-                    className="absolute bottom-2.5 left-2.5 right-2.5 rounded-lg border border-[#E4E7EC] bg-white/90 backdrop-blur-md p-2.5 shadow-sm text-left hover:border-[#2563EB] transition flex items-center justify-between gap-2"
+                    className="civic-interactive-card absolute bottom-2.5 left-2.5 right-2.5 rounded-lg border border-[#E4E7EC] bg-white/95 backdrop-blur-md p-2.5 shadow-sm text-left flex items-center justify-between gap-2"
                   >
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5 text-[10px] font-mono">

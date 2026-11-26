@@ -36,7 +36,7 @@ export const AIConfidence: React.FC<AIConfidenceProps> = ({
 
   return (
     <div
-      className={`inline-flex items-center rounded-md border font-medium ${tier.color} ${sizeClasses[size]} ${className}`}
+      className={`inline-flex items-center rounded-md border font-medium civic-badge-interactive hover:shadow-civic-ai ${tier.color} ${sizeClasses[size]} ${className}`}
       title={`AI Confidence Score: ${normalized}% - ${tier.label}`}
       role="status"
     >

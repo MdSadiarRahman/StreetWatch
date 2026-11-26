@@ -254,7 +254,7 @@ export const AIAutoTriagePanel: React.FC<AIAutoTriagePanelProps> = ({
 
   return (
     <div
-      className={`rounded-xl border border-slate-700/80 bg-[#0F172A] shadow-xl text-slate-100 overflow-hidden divide-y divide-slate-800 ${className}`}
+      className={`rounded-xl border border-slate-700/80 bg-[#0F172A] shadow-xl text-slate-100 overflow-hidden divide-y divide-slate-800 civic-interactive-ai ${className}`}
       role="region"
       aria-label="Explainable AI Auto-Triage Decision Support System"
     >
@@ -716,7 +716,7 @@ export const AIAutoTriagePanel: React.FC<AIAutoTriagePanelProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowOverrideForm(false)}
-                    className="px-3 py-1.5 rounded border border-slate-700 text-slate-300 hover:bg-slate-800 font-semibold"
+                    className="civic-btn-secondary px-3 py-1.5 rounded border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800 font-semibold"
                   >
                     Cancel
                   </button>
@@ -724,7 +724,7 @@ export const AIAutoTriagePanel: React.FC<AIAutoTriagePanelProps> = ({
                     type="button"
                     onClick={handleCommitOverride}
                     disabled={isSubmittingOverride || !overrideReason.trim()}
-                    className="px-4 py-1.5 rounded bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-bold transition-colors flex items-center gap-1.5 shadow-sm"
+                    className="civic-btn-primary px-4 py-1.5 rounded bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-bold flex items-center gap-1.5 shadow-sm"
                   >
                     {isSubmittingOverride ? (
                       <span>Recording...</span>

@@ -245,9 +245,9 @@ export const IssueStatusTimeline: React.FC<IssueStatusTimelineProps> = ({
               const isFuture = idx > currentIndex;
 
               return (
-                <div key={step.state} className="flex flex-col items-center">
+                <div key={step.state} className="flex flex-col items-center civic-timeline-stage group">
                   <div
-                    className={`h-9 w-9 rounded-full flex items-center justify-center font-mono text-xs font-bold transition-all duration-300 border-2 ${
+                    className={`h-9 w-9 rounded-full flex items-center justify-center font-mono text-xs font-bold transition-all duration-300 border-2 civic-timeline-dot ${
                       isCompleted
                         ? "bg-blue-600 text-white border-blue-600 shadow-2xs"
                         : isCurrent
@@ -272,7 +272,7 @@ export const IssueStatusTimeline: React.FC<IssueStatusTimelineProps> = ({
                   </span>
 
                   {isCurrent && (
-                    <span className="mt-0.5 inline-flex items-center gap-1 px-1.5 py-0.2 rounded font-mono text-[9px] font-bold bg-blue-100 text-blue-800 uppercase animate-pulse">
+                    <span className="mt-0.5 inline-flex items-center gap-1 px-1.5 py-0.2 rounded font-mono text-[9px] font-bold bg-blue-100 text-blue-800 uppercase civic-badge-interactive">
                       Active Now
                     </span>
                   )}
@@ -405,7 +405,7 @@ export const IssueStatusTimeline: React.FC<IssueStatusTimelineProps> = ({
               return (
                 <div
                   key={step.state}
-                  className={`rounded-xl border p-3.5 transition-all duration-200 ${
+                  className={`rounded-xl border p-3.5 transition-all duration-200 civic-timeline-stage group ${
                     isCurrent
                       ? "bg-blue-50/50 border-blue-400 ring-2 ring-blue-100 shadow-sm"
                       : isCompleted
@@ -416,11 +416,11 @@ export const IssueStatusTimeline: React.FC<IssueStatusTimelineProps> = ({
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="flex items-center gap-2.5">
                       <div
-                        className={`h-7 w-7 rounded-full flex items-center justify-center font-mono text-xs font-bold shrink-0 ${
+                        className={`h-7 w-7 rounded-full flex items-center justify-center font-mono text-xs font-bold shrink-0 civic-timeline-dot ${
                           isCompleted
                             ? "bg-blue-600 text-white"
                             : isCurrent
-                            ? "bg-blue-600 text-white ring-2 ring-blue-200 animate-pulse"
+                            ? "bg-blue-600 text-white ring-2 ring-blue-200"
                             : "bg-slate-100 text-slate-400 border border-slate-300"
                         }`}
                       >

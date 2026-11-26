@@ -38,7 +38,7 @@ export const SLAIndicator: React.FC<SLAIndicatorProps> = ({
     const overdueHours = Math.round(Math.abs(remainingHours));
     return (
       <span
-        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200 animate-pulse ${className}`}
+        className={`civic-badge-interactive inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200 hover:shadow-civic-critical ${className}`}
         title={`SLA Breached by ${overdueHours}h (Target: ${slaHours}h)`}
         role="status"
         aria-live="polite"

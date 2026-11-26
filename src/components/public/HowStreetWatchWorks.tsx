@@ -100,6 +100,7 @@ export function HowStreetWatchWorks() {
         <div className="hidden lg:grid lg:grid-cols-6 gap-3 relative">
           {WORKFLOW_STEPS.map((step, index) => {
             const Icon = step.icon;
+            const isAI = step.title === "AI TRIAGE";
             return (
               <motion.div
                 key={step.title}
@@ -107,7 +108,9 @@ export function HowStreetWatchWorks() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ duration: 0.22, delay: index * 0.04, ease: [0.16, 1, 0.3, 1] }}
-                className="relative rounded-xl border border-[#E4E7EC] bg-white p-4 shadow-xs flex flex-col justify-between space-y-3"
+                className={`relative rounded-xl border border-[#E4E7EC] bg-white p-4 shadow-xs flex flex-col justify-between space-y-3 ${
+                  isAI ? "civic-interactive-ai" : "civic-interactive-card"
+                }`}
               >
                 <div className="flex items-center justify-between">
                   <div className={`h-8 w-8 rounded-lg border flex items-center justify-center ${step.accentCls}`}>

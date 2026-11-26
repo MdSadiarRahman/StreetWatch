@@ -47,15 +47,10 @@ export const IssueCard: React.FC<IssueCardProps> = ({
 
   return (
     <motion.div
-      whileHover={
-        shouldReduceMotion
-          ? undefined
-          : { y: -2, transition: { duration: 0.14, ease: "easeOut" } }
-      }
-      className={`civic-card bg-white rounded-lg border transition-colors p-3.5 flex flex-col justify-between relative ${
+      className={`civic-card civic-interactive-card group bg-white rounded-lg border p-3.5 flex flex-col justify-between relative ${
         isSelected
           ? "border-blue-600 ring-2 ring-blue-100 shadow-md"
-          : "border-slate-200/90 hover:border-blue-400 hover:shadow-md"
+          : "border-slate-200/90 hover:border-blue-400"
       } ${className}`}
     >
       {isSelected && (
@@ -94,7 +89,7 @@ export const IssueCard: React.FC<IssueCardProps> = ({
               <img
                 src={report.imageUrl}
                 alt={report.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover civic-card-image"
                 loading="lazy"
               />
             </div>
@@ -132,18 +127,18 @@ export const IssueCard: React.FC<IssueCardProps> = ({
           <button
             type="button"
             onClick={() => onSelect(report.id)}
-            className="inline-flex items-center gap-1 text-xs font-semibold text-blue-700 hover:text-blue-900 transition-colors"
+            className="civic-link-interactive inline-flex items-center gap-1 text-xs font-semibold text-blue-700 hover:text-blue-900"
           >
             <span>Inspect</span>
-            <ArrowRight className="h-3 w-3" />
+            <ArrowRight className="h-3 w-3 civic-icon-shift" />
           </button>
         ) : (
           <Link
             href={`/reports/${report.id}`}
-            className="inline-flex items-center gap-1 text-xs font-semibold text-blue-700 hover:text-blue-900 transition-colors"
+            className="civic-link-interactive inline-flex items-center gap-1 text-xs font-semibold text-blue-700 hover:text-blue-900"
           >
             <span>View</span>
-            <ArrowRight className="h-3 w-3" />
+            <ArrowRight className="h-3 w-3 civic-icon-shift" />
           </Link>
         )}
       </div>

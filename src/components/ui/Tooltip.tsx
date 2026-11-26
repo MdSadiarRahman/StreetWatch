@@ -31,12 +31,15 @@ export function Tooltip({
       onMouseLeave={() => setIsVisible(false)}
       onFocus={() => setIsVisible(true)}
       onBlur={() => setIsVisible(false)}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") setIsVisible(false);
+      }}
     >
       {children}
       {isVisible && (
         <div
           role="tooltip"
-          className={`absolute z-50 whitespace-nowrap rounded bg-slate-900 px-2 py-1 text-[11px] font-bold text-white shadow-md pointer-events-none ${positionClasses}`}
+          className={`absolute z-50 whitespace-nowrap rounded-md border border-slate-700/80 bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-white shadow-float pointer-events-none ${positionClasses}`}
         >
           {content}
         </div>

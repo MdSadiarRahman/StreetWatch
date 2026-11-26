@@ -25,31 +25,31 @@ export function Badge({
 }: BadgeProps) {
   const variantClasses: Record<BadgeVariant, { container: string; dot: string }> = {
     default: {
-      container: "bg-slate-100 text-slate-800 border-slate-200",
+      container: "bg-slate-100 text-slate-800 border-slate-200 hover:border-slate-300",
       dot: "bg-slate-600",
     },
     civic: {
-      container: "bg-blue-50 text-civic border-blue-200",
+      container: "bg-blue-50 text-civic border-blue-200 hover:border-blue-300 hover:shadow-civic-hover",
       dot: "bg-civic",
     },
     critical: {
-      container: "bg-rose-50 text-rose-800 border-rose-300",
+      container: "bg-rose-50 text-rose-800 border-rose-300 hover:border-rose-400 hover:shadow-civic-critical",
       dot: "bg-rose-600",
     },
     warning: {
-      container: "bg-amber-50 text-amber-800 border-amber-300",
+      container: "bg-amber-50 text-amber-800 border-amber-300 hover:border-amber-400 hover:shadow-civic-warning",
       dot: "bg-amber-600",
     },
     success: {
-      container: "bg-emerald-50 text-emerald-800 border-emerald-300",
+      container: "bg-emerald-50 text-emerald-800 border-emerald-300 hover:border-emerald-400 hover:shadow-civic-success",
       dot: "bg-emerald-600",
     },
     muted: {
-      container: "bg-slate-50 text-slate-600 border-slate-200",
+      container: "bg-slate-50 text-slate-600 border-slate-200 hover:border-slate-300",
       dot: "bg-slate-400",
     },
     outline: {
-      container: "bg-transparent text-slate-700 border-slate-300",
+      container: "bg-transparent text-slate-700 border-slate-300 hover:border-slate-400",
       dot: "bg-slate-500",
     },
   };
@@ -63,7 +63,7 @@ export function Badge({
   return (
     <span
       role="status"
-      className={`inline-flex items-center gap-1.5 font-bold rounded border ${sizeClasses} ${variantClasses[variant].container} ${className}`}
+      className={`civic-badge-interactive inline-flex items-center gap-1.5 font-bold rounded border ${sizeClasses} ${variantClasses[variant].container} ${className}`}
       {...props}
     >
       {dot && (

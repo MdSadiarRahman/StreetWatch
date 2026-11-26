@@ -69,8 +69,9 @@ export default function PublicCityPortalPage() {
   const [wardFilter, setWardFilter] = useState("ALL");
   const [dateFilter, setDateFilter] = useState<DateFilter>("ALL");
 
-  // Selection states: map selection vs focused detail drawer
+  // Selection states: map selection, hover sync & focused detail drawer
   const [selectedMapReportId, setSelectedMapReportId] = useState<string | null>(null);
+  const [hoveredReportId, setHoveredReportId] = useState<string | null>(null);
   const [detailDrawerReportId, setDetailDrawerReportId] = useState<string | null>(null);
 
   const loadPortalData = async () => {
@@ -249,7 +250,9 @@ export default function PublicCityPortalPage() {
       <PublicMapSection
         reports={filteredReports}
         selectedReportId={selectedMapReportId}
+        hoveredReportId={hoveredReportId}
         onSelectReport={(id) => setSelectedMapReportId(id)}
+        onHoverReport={(id) => setHoveredReportId(id)}
         onOpenDetails={(id) => setDetailDrawerReportId(id)}
         onVerifyReport={handleVerifyReport}
         loading={loading}
@@ -277,6 +280,9 @@ export default function PublicCityPortalPage() {
         availableWards={availableWards}
         onResetFilters={handleResetFilters}
         hasActiveFilters={hasActiveFilters}
+        hoveredReportId={hoveredReportId}
+        selectedReportId={selectedMapReportId}
+        onHoverReport={(id) => setHoveredReportId(id)}
         onViewDetails={(id) => setDetailDrawerReportId(id)}
         onViewOnMap={handleViewOnMap}
       />

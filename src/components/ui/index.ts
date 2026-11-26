@@ -1,4 +1,5 @@
 export * from "./Button";
+export * from "./CivicInteraction";
 export * from "./Badge";
 export * from "./Card";
 export * from "./Modal";

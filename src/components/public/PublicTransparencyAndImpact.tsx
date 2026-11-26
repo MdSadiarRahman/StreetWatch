@@ -110,12 +110,14 @@ export function PublicTransparencyAndImpact({
             {stageCounts.map((stage, i) => (
               <div
                 key={stage.label}
-                className="relative rounded-xl border border-[#E4E7EC] bg-white p-4 shadow-xs flex flex-col justify-between space-y-2"
+                className={`relative rounded-xl border border-[#E4E7EC] bg-white p-4 shadow-xs flex flex-col justify-between space-y-2 ${
+                  stage.label === "AI Triaged" ? "civic-interactive-ai" : "civic-interactive-card"
+                }`}
               >
                 <div className="flex items-center justify-between text-[11px] font-mono text-[#667085]">
                   <span>STAGE 0{i + 1}</span>
                   {i < stageCounts.length - 1 && (
-                    <ArrowRight className="hidden lg:inline h-3.5 w-3.5 text-slate-300" />
+                    <ArrowRight className="civic-icon-shift hidden lg:inline h-3.5 w-3.5 text-slate-300" />
                   )}
                 </div>
                 <div>
@@ -241,10 +243,12 @@ export function PublicTransparencyAndImpact({
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="rounded-xl border border-[#E4E7EC] bg-white p-5 space-y-1.5 shadow-xs">
+            <div className="civic-interactive-card rounded-xl border border-[#E4E7EC] bg-white p-5 space-y-1.5 shadow-xs">
               <div className="flex items-center justify-between text-[#667085] text-xs font-semibold">
                 <span>Reports Submitted</span>
-                <FileText className="h-4 w-4 text-[#2563EB]" />
+                <span className="civic-kpi-icon p-1.5 rounded-md border border-transparent bg-blue-50">
+                  <FileText className="h-4 w-4 text-[#2563EB]" />
+                </span>
               </div>
               <div className="font-mono text-2xl sm:text-3xl font-bold text-[#101828]">
                 {totalReportsSubmitted}
@@ -252,10 +256,12 @@ export function PublicTransparencyAndImpact({
               <p className="text-[11px] text-[#667085]">Logged in public civic ledger</p>
             </div>
 
-            <div className="rounded-xl border border-[#E4E7EC] bg-white p-5 space-y-1.5 shadow-xs">
+            <div className="civic-interactive-ai rounded-xl border border-[#E4E7EC] bg-white p-5 space-y-1.5 shadow-xs">
               <div className="flex items-center justify-between text-[#667085] text-xs font-semibold">
                 <span>Citizen Verifications</span>
-                <Users className="h-4 w-4 text-[#7C5CFC]" />
+                <span className="civic-kpi-icon p-1.5 rounded-md border border-transparent bg-purple-50">
+                  <Users className="h-4 w-4 text-[#7C5CFC]" />
+                </span>
               </div>
               <div className="font-mono text-2xl sm:text-3xl font-bold text-[#101828]">
                 {totalVerifications}
@@ -263,10 +269,12 @@ export function PublicTransparencyAndImpact({
               <p className="text-[11px] text-[#667085]">Peer confirmations recorded</p>
             </div>
 
-            <div className="rounded-xl border border-[#E4E7EC] bg-white p-5 space-y-1.5 shadow-xs">
+            <div className="civic-interactive-card rounded-xl border border-[#E4E7EC] bg-white p-5 space-y-1.5 shadow-xs hover:border-emerald-400/70 hover:shadow-civic-success">
               <div className="flex items-center justify-between text-[#667085] text-xs font-semibold">
                 <span>Issues Resolved</span>
-                <ShieldCheck className="h-4 w-4 text-[#12B76A]" />
+                <span className="civic-kpi-icon p-1.5 rounded-md border border-transparent bg-emerald-50">
+                  <ShieldCheck className="h-4 w-4 text-[#12B76A]" />
+                </span>
               </div>
               <div className="font-mono text-2xl sm:text-3xl font-bold text-[#12B76A]">
                 {totalResolved}
@@ -274,10 +282,12 @@ export function PublicTransparencyAndImpact({
               <p className="text-[11px] text-[#667085]">Completed with verification</p>
             </div>
 
-            <div className="rounded-xl border border-[#E4E7EC] bg-white p-5 space-y-1.5 shadow-xs">
+            <div className="civic-interactive-card rounded-xl border border-[#E4E7EC] bg-white p-5 space-y-1.5 shadow-xs">
               <div className="flex items-center justify-between text-[#667085] text-xs font-semibold">
                 <span>Active Municipal Teams</span>
-                <Sparkles className="h-4 w-4 text-[#F79009]" />
+                <span className="civic-kpi-icon p-1.5 rounded-md border border-transparent bg-amber-50">
+                  <Sparkles className="h-4 w-4 text-[#F79009]" />
+                </span>
               </div>
               <div className="font-mono text-2xl sm:text-3xl font-bold text-[#101828]">
                 {activeMunicipalTeams !== null ? activeMunicipalTeams : "—"}
@@ -306,14 +316,14 @@ export function PublicTransparencyAndImpact({
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 pt-2">
             <Link
               href="/report"
-              className="btn-tactile inline-flex items-center justify-center gap-2 rounded-lg bg-[#2563EB] hover:bg-blue-700 px-6 py-3 min-h-[46px] text-sm font-bold text-white shadow-sm transition"
+              className="civic-btn-primary inline-flex items-center justify-center gap-2 rounded-lg bg-[#2563EB] hover:bg-blue-700 px-6 py-3 min-h-[46px] text-sm font-bold text-white shadow-sm"
             >
               <PlusCircle className="h-4 w-4" />
               <span>Report an Issue</span>
             </Link>
             <Link
               href="#recent-reports"
-              className="btn-tactile inline-flex items-center justify-center gap-2 rounded-lg border border-[#E4E7EC] bg-white hover:bg-[#F7F9FC] px-6 py-3 min-h-[46px] text-sm font-semibold text-[#101828] transition"
+              className="civic-btn-secondary inline-flex items-center justify-center gap-2 rounded-lg border border-[#E4E7EC] bg-white hover:bg-[#F7F9FC] hover:border-blue-300 px-6 py-3 min-h-[46px] text-sm font-semibold text-[#101828]"
             >
               <span>Explore Public Reports</span>
             </Link>

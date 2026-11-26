@@ -32,7 +32,7 @@ export default function WorkflowStepper({
   workflowLogs = [],
 }: WorkflowStepperProps) {
   return (
-    <div className="civic-card p-5 space-y-4">
+    <div className="civic-card civic-interactive-card p-5 space-y-4">
       <span className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5 border-b border-slate-100 pb-3">
         <Layers className="h-4 w-4 text-civic" />
         <span>State Machine Progression (A07)</span>
@@ -52,9 +52,9 @@ export default function WorkflowStepper({
             idx === workflowLogs.length;
 
           return (
-            <div key={step.name} className="relative text-xs">
+            <div key={step.name} className="relative text-xs civic-timeline-stage group">
               <span
-                className={`absolute -left-6 top-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full text-[10px] font-bold border transition ${
+                className={`civic-timeline-dot absolute -left-6 top-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full text-[10px] font-bold border transition ${
                   isCompleted
                     ? "bg-emerald-600 text-white border-emerald-700"
                     : isRetried
