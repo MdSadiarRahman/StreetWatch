@@ -51,6 +51,8 @@ export interface CityMapCanvasProps {
   onSelectReport?: (id: string | null) => void;
   onVerifyReport?: (id: string) => void;
   initialStyle?: MapStyleKey;
+  disableOverlayDrawer?: boolean;
+  containedMode?: boolean;
   className?: string;
 }
 
@@ -126,6 +128,8 @@ export default function CityMapCanvas({
   onSelectReport,
   onVerifyReport,
   initialStyle = "positron",
+  disableOverlayDrawer = false,
+  containedMode = false,
   className = "",
 }: CityMapCanvasProps) {
   const [mounted, setMounted] = useState(false);
@@ -566,7 +570,11 @@ export default function CityMapCanvas({
       </MapContainer>
 
       {/* FLOATING TOP-RIGHT TOOLBAR: Layer Control, Style Switcher, Zoom, Locate */}
-      <div className="absolute top-32 sm:top-4 right-3 sm:right-4 z-[450] flex flex-col items-end gap-2 pointer-events-auto">
+      <div
+        className={`absolute ${
+          containedMode ? "top-3 right-3" : "top-32 sm:top-4 right-3 sm:right-4"
+        } z-[450] flex flex-col items-end gap-2 pointer-events-auto`}
+      >
         <div className="flex items-center gap-1.5 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-lg p-1 shadow-md">
           {/* Layer Control Button */}
           <div className="relative">
@@ -781,7 +789,11 @@ export default function CityMapCanvas({
       </div>
 
       {/* FLOATING BOTTOM-LEFT GIS LEGEND */}
-      <div className="absolute bottom-20 md:bottom-4 left-3 md:left-4 z-[450] pointer-events-auto">
+      <div
+        className={`absolute ${
+          containedMode ? "bottom-3 left-3" : "bottom-20 md:bottom-4 left-3 md:left-4"
+        } z-[450] pointer-events-auto`}
+      >
         <div className="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-lg shadow-md p-2.5 text-xs text-slate-700 max-w-[270px]">
           <div className="flex items-center justify-between gap-3 font-bold text-slate-900 uppercase text-[10px] tracking-wider mb-1">
             <span className="flex items-center gap-1.5">
@@ -856,7 +868,7 @@ export default function CityMapCanvas({
       </div>
 
       {/* SELECTED ISSUE DETAIL DRAWER */}
-      {selectedReport && (
+      {!disableOverlayDrawer && selectedReport && (
         <MapDrawer
           report={selectedReport}
           nearbyCrews={DHAKA_MUNICIPAL_CREWS}

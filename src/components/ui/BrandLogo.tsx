@@ -155,13 +155,13 @@ export default function BrandLogo({
             </span>
 
             {showBadge && (
-              <span className={`inline-flex items-center rounded-md bg-gradient-to-r from-blue-50 to-indigo-50 font-extrabold text-blue-700 border border-blue-200/80 uppercase shadow-2xs ${badgeSizes[size]}`}>
+              <span className={`hidden sm:inline-flex items-center rounded-md bg-gradient-to-r from-blue-50 to-indigo-50 font-extrabold text-blue-700 border border-blue-200/80 uppercase shadow-2xs ${badgeSizes[size]}`}>
                 AI 2.0
               </span>
             )}
           </div>
 
-          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
+          <span className="text-[9px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider sm:tracking-widest mt-0.5 truncate">
             Civic Auto-Triage &bull; Dhaka
           </span>
         </div>

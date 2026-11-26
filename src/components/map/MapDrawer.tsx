@@ -40,6 +40,7 @@ export interface MapDrawerReport {
   severityScore?: number;
   verificationCount: number;
   createdAt: string;
+  updatedAt?: string;
   category?: {
     id?: string;
     name: string;

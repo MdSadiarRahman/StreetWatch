@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -14,13 +15,23 @@ import {
   User,
   RotateCcw,
   Check,
+  Wrench,
 } from "lucide-react";
 import { DynamicCategoryIcon } from "@/components/ui/CategoryIcons";
 import EvidenceGrid from "@/components/ui/EvidenceGrid";
-import ExplainableAICard from "@/components/ui/ExplainableAICard";
 import WorkflowStepper from "@/components/ui/WorkflowStepper";
 import AIAutoTriagePanel from "@/components/streetwatch/AIAutoTriagePanel";
 import { IssueStatusTimeline } from "@/components/streetwatch/IssueStatusTimeline";
+import { PublicFooter } from "@/components/public/PublicFooter";
+
+const SingleIssueMap = dynamic(() => import("@/components/map/SingleIssueMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-52 w-full rounded-xl border border-[#E4E7EC] bg-slate-100 flex items-center justify-center text-xs text-[#667085]">
+      Loading focused location map...
+    </div>
+  ),
+});
 
 interface WorkflowStep {
   id: string;
@@ -254,23 +265,24 @@ export default function ReportDetailsPage({
   const isCitizenVerified = report.status === "CITIZEN_VERIFIED";
 
   return (
-    <div className="mx-auto max-w-7xl px-4 pt-6 pb-24 sm:py-8 sm:px-6 lg:px-8 space-y-6">
-      {/* Top Breadcrumb & Ticket Identifier */}
-      <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-        <Link
-          href="/"
-          className="btn-tactile inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition"
-        >
-          <ArrowLeft className="h-3.5 w-3.5 text-slate-500" />
-          <span>City Geospatial Map</span>
-        </Link>
+    <div className="min-h-screen bg-[#F7F9FC] flex flex-col">
+      <div className="mx-auto max-w-7xl w-full flex-1 px-4 pt-6 pb-20 sm:py-8 sm:px-6 lg:px-8 space-y-6">
+        {/* Top Breadcrumb & Ticket Identifier */}
+        <div className="flex items-center justify-between border-b border-[#E4E7EC] pb-4">
+          <Link
+            href="/"
+            className="btn-tactile inline-flex items-center gap-1.5 rounded-lg border border-[#E4E7EC] bg-white px-3 py-1.5 text-xs font-bold text-[#101828] shadow-2xs hover:bg-slate-50 transition"
+          >
+            <ArrowLeft className="h-3.5 w-3.5 text-[#667085]" />
+            <span>Back to Public Portal</span>
+          </Link>
 
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 rounded px-2.5 py-1 border border-slate-200">
-            TICKET #{report.id.slice(0, 10).toUpperCase()}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs font-bold text-[#101828] bg-white rounded px-2.5 py-1 border border-[#E4E7EC]">
+              TICKET #{report.id.slice(0, 10).toUpperCase()}
+            </span>
+          </div>
         </div>
-      </div>
 
       {feedback && (
         <div
@@ -518,8 +530,57 @@ export default function ReportDetailsPage({
           </div>
         </div>
 
-        {/* Right Column (4 cols): Reusable Explainable AI & Workflow Stepper Components */}
+        {/* Right Column (4 cols): Focused Issue Location, Municipal Action, Explainable AI & Workflow */}
         <div className="space-y-6 lg:col-span-4">
+          {/* Focused Location Map (ONLY this specific issue — NOT full city map) */}
+          <div className="civic-card p-5 space-y-3 border-[#E4E7EC]">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[#101828] flex items-center gap-1.5">
+                <MapPin className="h-4 w-4 text-[#2563EB]" />
+                <span>Issue Location</span>
+              </h3>
+              <span className="text-[11px] font-mono text-[#667085]">{report.wardZone}</span>
+            </div>
+            <p className="text-xs text-[#667085] leading-snug">{report.address}</p>
+            <SingleIssueMap
+              latitude={report.latitude}
+              longitude={report.longitude}
+              address={report.address}
+              priorityScore={report.priorityScore}
+              status={report.status}
+              heightClassName="h-52"
+            />
+          </div>
+
+          {/* Municipal Action Summary Card */}
+          <div className="civic-card p-5 space-y-3 border-[#E4E7EC]">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#101828] flex items-center gap-1.5">
+              <Wrench className="h-4 w-4 text-[#2563EB]" />
+              <span>Municipal Action</span>
+            </h3>
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="rounded-lg bg-[#F7F9FC] border border-[#E4E7EC] p-3">
+                <span className="text-[10px] text-[#667085] block">Assigned Team</span>
+                <span className="font-bold text-[#101828] mt-0.5 block">
+                  {report.assignments?.[0]?.worker?.name ||
+                    report.category?.department?.name ||
+                    "Municipal Dispatch Queue"}
+                </span>
+              </div>
+              <div className="rounded-lg bg-[#F7F9FC] border border-[#E4E7EC] p-3">
+                <span className="text-[10px] text-[#667085] block">Current Status</span>
+                <span className="font-bold text-[#101828] mt-0.5 block">
+                  {report.status.replace(/_/g, " ")}
+                </span>
+                {report.category?.department?.slaHours && (
+                  <span className="text-[10px] font-mono text-[#667085] block mt-0.5">
+                    SLA Target: {report.category.department.slaHours}h
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* Explainable AI Decision Support System */}
           <AIAutoTriagePanel
             data={{
@@ -615,6 +676,9 @@ export default function ReportDetailsPage({
           />
         </div>
       </div>
+      </div>
+
+      <PublicFooter />
     </div>
   );
 }
